@@ -19,7 +19,7 @@
                 </mat-select>
             </mat-form-field>
             <mat-form-field class="my-options">
-                <mat-label>Favorite food</mat-label>
+                <mat-label>Choose Cam</mat-label>
                 <mat-select [formControl]="animalControl" (selectionChange)="onBookChange($event)" required>
                     <mat-option *ngFor="let food of foods | async" [value]="food">
                         {{food.deviceId}}
