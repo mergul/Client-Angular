@@ -1,0 +1,33 @@
+<div class="newst" #dataContainer>
+<!-- *ngIf="!location.path().includes('/user')&&!location.path().includes('/allusers')&&!location.path().includes('/search')&&!location.path().includes('/admin')&&!location.path().includes('/upload')&&!location.path().includes('/talepler')
+            &&!location.path().includes('/auth')&&!location.path().includes('/money')&&!location.path().includes('/news/')" -->
+    <nav mat-tab-nav-bar>
+        <a mat-tab-link *ngFor="let link of links" (click)="onClick(link)" [active]="activeLink == link"
+            style="min-width: 33.3333%;"> {{link}} </a>
+    </nav>
+    <div *ngIf="activeLink!=null&&(activeLink.charAt(0)=='@'|| activeLink.charAt(0)=='#')"
+        style="/*text-align: center;*/margin-left: 29%; padding-top: 17px;">
+        <button (click)="tagClick(activeLink)" matTooltip="Takip Etmek İçin Tıkla" style="border: 0;width: auto;height: 40px;color: white; background: red;
+border-radius: 22px;margin-right: 15px; margin-bottom: 10px;font-size: large;cursor: pointer">{{activeLink}} +
+        </button>
+    </div>
+    <div class="newsz">
+
+        <div class="top-tags" style="font-weight: 600;color: #666666; padding-right: 0px" [ngStyle]="listStyle">
+            <h3 style="width: 200px; text-align: center">Trend Topics</h3>
+            <a *ngFor="let tag of newsService.topTags | async"
+                (click)="onTagClick(tag.key);$event.stopPropagation();$event.preventDefault()"
+                style="width: 200px; cursor: pointer;"> {{tag.key}}</a>
+ 
+        </div>
+        <div style="width: 617px">
+            <app-news-list *ngIf="!location.path().includes('/news')" [newsList]="newsService.newsList"
+                [activeLink]="activeLink" [orderBy]="orderBy"></app-news-list>
+        </div>
+        <div class="reklam" [ngStyle]="listStyle">
+            <app-ads></app-ads>
+        </div>
+    </div>
+ 
+</div>
+<router-outlet></router-outlet>

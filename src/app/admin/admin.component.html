@@ -1,0 +1,48 @@
+<nav mat-tab-nav-bar>
+    <a mat-tab-link *ngFor="let link of links"
+       (click)="onClick(link)"
+       [active]="activeLink == link" style="min-width: 33.3333%;"> {{link}} </a>
+</nav>
+<div *ngIf="activeLink!=null&&(activeLink.charAt(0)=='@'|| activeLink.charAt(0)=='#')" style="/*text-align: center;*/margin-left: 29%; padding-top: 17px;">
+    <button (click)="profileClick()"  matTooltip="Profilini Görmek İçin Tıkla" style="border: 0;width: auto;height: 40px;color: white; background: red;
+  border-radius: 22px;margin-right: 15px;font-size: large;cursor: pointer">{{activeLink}} +
+    </button>
+    <span *ngIf='service.reStreamList$|async'></span>
+    <br >
+</div>
+<!-- <div style="display: flex"> -->
+    <div class="news">
+        <ul class="items">
+            <li *ngFor="let news of newsList | async" class="news-list">
+                <a  [routerLink]="['/admin', news.newsId]">
+                    <app-files-list [thumbName]="getName(news.thumb)" style="height: 109px"></app-files-list>
+                    <div style="padding-left: 10px; width: 100%">
+                        <h4>
+                            <span class='date'>{{news.date | date:'medium'}}</span>
+                            <br>
+                            <span class="text" *ngFor="let tag of news.topics; let i = index">
+                        <a class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
+                           style="font-weight: 600;color: #666666"> {{tag}} ; </a>
+                    </span><br>
+                            <span>{{news.topic}}</span>
+                        </h4>
+                        <div style=" width: 100%; display: flex; justify-content: space-between;">
+                            <label *ngIf="location.isCurrentPathEqualTo('/admin')">
+                                <a routerLink="/allusers/{{news.newsOwner}}" [state]="{userID: news.newsOwnerId, loggedID: this.service.loggedUser?this.service.loggedUser.id:''}"
+                                   style="margin-left: 0; color: #A9A9A9; font-size: 12px; font-weight: bold"> {{news.count}} :: {{newsCounts.get(news.newsId)}}</a>
+                            </label>
+                            <label>
+                                <a (click)="onUserClick(news);$event.stopPropagation();$event.preventDefault()" style="margin-left: 0; color: #A9A9A9; font-size: 12px; font-weight: bold">
+                                    @{{news.newsOwner}}</a>
+                            </label>
+                            <button *ngIf="!deletedNews.includes(news.newsId)" (click)="deleteNews(news.newsId);$event.stopPropagation();$event.preventDefault()" class="follow" style="cursor: grabbing">Delete</button>
+                            <button (click)="clearNews(news.newsId, news.newsOwnerId);$event.stopPropagation();$event.preventDefault()" class="follow"style="cursor: grabbing">Temiz</button>
+                            <span *ngIf="deletedNews.includes(news.newsId)">Deleted</span>
+                        </div>
+
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <router-outlet></router-outlet>

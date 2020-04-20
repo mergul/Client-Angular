@@ -1,0 +1,16 @@
+<div *ngIf="(boolUser|async) === 0" style="margin-top: -10px">
+  <mat-menu #appMenu="matMenu">
+    <button mat-menu-item (click)="getNewsByOwner(user.id)">En Yeniler</button>
+    <button mat-menu-item (click)="getNewsByTopHundred(user.id)">En Çok Okunanlar</button>
+    <button mat-menu-item (click)="getNewsByOwnerOlder(user.id)">En Eskiler</button>
+  </mat-menu>
+ 
+  <button style="padding-left: 10px" mat-icon-button [matMenuTriggerFor]="appMenu">
+    <mat-icon>sort</mat-icon> 
+    <span style="font-size: large">Sıralama</span>
+  </button>
+  <app-news-list [newsList]="_newsList" [activeLink]="service.activeLink" [orderBy]="orderBy"></app-news-list>
+</div>
+  <app-edit-profile *ngIf="(boolUser|async) === 1" [user]="user" [booled]="(boolUser|async) === 1"></app-edit-profile>
+  <app-profile-list *ngIf="(boolUser|async) === 2" [users]="users" [booled]="(boolUser|async) === 2"></app-profile-list>
+  <app-edit-tags-list *ngIf="(boolUser|async) === 3" [tags]="tagz" [booled]="(boolUser|async) === 3" [isPub]="isPub"></app-edit-tags-list>

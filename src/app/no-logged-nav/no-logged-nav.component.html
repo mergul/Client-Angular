@@ -1,0 +1,14 @@
+<div *ngIf="!logged" [style.marginRight.%]="mobileQuery.matches ? 0 : 15"  [ngSwitch]="mobileQuery.matches">
+  <button *ngSwitchCase="false"  class="login" (click)="btnClick('/search')">Sitede Ara</button> 
+  <button *ngSwitchCase="true" mat-icon-button (click)="btnClick('/search')" class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
+    <mat-icon>search</mat-icon>
+  </button>
+  <button *ngSwitchCase="false"  class="login" (click)="btnClick('/login')">Kullanıcı Girişi</button>
+  <button *ngSwitchCase="true"  mat-icon-button (click)="btnClick('/login')" class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
+    <mat-icon>home</mat-icon>
+  </button>
+  <button *ngSwitchCase="false" class="register" (click)="btnClick('/register')">Kayıt Ol</button>
+  <button *ngSwitchCase="true"  mat-icon-button (click)="btnClick('/register')" class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
+    <mat-icon>queue</mat-icon>
+  </button>
+</div>

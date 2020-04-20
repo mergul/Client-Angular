@@ -1,0 +1,46 @@
+<!-- <div id="backdrop" class="modal-backdrop fade" [ngClass]="{ show: showModal }"></div>
+<div class="modal d-block fade"
+     [ngClass]="{ show: showModal }"
+     (click)="onClose()"
+     id="listing-dialog"
+     tabindex="-1" role="dialog" aria-labelledby="modalIdLabel">
+  <div class="modal-dialog" role="document" (click)="onDialogClick($event)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button"
+                class="close"
+                (click)="onClose()"
+                aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h1 class="header">Login</h1>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+              <form [formGroup]="loginForm">
+                <div class="form-group">
+                  <input type="email" formControlName="email" placeholder="Email Address" class="form-control">
+                </div>
+                <div class="form-group">
+                  <input type="password" class="form-control" placeholder="Password" formControlName="password">
+                  <label class="error">{{errorMessage}}</label>
+                </div>
+                <button type="submit" (click)="tryLogin(loginForm.value)" class="btn btn-block" style="background-color: #222222;color: white">Login</button>
+              </form>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-md-offset-6">
+              <p>No account yet? <a href="/register">Create an account</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="onClose()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+ -->

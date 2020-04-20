@@ -1,0 +1,22 @@
+.modal {
+  //position: relative;
+  display: table; /* <-- This makes the trick */
+  overflow-y: auto;
+  overflow-x: auto;
+  width: 100%;
+  height: 100%;
+  padding-top: 85px
+}
+.modal-content{
+  text-align: -webkit-center;
+  background-color: lightgrey;
+}
+.modal-body{
+  width: 80%;
+}
+.modal-header{
+  width: 80%;
+}
+.modal-dialog{
+  max-width: 60%;
+}

@@ -1,0 +1,86 @@
+<div id="backdrop" class="modal-backdrop fade" [ngClass]="{ show: showModal }"></div>
+<div class="modal d-block fade" [ngClass]="{ show: showModal }" (click)="onClose('')" id="listing-dialog" tabindex="-1"
+    role="dialog" aria-labelledby="modalIdLabel">
+    <div class="modal-dialog" role="document" (click)="onDialogClick($event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" (click)="onClose('')" aria-label="Close"
+                    style="padding: 0.7rem;"><span aria-hidden="true"
+                        style="font-weight: bolder; font-size: xx-large">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="news$ as news">
+                    <div id="ContentPlaceHolder1_mansetDiv" class="sliderrr-wrapper">
+                        <div class="bx-wrapper">
+                            <div class="carousel-wrapper" [ngStyle]="carouselWrapperStyle">
+                                <ul class="carousel-inner" #carousel [ngStyle]="carouselWrapStyle">
+                                    <li class="media-image" *ngFor="let review of news.mediaReviews"
+                                        [ngSwitch]="review.has_medium">
+                                        <app-media-source *ngSwitchCase="false" [review]="getReview(review)">
+                                        </app-media-source>
+                                        <app-files-list *ngSwitchCase="true"
+                                            [thumbName]="getName( review.file_name, -1)"></app-files-list>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="bx-controls bx-has-controls-direction">
+                                <div class="bx-controls-direction">
+                                    <a class="bx-prev" target="_blank" (click)="prev()">Prev</a><a class="bx-next"
+                                        target="_blank" (click)="next()">Next</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sliderrr-pager" style="overflow: hidden !important;">
+                            <ul class="sliderrr-page" #slider [ngStyle]="carouselPagerStyle">
+                                <li *ngFor="let thumbFile of news.mediaReviews; index as i" class="buttos">
+                                    <a (click)="currentDiv(i)" class="wed" target="_blank"
+                                        matTooltip="{{news.mediaReviews[0].doc_name}}">
+                                        <app-files-list [thumbName]="getName(thumbFile.file_name, i)"></app-files-list>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="bx-controls bx-has-controls-direction">
+                                <div class="bx-controls-direction">
+                                    <a class="slider-bx-prev" target="_blank" (click)="prev()">Prev</a><a
+                                        class="slider-bx-next" target="_blank" (click)="next()">Next</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preknow">
+                        <span class='date pre'>{{news.date | date:'medium'}}</span>
+                        <span class="pre bet">|</span>
+                        <span class="pre"><button
+                                (click)="onClose('/allusers/'+news.owner)">{{ news.owner }}</button></span>
+                        <span class="pre bet">|</span>
+                        <span class="pre" (click)="setSocial();">Paylaş
+                        </span>
+                        <span class="pre bet">|</span>
+                        <span class="pre"> {{ newsCounts.get(news.id) }}</span>
+                    </div>
+                    <app-media-social [social]="social"></app-media-social>
+                    <h2>
+                        <span class="text" *ngIf="news.topic.charAt(0)!=='#'">{{news.topic.split('#')[0]}}</span>
+                        <span class="text" *ngFor="let tag of news.tags; let i = index">
+                            <a class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
+                                style="font-weight: 600;color: #666666"> {{tag}} </a>
+                            {{news.topic.split('#')[i + 1].replace(news.tags[i].substring(1), '')}}
+                        </span>
+                    </h2>
+                    <div [innerHTML]="news.summary" style="padding-top: 20px"></div>
+                    <div style="margin-bottom: 20px">
+                        <label *ngFor="let tag of news.tags"><a> {{tag}} ; </a></label>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <app-ngbd-modal-stacked></app-ngbd-modal-stacked>
+                <button type="button" class="btn btn-primary" (click)="onClose('')">Close</button>
+                <app-news-manage *ngIf="isManager()" [news]="news$"></app-news-manage>
+            </div>
+        </div>
+    </div>
+</div>

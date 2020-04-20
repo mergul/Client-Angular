@@ -1,0 +1,91 @@
+<div class="container" style="padding-bottom: 60px">
+    <div class="row">
+        <!--  <div class="col-md-4 col-md-offset-4" style="flex: 0 0 100%; max-width: 100%;">-->
+        <div style="display: block; width: 100%">
+            <app-profile-header [boolUser]="boolUser"></app-profile-header>
+            <div style="display: flex; margin-top: 0;">
+                <div style="display: flex; margin: 0 auto; padding: 0px;">
+            <!-- <div style="display: inline-flex; width: 80%; margin-left: 140px"> -->
+                <div *ngIf="loggedUser" [ngStyle]="listStyle"
+                     style="padding: 20px; background-color: #F0F0F0; margin-top: 17px; max-height: 560px">
+                    @{{loggedUser.username}}<br><br>
+                    <!--                    <app-textarea-expanded [formControl]="ozgecmis">-->
+                    <!--                        <</app-textarea-expanded>-->
+                    <div>
+                        <a routerLink="/camera" [state]="{userID: loggedUser.email, loggedID: loggedUser.email}"> @{{loggedUser.firstname}}'s  LIVE ROOM</a>
+                    </div>
+                    <div id="proInput" *ngIf="location.isCurrentPathEqualTo('/user/edit')"
+                         contenteditable="true">{{desc|async}}</div>
+                    <div *ngIf="!location.isCurrentPathEqualTo('/user/edit')">{{desc|async}}</div>
+                    <br><br><br>
+                    <label>İçerik: </label>
+                    <span style="float: right">{{loggedUser.contentsCount}}</span><br>
+                    <label>Görüntüleme: </label>
+                    <span style="float: right">{{newsCounts.get('@' + loggedUser.id)}}</span><br>
+                    <div *ngIf="location.isCurrentPathEqualTo('/user/edit')" [matTooltipPosition]="'above'"
+                         matTooltip="Geçerli bir IBAN giriniz!"
+                         [matTooltipDisabled]="loggedUser.iban!=''" >
+                        <button type="submit" [disabled]="loggedUser.iban==''||balance < 100.0" (click)="checkOut()"
+                                class="followed" >
+                            Parayı IBAN ile Aktarın!
+                        </button>
+                        <span style="float: right">{{balance}}</span><br>
+                    </div>
+                    <button class="followee" 
+                            (click)="proClick(loggedUser.users)">Takip Edilen Kişiler
+                    </button>
+                    <span
+                            style="float: right">{{loggedUser.users ? loggedUser.users.length : 0}}</span><br>
+                    <button (click)="followTags()" class="followee" >Takip
+                        Edilen Etiketler
+                    </button>
+                    <span
+                            style="float: right">{{loggedUser.tags ? loggedUser.tags.length : 0}}</span><br>
+                    <button class="followee" 
+                            (click)="proClick(loggedUser.followers)">Takipçiler
+                    </button>
+                    <span
+                            style="float: right">{{loggedUser.followers ? loggedUser.followers.length : 0}}</span><br>
+                    <div *ngIf="location.path().startsWith('/users/')" style="text-align: center; padding-top: 20px">
+                        <button class="followee" (click)="tagClick(loggedUser.id)">Takip Et</button>
+                    </div>
+                    <div *ngIf="location.path() ==='/user'" style="text-align: center; padding-top: 20px">
+                        <button class="follow" (click)="btnClick()">Edit Profile
+                        </button>
+                    </div>
+                    <div *ngIf="userService.dbUser&&userService.dbUser.roles.includes('ROLE_ADMIN')" style="text-align: center; padding-top: 20px">
+                        <button class="follow"  (click)="moneyClick()">Parayı Yönet</button>
+                    </div>
+                    <div *ngIf="location.path().startsWith('/user/edit')" style="text-align: center; padding-top: 20px">
+                        <button class="follow" (click)="deleteClick()">Hesabımı Sil</button>
+                    </div>
+                    <!--               <br>
+                                       Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it?
+                    -->
+                </div>
+                <app-profile-center *ngIf="loggedUser" [username]="loggedUser.email" [boolUser]="boolUser"
+                                    [user]="userService.dbUser" [userIds]="_userIds" [tagz]="tags" [isPub]="_isPub" [ngStyle]="compStyle"></app-profile-center>
+                                    <router-outlet></router-outlet>
+ 
+                 <!--<div style="margin-top: -90px"> 
+                    <mat-menu #appMenu="matMenu"> 
+                        <button mat-menu-item (click)="newsList$ = getNewsByOwner(user.email)">En Yeniler</button>
+                        <button mat-menu-item (click)="newsList$ = getNewsByTopHundred()">En Çok Okunanlar</button>
+                        <button mat-menu-item>Help</button>
+                    </mat-menu>
+
+                    <button style="padding-left: 10px" mat-icon-button [matMenuTriggerFor]="appMenu">
+                        <mat-icon>sort</mat-icon>
+                        <span style="font-size: large">Sıralama</span>
+                    </button>
+                    <app-news-list [newsList]="newsList$" [activeLink]="null"></app-news-list>
+                </div>-->
+            </div>
+        </div>
+        </div>
+        <!--  </div>
+                <div class="card-body">
+                <button type="button" (click)="logout()" class="btn btn-link">Logout</button>
+              </div>-->
+    </div>
+</div>

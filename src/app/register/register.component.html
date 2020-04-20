@@ -1,0 +1,88 @@
+<div id="backdrop" class="modal-backdrop fade" [ngClass]="{ show: showModal }"></div>
+<div class="modal d-block fade"
+     [ngClass]="{ show: showModal }"
+     (click)="onClose()"
+     id="listing-dialog"
+     tabindex="-1" role="dialog" aria-labelledby="modalIdLabel">
+    <div class="modal-dialog" role="document" (click)="onDialogClick($event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!--  <h5>I was loaded via route</h5> -->
+                <button type="button"
+                        class="close"
+                        (click)="onClose()"
+                        aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+<h1 class="header">Create an account</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form [formGroup]="registerForm">
+                <div class="form-group">
+                    <input type="name" formControlName="name" placeholder="Name" class="form-control">
+                </div>
+                <div class="form-group">
+<!--                    <label>Username</label>-->
+                    <input type="username" formControlName="username" placeholder="Username" class="form-control">
+                </div>
+                <div class="form-group">
+<!--                    <label>Email Address</label>-->
+                    <input type="email" formControlName="email" placeholder="Email Address" class="form-control">
+                </div>
+                <div style="margin-bottom: -5px" class="form-group">
+<!--                    <label>Password</label>-->
+                    <input type="password" class="form-control" formControlName="password" placeholder="Password">
+                    <label class="error">{{errorMessage}}</label>
+                    <label class="success">{{successMessage}}</label>
+                </div>
+                <div class="form-group">
+<!--                    <label>Confirm Password</label>-->
+                    <input type="password" class="form-control" formControlName="password2" placeholder="Confirm Password">
+                    <label class="error">{{errorMessage}}</label>
+                    <label class="success">{{successMessage}}</label>
+                </div>
+                <div class='error' *ngIf="registerForm.controls.password2.touched">
+                    <div class="alert-danger errormessageadduser" *ngIf="registerForm.hasError('mismatchedPasswords')">Passwords do not match</div>
+                </div>
+                <div style="float: left; padding: 10px;">
+                    <mat-checkbox formControlName="sozlesme">Sözleşmeyi Okudum, Onaylıyorum!</mat-checkbox>
+                </div>
+                <button [disabled]="!registerForm.valid" type="submit" (click)="tryRegister(registerForm.value)" class="btn btn-block" style="background-color: #222222;color: white">Register
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-6">
+            <button type="button" class="btn btn-primary btn-block" (click)="tryFacebookLogin()">Register with
+                Facebook
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-6">
+            <button type="button" class="btn btn-success btn-block" (click)="tryGoogleLogin()">Register with Google
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-6">
+            <button type="button" class="btn btn-info btn-block" (click)="tryTwitterLogin()">Register with Twitter
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-6">
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
+</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="onClose()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

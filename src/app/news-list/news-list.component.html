@@ -1,0 +1,35 @@
+<div class="news">
+    <ul class="items">
+        <li *ngFor="let news of newsList | async" class="news-list">
+            <a [routerLink]="[ news.newsId]">
+                <app-files-list [thumbName]="getName(news.thumb)" style="height: 109px"></app-files-list>
+                <div style="padding-left: 10px;">
+                    <h4>
+                        <span class='date'>{{news.date | date:'medium'}}</span>
+                        <br>
+                        <span class="text" *ngIf="news.topic.charAt(0)!=='#'">{{news.topic.split('#')[0]}}</span>
+                        <span class="text" *ngFor="let tag of news.topics; let i = index">
+                            <a class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
+                                style="font-weight: 600;color: #666666"> {{tag}} </a>
+                            {{news.topic.split('#')[i + 1].replace(news.topics[i].substring(1), '')}}
+                        </span>
+                    </h4>
+                    <label *ngIf="location.isCurrentPathEqualTo('/re')">
+                        <a (click)="$event.stopPropagation();$event.preventDefault()"
+                         routerLink="/allusers/{{news.newsOwner}}"
+                            [state]="{userID: news.newsOwnerId, loggedID: this.userService.loggedUser?this.userService.loggedUser.id:''}"
+                            style="margin-left: 0; color: #A9A9A9; font-size: 12px; font-weight: bold">
+                            @{{news.newsOwner}}</a>
+                    </label>
+                    <label *ngIf="!location.isCurrentPathEqualTo('/re')">
+                        <a (click)="$event.stopPropagation();$event.preventDefault()"
+                        routerLink="/allusers/{{news.newsOwner}}"
+                            [state]="{userID: news.newsOwnerId, loggedID: this.userService.loggedUser?this.userService.loggedUser.id:''}"
+                            style="margin-left: 0; color: #A9A9A9; font-size: 12px; font-weight: bold">
+                            @{{news.newsOwner}} :: {{news.count}} :: {{newsCounts.get(news.newsId)}}</a>
+                    </label>
+                </div>
+            </a>
+        </li>
+    </ul>
+</div>

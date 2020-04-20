@@ -1,0 +1,16 @@
+<div *ngIf="booled" style="margin-top: 50px; text-align: center">
+  <div *ngFor="let tag of _tags|async" style="text-align: center">
+    <button *ngIf="!(isPub|async)" (click)="removeTag(tag)" type="button" class="follow btn btn-success btn-block">
+      <div layout="row" layout-align="left" flex>
+        <label>{{tag}}</label>
+        <label style="float: right">--</label>
+      </div>
+    </button>
+    <button *ngIf="(isPub|async)" (click)="addTag(tag)" type="button" class="follow btn btn-success btn-block">
+      <div layout="row" layout-align="left" flex>
+        <label>{{tag}}</label>
+        <label style="float: right">+</label>
+      </div>
+    </button>
+  </div>
+</div>

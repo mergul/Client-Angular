@@ -1,0 +1,14 @@
+video{
+  width: 33%;
+}
+.p-1{
+  display: flex;
+}
+mat-form-field.my_options{
+  max-width: 33%
+}
+mat-form-field.speech-result-width{
+  width: auto;
+  min-width: 300px;
+  text-align: center;
+}
