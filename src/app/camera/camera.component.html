@@ -55,6 +55,10 @@
                 <ul style="margin-top: 0px;"><li *ngFor="let muser of userList">
                     <span>{{muser}}</span>
                     <button (click)="callUser(muser)"> Call</button>
+                    <!-- <div class="custom-file form-group">
+                        <input type="file" class="custom-file-input" id="file-input" (change)="fileSelectionEvent($event)">
+                        <label class="custom-file-label" for="file-input" data-browse="Media-Ekle">Media Dosyası Ekle</label>
+                    </div> -->
                     <button (click)="watchUser(muser)"> Watch</button>
                     <button (click)="stopSample(muser)">Hang Up</button>
                     <button (click)="sendData(muser)">Private Message</button>

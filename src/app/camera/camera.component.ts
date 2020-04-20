@@ -15,6 +15,7 @@ export class CameraComponent implements OnInit, OnDestroy {
     currentLanguage = 'en';
     finalTranscript: string;
     targetLanguage = 'tr';
+    fileUpload: File;
 
     constructor(private renderer: Renderer2, private speechService: SpeechService) { }
     @ViewChild('canvas', { static: true }) canvas: ElementRef;
@@ -362,19 +363,14 @@ export class CameraComponent implements OnInit, OnDestroy {
                 maxPacketLifeTime: 5000
             }
         );
-        this.dataChannelList.set(this.targetUsername, this.dataChannel);
-        this.peerConnection.ondatachannel = event => {
-            this.receiveChannel = event.channel;
-            this.dataChannelList.set(this.receiveChannel.label, this.receiveChannel);
-            this.receiveChannel.onerror = error =>
-                console.error('Data channel error', error);
-            this.receiveChannel.onmessage = this.onDataChannelMessage;
-            this.receiveChannel.onopen = () => {
-                console.log('Data channel open');
-                this.receiveChannel.send('Hello world!');
-            };
-            this.receiveChannel.onclose = () => console.log('Data channel closed');
+        this.dataChannel.onclose = () => {
+            console.log('The Data Channel is Closed: ', this.dataChannel.label + '--' + this.dataChannel.id);
         };
+        this.dataChannel.onerror = (error) => {
+            console.log('Data Channel Error:', error);
+          };
+        this.dataChannel.onmessage = this.onDataChannelMessage;
+        this.dataChannelList.set(this.targetUsername, this.dataChannel);
     }
 
     sendData = (user) => {
@@ -401,6 +397,19 @@ export class CameraComponent implements OnInit, OnDestroy {
     }
 
     onDataChannelMessage = (event: MessageEvent) => {
+        let buf: any;
+        let count;
+        if (typeof event.data !== 'string') {
+            const data = new Uint8ClampedArray(event.data);
+            buf.set(data, count);
+
+            count += data.byteLength;
+            console.log('count: ' + count);
+
+            if (count === buf.byteLength) {
+                console.log('Done. Rendering photo.');
+            }
+        }
         this.renderer.setProperty(this.privateChatBox.nativeElement, 'innerHTML',
             this.privateChatBox.nativeElement.innerHTML + event.data);
         this.privateChatBox.nativeElement.scrollTop = this.privateChatBox.nativeElement.scrollHeight -
@@ -530,6 +539,19 @@ export class CameraComponent implements OnInit, OnDestroy {
                 answer.sdp = answer.sdp.replace(/(m=video.*\r\n)/g, `$1b=AS:${this.bandwidth}\r\n`);
                 return answer;
             }));
+            this.peerList.get(this.targetUsername).ondatachannel = event => {
+                this.receiveChannel = event.channel;
+                this.dataChannelList.set(this.receiveChannel.label, this.receiveChannel);
+                this.receiveChannel.onerror = error =>
+                    console.error('Data channel error', error);
+                this.receiveChannel.onmessage = this.onDataChannelMessage;
+                this.receiveChannel.onopen = () => {
+                    console.log('Data channel open');
+                    this.receiveChannel.send('Hello world!');
+                };
+                this.receiveChannel.onclose = () =>
+                     console.log('Data channel closed: ', this.receiveChannel.label + '--' + this.dataChannel.id);
+            };
             console.log('connectionOffer sends connection-answer me: ' + this.username);
             this.signalingConnection.sendToServer({
                 name: this.username,
@@ -559,7 +581,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         this.onDestroy.next();
         this.onDestroy.complete();
         if (this.remoteVideo1.nativeElement.srcObject) {
-            this.closeVideoCall();
+            this.closeAllVideoCall();
         }
         this.signalingConnection.connection.close();
         if (this.localVideo.nativeElement.srcObject != null) {
@@ -570,35 +592,45 @@ export class CameraComponent implements OnInit, OnDestroy {
 
     handleHangUpMsg = (msg) => {
         console.log('*** Received hang up notification from other peer: ' + msg.name);
-        this.closeVideoCall();
+        this.closePeerCall(this.peerList.get(msg.name));
     }
 
     hangUpCall = (user) => {
-        this.closeVideoCall();
+        this.closePeerCall(this.peerList.get(user));
         this.signalingConnection.sendToServer({
             name: this.username,
             target: user,
             event: 'hang-up'
         });
     }
-
-    closeVideoCall = () => {
+    closePeerCall = (peer) => {
+       // console.log('--> Closing the peer connection');
+        let mikey = '';
+        this.peerList.forEach((element, key) => {
+            if (element === peer) {
+                this.dataChannelList.get(key).close();
+                this.dataChannelList.delete(key);
+                mikey = key;
+            }
+        });
+        peer.ontrack = null;
+        peer.onicecandidate = null;
+        peer.oniceconnectionstatechange = null;
+        peer.onsignalingstatechange = null;
+        peer.onicegatheringstatechange = null;
+        peer.onnegotiationneeded = null;
+        peer.getTransceivers().forEach(transceiver => {
+            transceiver.receiver.track.stop();
+            // transceiver.stop();
+        });
+        peer.close();
+        this.peerList.delete(mikey);
+        peer = null;
+    }
+    closeAllVideoCall = () => {
         console.log('Closing the call');
         this.peerList.forEach(mapeer => {
-            console.log('--> Closing the peer connection');
-            mapeer.ontrack = null;
-            mapeer.onicecandidate = null;
-            mapeer.oniceconnectionstatechange = null;
-            mapeer.onsignalingstatechange = null;
-            mapeer.onicegatheringstatechange = null;
-            mapeer.onnegotiationneeded = null;
-            mapeer.getTransceivers().forEach(transceiver => {
-                transceiver.receiver.track.stop();
-                // transceiver.stop();
-            });
-            mapeer.close();
-            mapeer = null;
-            this.localStream = null;
+           this.closePeerCall(mapeer);
         });
         this.targetUsername = null;
         this.vidOff(this.localVideo.nativeElement.srcObject);
@@ -610,14 +642,14 @@ export class CameraComponent implements OnInit, OnDestroy {
             case 'closed':
             case 'failed':
             case 'disconnected':
-                this.closeVideoCall();
+                this.closePeerCall(this.peerConnection);
         }
     }
 
     handleSignalingStateChangeEvent = event => {
         switch (this.peerConnection.signalingState) {
             case 'closed':
-                this.closeVideoCall();
+                this.closePeerCall(this.peerConnection);
         }
     }
 
@@ -667,4 +699,8 @@ export class CameraComponent implements OnInit, OnDestroy {
         const now = (window.performance.now() / 1000).toFixed(3);
         console.log(now + ': ', arg);
     }
+    // public fileSelectionEvent(fileInput: any) {
+    //     this.fileUpload = fileInput.target.files[0];
+    //     this.dataChannel.send(this.fileUpload);
+    // }
 }
