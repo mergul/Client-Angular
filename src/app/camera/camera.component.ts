@@ -353,7 +353,8 @@ export class CameraComponent implements OnInit, OnDestroy {
         this.peerConnection.oniceconnectionstatechange = this.handleICEConnectionStateChangeEvent;
         this.peerConnection.onicegatheringstatechange = this.handleICEGatheringStateChangeEvent;
         this.peerConnection.onsignalingstatechange = this.handleSignalingStateChangeEvent;
-        this.peerConnection.onnegotiationneeded = (event) => this.handleNegotiationNeededEvent(this.offerOptions, this.targetUsername);
+        this.peerConnection.onnegotiationneeded = (event) => this
+        .handleNegotiationNeededEvent(this.offerOptions, this.targetUsername, event);
         this.peerConnection.ontrack = this.gotRemoteStream.bind(this);
     }
 
@@ -424,7 +425,6 @@ export class CameraComponent implements OnInit, OnDestroy {
         this.createDataChannel();
         this.setLocalStreams();
         this.setRemoteStreams();
-        this.setRemotePeerStreams();
     }
 
     setLocalStreams = () => {
@@ -455,7 +455,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                             stream.getVideoTracks().forEach(track =>
                                 this.peerList.get(peer).addTrack(track, stream)
                             );
-                            this.handleNegotiationNeededEvent(this.offerOptions, peer);
+                            this.handleNegotiationNeededEvent(this.refreshOfferOptions, peer, 'refresh');
                         } catch (error) {
                             console.log('Hata : ' + error);
                         }
@@ -483,9 +483,9 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleNegotiationNeededEvent = async (event, mypeer) => {
+    handleNegotiationNeededEvent = async (event, mypeer, evt) => {
         try {
-         //   this.makingOffer = true;
+            //   this.makingOffer = true;
             console.log(event + '---> Creating offer by :' + this.username + ' to --->' + this.targetUsername);
             const offer = await this.peerList.get(mypeer).createOffer(event);
             if (this.peerList.get(mypeer).signalingState !== 'stable') {
