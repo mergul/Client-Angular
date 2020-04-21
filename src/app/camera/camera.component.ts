@@ -355,7 +355,9 @@ export class CameraComponent implements OnInit, OnDestroy {
         this.peerConnection.onsignalingstatechange = this.handleSignalingStateChangeEvent;
         this.peerConnection.onnegotiationneeded = (event) => this.handleNegotiationNeededEvent(this.offerOptions, this.targetUsername);
         this.peerConnection.ontrack = this.gotRemoteStream.bind(this);
+    }
 
+    createDataChannel = () => {
         this.dataChannel = this.peerConnection.createDataChannel(
             this.targetUsername,
             {
@@ -397,19 +399,19 @@ export class CameraComponent implements OnInit, OnDestroy {
     }
 
     onDataChannelMessage = (event: MessageEvent) => {
-        let buf: any;
-        let count;
-        if (typeof event.data !== 'string') {
-            const data = new Uint8ClampedArray(event.data);
-            buf.set(data, count);
+        // const buf = new Map;
+        // let count;
+        // if (typeof event.data !== 'string') {
+        //     const data = new Uint8ClampedArray(event.data);
+        //     buf.set(data, count);
 
-            count += data.byteLength;
-            console.log('count: ' + count);
+        //     count += data.byteLength;
+        //     console.log('count: ' + count);
 
-            if (count === buf.byteLength) {
-                console.log('Done. Rendering photo.');
-            }
-        }
+        //     if (count === buf.byteLength) {
+        //         console.log('Done. Rendering photo.');
+        //     }
+        // }
         this.renderer.setProperty(this.privateChatBox.nativeElement, 'innerHTML',
             this.privateChatBox.nativeElement.innerHTML + event.data);
         this.privateChatBox.nativeElement.scrollTop = this.privateChatBox.nativeElement.scrollHeight -
@@ -419,6 +421,7 @@ export class CameraComponent implements OnInit, OnDestroy {
     callUser = async (user) => {
         this.targetUsername = user;
         this.createPeerConnection();
+        this.createDataChannel();
         this.setLocalStreams();
         this.setRemoteStreams();
         this.setRemotePeerStreams();
@@ -465,6 +468,7 @@ export class CameraComponent implements OnInit, OnDestroy {
     watchUser = async (user) => {
         this.targetUsername = user;
         this.createPeerConnection();
+        this.createDataChannel();
         this.peerConnection.addTransceiver('video');
     }
 
