@@ -491,11 +491,12 @@ export class CameraComponent implements OnInit, OnDestroy {
             if (this.peerList.get(mypeer).signalingState !== 'stable') {
                 return;
             }
-            offer.sdp = offer.sdp.replace(/(m=video.*\r\n)/g, `$1b=AS:${this.bandwidth}\r\n`);
+            // caller's all streams
             let mystreams = this.localStream.id;
             this.remoteStreamMap.forEach(yul => mystreams += ',' + yul.id);
-            this.peerStreamMap.forEach((_value, key, mimap) => mimap.set(key, mystreams.split(',')));
-            this.peerStreamMap.set(this.targetUsername, mystreams.split(','));
+         //   this.peerStreamMap.set(this.targetUsername, mystreams.split(','));
+
+            offer.sdp = offer.sdp.replace(/(m=video.*\r\n)/g, `$1b=AS:${this.bandwidth}\r\n`);
             await this.peerList.get(mypeer).setLocalDescription(offer);
             this.signalingConnection.sendToServer({
                 name: this.username,
@@ -529,20 +530,28 @@ export class CameraComponent implements OnInit, OnDestroy {
                 this.createPeerConnection();
                 this.peerList.set(this.targetUsername, this.peerConnection);
             }
+            // prepare receiver streams to send
+            let mystreams = this.localStream.id;
+            this.remoteStreamMap.forEach(yul => mystreams += ',' + yul.id);
+
             console.log('--Received video chat offer from ' + this.targetUsername + ' to: ' + this.username);
             this.peerStreamMap.set(this.targetUsername, msg.streams.split(','));
+
             const desc = new RTCSessionDescription(msg.sdp);
             await this.peerList.get(this.targetUsername).setRemoteDescription(desc);
+
             if (hut) {
                 this.setLocalStreams();
             }
-            this.setRemoteStreams();
-            this.setRemotePeerStreams();
+            this.setRemoteStreams();  // receiver sends all remote streams to caller
+            this.setRemotePeerStreams(); // receiver sends new streams to old friends
+
             await this.peerList.get(this.targetUsername).setLocalDescription(
                 await this.peerList.get(this.targetUsername).createAnswer(this.offerOptions).then(answer => {
                 answer.sdp = answer.sdp.replace(/(m=video.*\r\n)/g, `$1b=AS:${this.bandwidth}\r\n`);
                 return answer;
             }));
+
             this.peerList.get(this.targetUsername).ondatachannel = event => {
                 this.receiveChannel = event.channel;
                 this.dataChannelList.set(this.targetUsername, this.receiveChannel);
@@ -560,6 +569,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             this.signalingConnection.sendToServer({
                 name: this.username,
                 target: this.targetUsername,
+                streams: mystreams,
                 event: 'answer',
                 sdp: this.peerList.get(this.targetUsername).localDescription
             });
@@ -578,6 +588,8 @@ export class CameraComponent implements OnInit, OnDestroy {
                 console.error(err);
             });
         this.chatBoxDisabled = false;
+        this.peerStreamMap.set(msg.name, msg.streams.split(','));
+      //  this.peerStreamMap.set(msg.target, list);
         this.setRemotePeerStreams();
     }
 
@@ -596,10 +608,21 @@ export class CameraComponent implements OnInit, OnDestroy {
 
     handleHangUpMsg = (msg) => {
         console.log('*** Received hang up notification from other peer: ' + msg.name);
+        this.peerStreamMap.get(msg.name).forEach(value => {
+            this.vidOff(this.remoteStreamMap.get(value));
+            this.remoteStreamMap.delete(value);
+        });
+        this.peerStreamMap.delete(msg.name);
         this.closePeerCall(this.peerList.get(msg.name));
     }
 
     hangUpCall = (user) => {
+        this.peerStreamMap.get(user).forEach(value => {
+            this.vidOff(this.remoteStreamMap.get(value));
+            this.remoteStreamMap.delete(value);
+        });
+        this.peerStreamMap.delete(user);
+        this.remoteStreamMap.delete(user);
         this.closePeerCall(this.peerList.get(user));
         this.signalingConnection.sendToServer({
             name: this.username,
