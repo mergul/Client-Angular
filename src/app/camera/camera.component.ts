@@ -545,7 +545,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             }));
             this.peerList.get(this.targetUsername).ondatachannel = event => {
                 this.receiveChannel = event.channel;
-                this.dataChannelList.set(this.receiveChannel.label, this.receiveChannel);
+                this.dataChannelList.set(this.targetUsername, this.receiveChannel);
                 this.receiveChannel.onerror = error =>
                     console.error('Data channel error', error);
                 this.receiveChannel.onmessage = this.onDataChannelMessage;
@@ -554,7 +554,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                     this.receiveChannel.send('Hello world!');
                 };
                 this.receiveChannel.onclose = () =>
-                     console.log('Data channel closed: ', this.receiveChannel.label + '--' + this.dataChannel.id);
+                     console.log('Data channel closed: ', this.receiveChannel.label + '--' + this.receiveChannel.id);
             };
             console.log('connectionOffer sends connection-answer me: ' + this.username);
             this.signalingConnection.sendToServer({
