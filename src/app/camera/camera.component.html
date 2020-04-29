@@ -59,7 +59,7 @@
                         <input type="file" class="custom-file-input" id="file-input" (change)="fileSelectionEvent($event)">
                         <label class="custom-file-label" for="file-input" data-browse="Media-Ekle">Media Dosyası Ekle</label>
                     </div> -->
-                    <button (click)="watchUser(muser)"> Watch</button>
+<!--                    <button (click)="watchUser(muser)"> Watch</button>-->
                     <button (click)="stopSample(muser)">Hang Up</button>
                     <button (click)="sendData(muser)">Private Message</button>
                 </li></ul>
@@ -74,7 +74,7 @@
             Chat:<br/>
             <input #textBox [disabled]="false" id="textbox" type="text" name="text" placeholder="Say something meaningful..." autocomplete="off" (keyup)="handleKey($event)" cdkTextareaAutosize cdkAutosizeMinRows="2"
             cdkAutosizeMaxRows="5">
-            <input #sendChat  [disabled]="chatBoxDisabled" type="button" id="send" name="send" value="Send" (click)="handleSendButton($event.target.previousElementSibling.value)">
+            <input #sendChat  [disabled]="chatBoxDisabled" type="button" id="send" name="send" value="Send" (click)="handleSendButton(textBox.value)">
           </div>
         <div style="height: auto;max-height: 400px; width: 800px;max-width: 800px;display: flex;flex-direction: column; margin-bottom: 200px;">
             <div style="flex-grow: 1; padding: 20px 30px; overflow: auto;">

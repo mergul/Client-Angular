@@ -137,6 +137,11 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 mslink.setAttribute('rel', 'stylesheet');
                 mslink.setAttribute('href', 'https://fonts.googleapis.com/icon?family=Material+Icons');
                 document.head.appendChild(mslink);
+                const scriptElement = document.createElement('script');
+                scriptElement.type = 'text/javascript';
+                scriptElement.src = 'https://webrtc.github.io/adapter/adapter-latest.js';
+                document.head.appendChild(scriptElement);
+
                 if (!this.service.dbUser && this.location.path() !== '/user' && this.location.path() !== '/login' &&
                     this.location.path() !== '/upload' && !this.location.path().includes('/allusers/') &&
                     this.location.path() !== '/talepler' && this.location.path() !== '/admin') {
