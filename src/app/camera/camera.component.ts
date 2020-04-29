@@ -307,18 +307,10 @@ export class CameraComponent implements OnInit, OnDestroy {
                 this.setUsername();
                 break;
             case 'message':
-                if (msg.fake !== '') {
-                    if (this.peerList.get(msg.id)) {
-                        const index = this.fakelist.get(msg.id).indexOf(msg.fake);
-                        this.fakelist.get(msg.id).splice(index);
-                    }
-                } else {
-                    text = '<div style="background: #e1ffc7; margin-bottom: 10px; padding: 10px">' + '<strong>' + msg.id
-                        + '</strong> <br>' + msg.text + '<span>' + '<span style="padding: 10px; float: right;">' + timeStr +
-                        '</span>' + '</span></div>';
-                }
+                text = '<div style="background: #e1ffc7; margin-bottom: 10px; padding: 10px">' + '<strong>' + msg.id
+                    + '</strong> <br>' + msg.text + '<span>' + '<span style="padding: 10px; float: right;">' + timeStr +
+                    '</span>' + '</span></div>';
                 break;
-
             case 'rejectusername':
                 this.username = msg.name;
                 console.log(
@@ -426,33 +418,33 @@ export class CameraComponent implements OnInit, OnDestroy {
         if (e.streams[0].id === this.localStream.id) {
             return;
         } else if (this.remoteStreamMap.size === 0) {
-            this.remoteVideo1.nativeElement.srcObject = e.streams[0];
-               // new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
+            this.remoteVideo1.nativeElement.srcObject =
+                new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
             this.remoteStreamMap.set(e.streams[0].id, e.streams[0]);
             this.mediaMap.set(e.streams[0].id, this.remoteVideo1.nativeElement.srcObject.id);
         } else if (!this.remoteStreamMap.has(e.streams[0].id)) {
             if (!this.remoteVideo2.nativeElement.srcObject) {
-                // this.remoteVideo2.nativeElement.srcObject = // new MediaStream([e.transceiver.receiver.track]);
-                //     new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
-                this.remoteVideo2.nativeElement.srcObject = e.streams[0];
+                this.remoteVideo2.nativeElement.srcObject = // new MediaStream([e.transceiver.receiver.track]);
+                    new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
+               // this.remoteVideo2.nativeElement.srcObject = e.streams[0];
                 this.remoteStreamMap.set(e.streams[0].id, e.streams[0]);
                 this.mediaMap.set(e.streams[0].id, this.remoteVideo2.nativeElement.srcObject.id);
             } else if (!this.remoteVideo3.nativeElement.srcObject) {
-                // this.remoteVideo3.nativeElement.srcObject =
-                //     new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
-                this.remoteVideo3.nativeElement.srcObject = e.streams[0];
+                this.remoteVideo3.nativeElement.srcObject =
+                    new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
+                // this.remoteVideo3.nativeElement.srcObject = e.streams[0];
                 this.remoteStreamMap.set(e.streams[0].id, e.streams[0]);
                 this.mediaMap.set(e.streams[0].id, this.remoteVideo3.nativeElement.srcObject.id);
             } else if (!this.remoteVideo4.nativeElement.srcObject) {
-                // this.remoteVideo4.nativeElement.srcObject =
-                //     new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
-                this.remoteVideo4.nativeElement.srcObject = e.streams[0];
+                this.remoteVideo4.nativeElement.srcObject =
+                    new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
+                // this.remoteVideo4.nativeElement.srcObject = e.streams[0];
                 this.remoteStreamMap.set(e.streams[0].id, e.streams[0]);
                 this.mediaMap.set(e.streams[0].id, this.remoteVideo4.nativeElement.srcObject.id);
             } else if (!this.remoteVideo5.nativeElement.srcObject) {
-                // this.remoteVideo5.nativeElement.srcObject =
-                //     new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
-                this.remoteVideo5.nativeElement.srcObject = e.streams[0];
+                this.remoteVideo5.nativeElement.srcObject =
+                    new MediaStream([e.streams[0].getTracks()[e.streams[0].getTracks().length - 1]]);
+                // this.remoteVideo5.nativeElement.srcObject = e.streams[0];
                 this.remoteStreamMap.set(e.streams[0].id, e.streams[0]);
                 this.mediaMap.set(e.streams[0].id, this.remoteVideo5.nativeElement.srcObject.id);
             }
@@ -553,11 +545,12 @@ export class CameraComponent implements OnInit, OnDestroy {
                     console.log('before calling faked.id --> ' + faked.id);
                 }
             }
-        }, 1000);
+        });
     }
     setReplacement = async (peer: string, track: MediaStreamTrack, stream: MediaStream) => {
         if (!this.fakelist.get(peer).includes(stream.id)) {
-            this.handleSendButton('', this.fakelist.get(peer)[0]);
+            // this.handleSendButton('', this.fakelist.get(peer)[0]);
+            this.dataChannelList.get(peer).send(this.username + ',' + this.fakelist.get(peer)[0]);
             this.fakelist.get(peer).splice(this.fakelist.get(peer).indexOf(stream.id));
             await this.peerReceivers.get(peer)[this.peerReceivers.get(peer).length - 1].sender.replaceTrack(track);
             this.peerLStream.get(peer).push(stream.id);
@@ -611,7 +604,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                 target: mypeer,
                 streams: mystreams,
                 fake: this.fakestream.id,
-                polite: isnew !== '',
+                polite: isnew === '',
                 event: 'offer',
                 sdp: this.peerList.get(mypeer).localDescription
             });
@@ -962,6 +955,12 @@ export class CameraComponent implements OnInit, OnDestroy {
         this.textBox.nativeElement.value = '';
     }
     onDataChannelMessage = (event: MessageEvent) => {
+        if (!event.data.toString().startsWith('<div')) {
+            const list = event.data.toString().split(',');
+            if (list[0] !== this.username) {
+                this.fakelist.get(list[0]).splice(this.fakelist.get(list[0]).indexOf(list[1]));
+            }
+        }
         this.renderer.setProperty(this.privateChatBox.nativeElement, 'innerHTML',
             this.privateChatBox.nativeElement.innerHTML + event.data);
         this.privateChatBox.nativeElement.scrollTop = this.privateChatBox.nativeElement.scrollHeight -
@@ -994,7 +993,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             this.receiveChannel.onmessage = this.onDataChannelMessage;
             this.receiveChannel.onopen = () => {
                 console.log('Data channel open');
-                this.receiveChannel.send('Hello world!');
+                this.receiveChannel.send('<div style="color: chartreuse">Hello world!</div>');
             };
             this.receiveChannel.onclose = () =>
                 console.log('Data channel closed: ', this.receiveChannel.label + '--' + this.receiveChannel.id);
