@@ -131,8 +131,8 @@ export class CameraComponent implements OnInit, OnDestroy {
     }
 
     @HostListener('window:beforeunload', ['$event'])
-    doSomething() {
-        this.closeAllVideoCall();
+    async doSomething() {
+        await this.closeAllVideoCall();
         this.signalingConnection.connection.close();
     }
 
@@ -450,6 +450,20 @@ export class CameraComponent implements OnInit, OnDestroy {
             }
         }
     }
+    checkFakes = (key) => {
+       return [...this.fakelist.values()].some(value => value.includes(key));
+    }
+    checkFakeExist = () => {
+        let fake = '';
+        [...this.fakelist.values()].some(value => {
+             if (value.length > 0) {
+                 fake = value[0];
+                 return true;
+             }
+             return false;
+        });
+        return fake;
+    }
     setLocalStreams = async (isAnswerer) => {
         this.yostream = false;
         for (const track of this.localStream.getVideoTracks()) {
@@ -466,7 +480,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         if (this.remoteStreamMap.size > 0) {
             for (const stream of this.remoteStreamMap.values()) {
                 console.log(' check remotestream id --> ' + stream.id);
-                if ((!this.fakelist.get(this.targetUsername) || !this.fakelist.get(this.targetUsername).includes(stream.id))
+                if (!this.checkFakes(stream.id)
                     && (!this.peerLStream.get(this.targetUsername) || !this.peerLStream.get(this.targetUsername).includes(stream.id))
                     && (!this.peerRStream.get(this.targetUsername) || !this.peerRStream.get(this.targetUsername).includes(stream.id))) {
                     if (this.peerRStream.get(this.targetUsername)) {
@@ -500,8 +514,8 @@ export class CameraComponent implements OnInit, OnDestroy {
                         (!this.peerRStream.get(peer) || !this.peerRStream.get(peer).includes(stream.id))) {
                         try {
                             console.log('peer --> ' + peer + ' ** stream-id --> ' + stream.id);
-                            this.peerRStream.get(peer).map(des => console.log('received from --> ' + des));
-                            this.peerLStream.get(peer).map(des => console.log('sent to --> ' + des));
+                         //   this.peerRStream.get(peer).map(des => console.log('received from --> ' + des));
+                         //   this.peerLStream.get(peer).map(des => console.log('sent to --> ' + des));
                             for (const track of stream.getVideoTracks()) {
                                 await this.setReplacement(peer, track, stream);
                             }
@@ -516,8 +530,13 @@ export class CameraComponent implements OnInit, OnDestroy {
     callUser = async (user) => {
         this.yostream = false;
         this.targetUsername = user;
+        console.log('peer list size --> ' + this.peerList.size);
         this.createPeerConnection();
         this.createDataChannel();
+        const gfs = this.checkFakeExist();
+        if (gfs !== '' && this.mediaMap.get(gfs)) {
+            this.shiftPlace(this.mediaMap.get(gfs));
+        }
         await this.setLocalStreams(false);
         await this.setRemoteStreams(false);
         this.mytransceiver = this.peerList.get(this.targetUsername).addTransceiver('video', {streams: [this.fakestream]
@@ -540,7 +559,11 @@ export class CameraComponent implements OnInit, OnDestroy {
                     });
                     await this.handleNegotiationNeededEvent(this.offerOptions, key, faked.id, this.yostream);
                     this.peerReceivers.get(key).push(ytransceiver);
-                    this.peerLStream.get(key).push(faked.id);
+                    if (!this.peerLStream.get(key)) {
+                        this.peerLStream.set(key, [faked.id]);
+                    } else {
+                        this.peerLStream.get(key).push(faked.id);
+                    }
                     this.fakelist.get(key).push(faked.id);
                     console.log('before calling faked.id --> ' + faked.id);
                 }
@@ -549,7 +572,6 @@ export class CameraComponent implements OnInit, OnDestroy {
     }
     setReplacement = async (peer: string, track: MediaStreamTrack, stream: MediaStream) => {
         if (!this.fakelist.get(peer).includes(stream.id)) {
-            // this.handleSendButton('', this.fakelist.get(peer)[0]);
             this.dataChannelList.get(peer).send(this.username + ',' + this.fakelist.get(peer)[0]);
             this.fakelist.get(peer).splice(this.fakelist.get(peer).indexOf(stream.id));
             await this.peerReceivers.get(peer)[this.peerReceivers.get(peer).length - 1].sender.replaceTrack(track);
@@ -572,7 +594,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             let mystreams = '';
             if (isnew !== '') {
                 const malis = [];
-                this.peerLStream.get(mypeer).forEach(h => malis.push(h));
+                if (this.peerLStream.get(mypeer)) { this.peerLStream.get(mypeer).forEach(h => malis.push(h)); }
                 if (this.peerRStream.get(this.targetUsername)) {
                 this.peerRStream.get(this.targetUsername).forEach(hd => {
                     if (!malis.includes(hd)) {
@@ -584,7 +606,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                 mystreams = malis.join(',');
             } else {
                 mystreams = this.localStream.id;
-                if (this.peerLStream.get(mypeer).length > 0) { this.peerLStream.get(mypeer).forEach(h => mystreams += ',' + h); }
+                if (this.peerLStream.get(mypeer)) { this.peerLStream.get(mypeer).forEach(h => mystreams += ',' + h); }
                 this.remoteStreamMap.forEach(yul => {
                     if (!this.peerRStream.get(mypeer) || !this.peerRStream.get(mypeer).includes(yul.id)) {
                         mystreams += ',' + yul.id;
@@ -633,6 +655,10 @@ export class CameraComponent implements OnInit, OnDestroy {
             this.setDataChannel();
         } else if (this.peerLStream.get(this.targetUsername)) {
             mystreams = this.peerLStream.get(this.targetUsername).join(',');
+            const gfs = this.checkFakeExist();
+            if (gfs !== '' && this.mediaMap.get(gfs)) {
+                this.shiftPlace(this.mediaMap.get(gfs));
+            }
         }
         console.log('signaling state at the start of offer response --> ' + this.peerList.get(this.targetUsername).signalingState);
         this.peerRStream.set(this.targetUsername, msg.streams.split(','));
@@ -672,7 +698,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             sdp: this.peerList.get(this.targetUsername).localDescription
         });
         console.log('signaling state at the end of offer response --> ' + this.peerList.get(this.targetUsername).signalingState);
-        if (!hut && !this.checkMyPeers(this.targetUsername)) { // answerer has his own peers to feed
+        if (!hut && this.checkMyPeers(this.targetUsername)) { // answerer has his own peers to feed
             this.peerLStream.set(this.targetUsername, mystreams.split(','));
             if (this.peerList.size > 1) {
                 console.log('While Answering to attempt feeding old friends with any of --> ' + msg.streams);
@@ -680,6 +706,10 @@ export class CameraComponent implements OnInit, OnDestroy {
                 await this.setRemotePeerStreams();
             } // receiver sends new streams to old friends
         }
+        this.shourenego.set(this.targetUsername, true);
+        // if (hut) {
+        //     this.shourenego.set(this.targetUsername, true);
+        // }
     }
     connectionAnswer = async (msg) => {
         console.log('Answer from --> ' + msg.name + ' to the original initiator --> ' + msg.target +
@@ -711,7 +741,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         if (!this.peerRStream.get(msg.name)) {
             this.peerRStream.set(msg.name, list);
         }
-        if (msg.name === this.targetUsername && !this.checkMyPeers(msg.name)) { // caller/offerer has his own peers to feed
+        if (msg.name === this.targetUsername && this.checkMyPeers(msg.name)) { // caller/offerer has his own peers to feed
             console.log('caller/offerer has his own peers to feed --> ' + msg.streams
                 + ' offerer --> ' + msg.target + ' answerer --> ' + msg.name);
             this.yostream = true;
@@ -723,7 +753,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         if (this.peerList.size > 1) {
             return [...this.peerList.keys()].filter((peer) => peer !== target)
                 .some((mypeer) => {
-                    return !this.peerLStream.get(mypeer) || this.peerRStream.get(target)
+                    return !this.peerLStream.get(mypeer) || !this.peerRStream.get(target)
                         .every((value) => this.peerLStream.get(mypeer).includes(value));
                 });
         }
@@ -1083,4 +1113,20 @@ export class CameraComponent implements OnInit, OnDestroy {
     //     // await this.handleNegotiationNeededEvent(this.offerOptions, peer
     //     //     , stream.id, this.yostream);
     // }
+    private shiftPlace(s: string) {
+        switch (s) {
+            case this.remoteVideo2.nativeElement.srcObject.id:
+                this.remoteVideo3.nativeElement.srcObject = this.remoteVideo2.nativeElement.srcObject;
+                this.remoteVideo2.nativeElement.srcObject = null;
+                break;
+            case this.remoteVideo3.nativeElement.srcObject.id:
+                this.remoteVideo4.nativeElement.srcObject = this.remoteVideo3.nativeElement.srcObject;
+                this.remoteVideo3.nativeElement.srcObject = null;
+                break;
+            case this.remoteVideo4.nativeElement.srcObject.id:
+                this.remoteVideo5.nativeElement.srcObject = this.remoteVideo4.nativeElement.srcObject;
+                this.remoteVideo4.nativeElement.srcObject = null;
+                break;
+        }
+    }
 }
