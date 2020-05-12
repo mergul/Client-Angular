@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, Renderer2, ViewChild, OnDestroy, HostListener} from '@angular/core';
+import {Component, ElementRef, OnInit, Renderer2, ViewChild, OnDestroy, HostListener, NgZone} from '@angular/core';
 import {BehaviorSubject, from, Observable, Subject, zip} from 'rxjs';
 import {FormControl, Validators} from '@angular/forms';
 import {MatSelectChange} from '@angular/material/select';
@@ -8,8 +8,9 @@ import {map, takeUntil} from 'rxjs/operators';
 
 interface CameraEvent {
     peer?: string;
-    track?: MediaStreamTrack;
-    stream?: MediaStream;
+    fstream?: MediaStream;
+    rstream?: MediaStream;
+    user?: string;
 }
 
 @Component({
@@ -19,7 +20,7 @@ interface CameraEvent {
 })
 export class CameraComponent implements OnInit, OnDestroy {
 
-    constructor(private renderer: Renderer2, private speechService: SpeechService) {
+    constructor(private renderer: Renderer2, private speechService: SpeechService, private zone: NgZone) {
     }
     fakestream: MediaStream;
     fakelist: Map<string, string[]> = new Map<string, string[]>();
@@ -175,7 +176,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         this.joinedUser = window.history.state ? window.history.state.userID : '';
         this.loggedUser = window.history.state ? window.history.state.loggedID : '';
         this.signalingConnection = new SignalingConnection(
-            'busra.news:65080/ws',
+            'busra.nur:65080/ws',
             () => this.startButtonDisabled = false,
             this.onSignalingMessage,
             this.joinedUser,
@@ -201,12 +202,25 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
         this.caSubject.asObservable().pipe(takeUntil(this.onDestroy), map(async (cameraEvent) => {
             if (cameraEvent.peer) {
-                this.handleNegotiationNeededEvent(this.offerOptions, cameraEvent.peer, cameraEvent.stream.id, this.yostream).then(value => {
-                    this.peerList.get(cameraEvent.peer).addTransceiver(cameraEvent.track, {streams: [cameraEvent.stream]
-                        , direction: 'sendonly'});
-                });
+                this.callDeep(cameraEvent.peer, cameraEvent.fstream);
+                this.handleNegotiationNeededEvent(this.offerOptions, cameraEvent.peer, cameraEvent.rstream ?
+                    cameraEvent.rstream.id : cameraEvent.fstream.id, this.yostream)
+                    .then(async value => {
+                        if (cameraEvent.rstream) {
+                            await this.setReplacement(cameraEvent.peer, cameraEvent.rstream.getVideoTracks()[0], cameraEvent.rstream);
+                        } else {
+                            if (!this.peerLStream.get(cameraEvent.peer)) {
+                                this.peerLStream.set(cameraEvent.peer, [cameraEvent.fstream.id]);
+                            } else {
+                                this.peerLStream.get(cameraEvent.peer).push(cameraEvent.fstream.id);
+                            }
+                            this.fakelist.get(cameraEvent.peer).push(cameraEvent.fstream.id);
+                            console.log('before calling faked.id --> ' + cameraEvent.fstream.id);
+                            if (cameraEvent.user) { await this.callMeUser(cameraEvent.user); }
+                        }
+                    });
             }
-        })).subscribe();
+        })).subscribe(value1 => console.log(value1));
     }
 
     startCamera() {
@@ -223,6 +237,16 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
     }
 
+    // startScreenShare() {
+    //     if (!!(navigator.mediaDevices && 'getDisplayMedia' in navigator.mediaDevices)) {
+    //         this.startButtonDisabled = true;
+    //         navigator.mediaDevices.getDisplayMedia(this.constraints)
+    //             .then(this.attachVideo.bind(this))
+    //             .catch(this.handleError);
+    //     } else {
+    //         alert('Sorry, camera not available.');
+    //     }
+    // }
     stopSample = async (user) => {
         await this.hangUpCall(user);
         this.startButtonDisabled = false;
@@ -505,7 +529,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             }
         }
     }
-    setRemotePeerStreams = async () => {
+    setRemotePeerStreams = async (isOther) => {
         if (this.peerList.size > 1) {
             for (const peer of  [...this.peerList.keys()].filter(s => this.targetUsername !== s)) {
                 this.peerConnection = this.peerList.get(peer);
@@ -513,11 +537,19 @@ export class CameraComponent implements OnInit, OnDestroy {
                     if ((!this.peerLStream.get(peer) || !this.peerLStream.get(peer).includes(stream.id)) &&
                         (!this.peerRStream.get(peer) || !this.peerRStream.get(peer).includes(stream.id))) {
                         try {
-                            console.log('peer --> ' + peer + ' ** stream-id --> ' + stream.id);
-                         //   this.peerRStream.get(peer).map(des => console.log('received from --> ' + des));
-                         //   this.peerLStream.get(peer).map(des => console.log('sent to --> ' + des));
-                            for (const track of stream.getVideoTracks()) {
-                                await this.setReplacement(peer, track, stream);
+                            if (!isOther) {
+                                console.log('peer --> ' + peer + ' ** stream-id --> ' + stream.id);
+                                for (const track of stream.getVideoTracks()) {
+                                    await this.setReplacement(peer, track, stream);
+                                }
+                            } else {
+                                this.zone.run(() => setTimeout(() =>  this.caSubject.next({peer: peer,
+                                    fstream: this.fakestream, rstream: stream})));
+                                // this.callDeep(peer, this.fakestream);
+                                // await this.handleNegotiationNeededEvent(this.offerOptions, peer, stream.id, this.yostream)
+                                //     .then(async value => {
+                                //     await this.setReplacement(peer, stream.getVideoTracks()[0], stream);
+                                // });
                             }
                         } catch (error) {
                             console.log('Hatali addTrack durumu peer: ' + peer + ' stream --> ' + stream.id + ' Error --> ' + error);
@@ -527,8 +559,15 @@ export class CameraComponent implements OnInit, OnDestroy {
             }
         }
     }
-    callUser = async (user) => {
-        this.yostream = false;
+    callDeep = (user, stream) => {
+         const mitransceiver = this.peerList.get(user).addTransceiver('video', {
+             streams: [stream],
+             direction: 'sendonly'
+         });
+        this.peerReceivers.get(user).push(mitransceiver);
+        console.log('deep call init --> ' + user);
+    }
+    callMeUser = async (user) => {
         this.targetUsername = user;
         console.log('peer list size --> ' + this.peerList.size);
         this.createPeerConnection();
@@ -539,54 +578,49 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
         await this.setLocalStreams(false);
         await this.setRemoteStreams(false);
-        this.mytransceiver = this.peerList.get(this.targetUsername).addTransceiver('video', {streams: [this.fakestream]
-            , direction: 'sendonly'});
-        this.peerReceivers.get(this.targetUsername).push(this.mytransceiver);
-        console.log('at calling mytransceiver mid --> ' + this.mytransceiver.mid);
+        this.callDeep(this.targetUsername, this.fakestream);
         this.peerLStream.set(this.targetUsername, [this.fakestream.id]);
         this.fakelist.set(this.targetUsername, [this.fakestream.id]);
         console.log('before calling faked.id --> ' + this.fakestream.id);
-        setTimeout(async () => {
-            for (const key of this.shourenego.keys()) {
-                if (this.shourenego.get(key)) {
-                    this.shourenego.set(key, false);
-                    const faked = new MediaStream([this.localStream.getVideoTracks()[0]]);
-                    faked.removeTrack(faked.getVideoTracks()[0]);
-                    //  await this.handleNegotiationNeededEvent(this.offerOptions, key, faked.id, this.yostream);
-                    const ytransceiver = this.peerList.get(key).addTransceiver('video', {
-                        streams: [faked],
-                        direction: 'sendonly'
-                    });
-                    await this.handleNegotiationNeededEvent(this.offerOptions, key, faked.id, this.yostream);
-                    this.peerReceivers.get(key).push(ytransceiver);
-                    if (!this.peerLStream.get(key)) {
-                        this.peerLStream.set(key, [faked.id]);
-                    } else {
-                        this.peerLStream.get(key).push(faked.id);
-                    }
-                    this.fakelist.get(key).push(faked.id);
-                    console.log('before calling faked.id --> ' + faked.id);
-                }
+    }
+    callUser = async (user) => {
+        this.yostream = false;
+        const hrt = [];
+        for (const key of this.shourenego.keys()) {
+            if (this.shourenego.get(key)) {
+                this.shourenego.set(key, false);
+                const faked = new MediaStream([this.localStream.getVideoTracks()[0]]);
+                faked.removeTrack(faked.getVideoTracks()[0]);
+                hrt.push({peer: key, fstream: faked});
             }
-        });
+        }
+        if (hrt.length > 0) {
+            hrt[hrt.length - 1].user = user;
+            for (const hrtElement of hrt) {
+                this.zone.run(() => setTimeout(() => this.caSubject.next(hrtElement)));
+            }
+        } else { await this.callMeUser(user); }
     }
     setReplacement = async (peer: string, track: MediaStreamTrack, stream: MediaStream) => {
         if (!this.fakelist.get(peer).includes(stream.id)) {
+            console.log('Replacement --> peer is --> ' + peer + ' stream id --> ' + stream.id + ' track-id --> ' + track.id
+                + ' target username --> ' + this.targetUsername);
             this.dataChannelList.get(peer).send(this.username + ',' + this.fakelist.get(peer)[0]);
             this.fakelist.get(peer).splice(this.fakelist.get(peer).indexOf(stream.id));
             await this.peerReceivers.get(peer)[this.peerReceivers.get(peer).length - 1].sender.replaceTrack(track);
             this.peerLStream.get(peer).push(stream.id);
             this.shourenego.set(peer, true);
-            console.log('Replacement --> peer is --> ' + peer + ' stream id --> ' + stream.id + ' track-id --> ' + track.id
-            + ' target username --> ' + this.targetUsername);
         }
     }
     handleNegotiationNeededEvent = async (event, mypeer, isnew, streamf: boolean) => {
         try {
             this.makingOffer = true;
+            console.log('offer is created by : ' + this.username + ' to ---> ' + mypeer + ' state is --> '
+                + this.peerList.get(mypeer).signalingState + ' isnew -->' + isnew + ' streamf --> ' + streamf);
             const offer = await this.peerList.get(mypeer).createOffer(event);
             if (this.peerList.get(mypeer).signalingState !== 'stable') {
-                console.log('not stable! offer could not be created by : ' + this.username + ' to ---> ' + mypeer);
+                console.log('not stable! offer could not be created by : ' + this.username + ' to ---> ' + mypeer + ' state is --> '
+                    + this.peerList.get(mypeer).signalingState + ' isnew -->' + isnew + ' streamf --> ' + streamf);
                 return;
             }
             offer.sdp = offer.sdp.replace(/(m=video.*\r\n)/g, `$1b=AS:${this.bandwidth}\r\n`);
@@ -626,7 +660,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                 target: mypeer,
                 streams: mystreams,
                 fake: this.fakestream.id,
-                polite: isnew === '',
+                polite: isnew !== '',
                 event: 'offer',
                 sdp: this.peerList.get(mypeer).localDescription
             });
@@ -703,7 +737,7 @@ export class CameraComponent implements OnInit, OnDestroy {
             if (this.peerList.size > 1) {
                 console.log('While Answering to attempt feeding old friends with any of --> ' + msg.streams);
                 this.yostream = false;
-                await this.setRemotePeerStreams();
+                await this.setRemotePeerStreams(true);
             } // receiver sends new streams to old friends
         }
         this.shourenego.set(this.targetUsername, true);
@@ -715,7 +749,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         console.log('Answer from --> ' + msg.name + ' to the original initiator --> ' + msg.target +
             ' entered with streams --> ' + msg.streams);
         // add tracks gateway event
-        console.log('at answering mytransceiver mid --> ' + this.mytransceiver.mid);
+   //     console.log('at answering mytransceiver mid --> ' + this.mytransceiver.mid);
         await this.peerList.get(msg.name)
             .setRemoteDescription(new RTCSessionDescription(msg.sdp))
             .catch(err => {
@@ -746,7 +780,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                 + ' offerer --> ' + msg.target + ' answerer --> ' + msg.name);
             this.yostream = true;
          //   this.remoteStreamMap.delete(this.mytransceiver.sender.track.id);
-            await this.setRemotePeerStreams();
+            await this.setRemotePeerStreams(false);
         }
     }
     checkMyPeers = (target) => {
@@ -1113,17 +1147,41 @@ export class CameraComponent implements OnInit, OnDestroy {
     //     // await this.handleNegotiationNeededEvent(this.offerOptions, peer
     //     //     , stream.id, this.yostream);
     // }
+
+    // for (const key of this.shourenego.keys()) {
+    //     if (this.shourenego.get(key)) {
+    //         setTimeout(async () => {
+    //             this.shourenego.set(key, false);
+    //             const faked = new MediaStream([this.localStream.getVideoTracks()[0]]);
+    //             faked.removeTrack(faked.getVideoTracks()[0]);
+    //             this.caSubject.next({peer: key, stream: faked});
+    //             this.callDeep(key, faked);
+    //             await this.handleNegotiationNeededEvent(this.offerOptions, key, faked.id, this.yostream);
+    //             if (!this.peerLStream.get(key)) {
+    //                 this.peerLStream.set(key, [faked.id]);
+    //             } else {
+    //                 this.peerLStream.get(key).push(faked.id);
+    //             }
+    //             this.fakelist.get(key).push(faked.id);
+    //             console.log('before calling faked.id --> ' + faked.id);
+    //         });
+    //     }
+    // }
     private shiftPlace(s: string) {
         switch (s) {
-            case this.remoteVideo2.nativeElement.srcObject.id:
+            case this.remoteVideo1.nativeElement.srcObject && this.remoteVideo1.nativeElement.srcObject.id:
+                this.remoteVideo2.nativeElement.srcObject = this.remoteVideo1.nativeElement.srcObject;
+                this.remoteVideo1.nativeElement.srcObject = null;
+                break;
+            case this.remoteVideo2.nativeElement.srcObject && this.remoteVideo2.nativeElement.srcObject.id:
                 this.remoteVideo3.nativeElement.srcObject = this.remoteVideo2.nativeElement.srcObject;
                 this.remoteVideo2.nativeElement.srcObject = null;
                 break;
-            case this.remoteVideo3.nativeElement.srcObject.id:
+            case this.remoteVideo3.nativeElement.srcObject && this.remoteVideo3.nativeElement.srcObject.id:
                 this.remoteVideo4.nativeElement.srcObject = this.remoteVideo3.nativeElement.srcObject;
                 this.remoteVideo3.nativeElement.srcObject = null;
                 break;
-            case this.remoteVideo4.nativeElement.srcObject.id:
+            case this.remoteVideo4.nativeElement.srcObject && this.remoteVideo4.nativeElement.srcObject.id:
                 this.remoteVideo5.nativeElement.srcObject = this.remoteVideo4.nativeElement.srcObject;
                 this.remoteVideo4.nativeElement.srcObject = null;
                 break;
