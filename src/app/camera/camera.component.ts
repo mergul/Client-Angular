@@ -8,8 +8,8 @@ import {map, takeUntil} from 'rxjs/operators';
 
 interface CameraEvent {
     peer?: string;
-    fstream?: MediaStream;
-    rstream?: MediaStream;
+    fakeStream?: MediaStream;
+    realStream?: MediaStream;
     user?: string;
 }
 
@@ -28,8 +28,6 @@ export class CameraComponent implements OnInit, OnDestroy {
     currentLanguage = 'en';
     finalTranscript: string;
     targetLanguage = 'tr';
-    fileUpload: File;
-
     @ViewChild('canvas', {static: true}) canvas: ElementRef;
     @ViewChild('soundCanvas', {static: true}) soundCanvas: ElementRef;
     private mediaRecorder: MediaRecorder;
@@ -83,10 +81,6 @@ export class CameraComponent implements OnInit, OnDestroy {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true
     };
-    private watchOfferOptions: RTCOfferOptions = {
-        offerToReceiveAudio: false,
-        offerToReceiveVideo: false
-    };
     private refreshOfferOptions: RTCOfferOptions = {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
@@ -115,7 +109,6 @@ export class CameraComponent implements OnInit, OnDestroy {
     private peerSenders: Map<string, RTCRtpSender[]> = new Map<string, RTCRtpSender[]>();
     private peerReceivers: Map<string, RTCRtpTransceiver[]> = new Map<string, RTCRtpTransceiver[]>();
     private yostream = false;
-    private mytransceiver: RTCRtpTransceiver;
     private shourenego: Map<string, boolean> = new Map<string, boolean>();
     // callMethod = (methodName, ...params) => obj => obj[methodName](...params);
     // awaitAll = promiseArray => Promise.all(promiseArray);
@@ -126,11 +119,6 @@ export class CameraComponent implements OnInit, OnDestroy {
     gotDevices(mediaDevices: MediaDeviceInfo[]) {
         return mediaDevices.filter(value => value.kind === 'videoinput');
     }
-
-    camOff() {
-        this.vidOff(this.localVideo.nativeElement.srcObject);
-    }
-
     @HostListener('window:beforeunload', ['$event'])
     async doSomething() {
         await this.closeAllVideoCall();
@@ -202,20 +190,20 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
         this.caSubject.asObservable().pipe(takeUntil(this.onDestroy), map(async (cameraEvent) => {
             if (cameraEvent.peer) {
-                this.callDeep(cameraEvent.peer, cameraEvent.fstream);
-                this.handleNegotiationNeededEvent(this.offerOptions, cameraEvent.peer, cameraEvent.rstream ?
-                    cameraEvent.rstream.id : cameraEvent.fstream.id, this.yostream)
-                    .then(async value => {
-                        if (cameraEvent.rstream) {
-                            await this.setReplacement(cameraEvent.peer, cameraEvent.rstream.getVideoTracks()[0], cameraEvent.rstream);
+                await this.callDeep(cameraEvent.peer, cameraEvent.fakeStream);
+                await this.handleNegotiationNeededEvent(this.offerOptions, cameraEvent.peer, cameraEvent.realStream ?
+                    cameraEvent.realStream.id : cameraEvent.fakeStream.id, this.yostream)
+                    .then(async () => {
+                        if (cameraEvent.realStream) {
+                            await this.setReplacement(cameraEvent.peer, cameraEvent.realStream.getVideoTracks()[0], cameraEvent.realStream);
                         } else {
                             if (!this.peerLStream.get(cameraEvent.peer)) {
-                                this.peerLStream.set(cameraEvent.peer, [cameraEvent.fstream.id]);
+                                this.peerLStream.set(cameraEvent.peer, [cameraEvent.fakeStream.id]);
                             } else {
-                                this.peerLStream.get(cameraEvent.peer).push(cameraEvent.fstream.id);
+                                this.peerLStream.get(cameraEvent.peer).push(cameraEvent.fakeStream.id);
                             }
-                            this.fakelist.get(cameraEvent.peer).push(cameraEvent.fstream.id);
-                            console.log('before calling faked.id --> ' + cameraEvent.fstream.id);
+                            this.fakelist.get(cameraEvent.peer).push(cameraEvent.fakeStream.id);
+                            console.log('before calling faked.id --> ' + cameraEvent.fakeStream.id);
                             if (cameraEvent.user) { await this.callMeUser(cameraEvent.user); }
                         }
                     });
@@ -254,7 +242,7 @@ export class CameraComponent implements OnInit, OnDestroy {
 
     attachVideo(stream) {
         this.renderer.setProperty(this.localVideo.nativeElement, 'srcObject', stream);
-        this.renderer.listen(this.localVideo.nativeElement, 'play', (event) => {
+        this.renderer.listen(this.localVideo.nativeElement, 'play', () => {
             this.videoHeight = this.localVideo.nativeElement.videoHeight;
             this.videoWidth = this.localVideo.nativeElement.videoWidth;
         });
@@ -273,7 +261,7 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
         this.mediaRecorder = new MediaRecorder(stream);
         //   this.visualize(stream);
-        this.mediaRecorder.onstop = async (e) => {
+        this.mediaRecorder.onstop = async () => {
             const audio = new Audio();
             const blob = new Blob(this.chunks, {'type': 'audio/ogg; codecs=opus'});
             this.chunks.length = 0;
@@ -316,6 +304,7 @@ export class CameraComponent implements OnInit, OnDestroy {
 
     onBookChange($event: MatSelectChange) {
         this.constraints.video.facingMode = this.constraints.video.facingMode === 'user' ? 'environment' : 'user';
+        console.log($event.value);
     }
 
     onSignalingMessage = async (msg) => {
@@ -377,13 +366,13 @@ export class CameraComponent implements OnInit, OnDestroy {
         }
     }
 
-    handleSendButton = (message, fakeid) => {
+    handleSendButton = (message, fakeId) => {
         const msg = {
             text: message,
             event: 'message',
             id: this.clientID,
             room: this.loggedUser,
-            fake: fakeid,
+            fake: fakeId,
             date: Date.now()
         };
         this.signalingConnection.sendToServer(msg);
@@ -543,8 +532,11 @@ export class CameraComponent implements OnInit, OnDestroy {
                                     await this.setReplacement(peer, track, stream);
                                 }
                             } else {
-                                this.zone.run(() => setTimeout(() =>  this.caSubject.next({peer: peer,
-                                    fstream: this.fakestream, rstream: stream})));
+                                this.zone.run(() => setTimeout(() =>  this.caSubject.next({
+                                    peer: peer,
+                                    fakeStream: this.fakestream,
+                                    realStream: stream
+                                })));
                                 // this.callDeep(peer, this.fakestream);
                                 // await this.handleNegotiationNeededEvent(this.offerOptions, peer, stream.id, this.yostream)
                                 //     .then(async value => {
