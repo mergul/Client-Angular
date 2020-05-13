@@ -532,11 +532,13 @@ export class CameraComponent implements OnInit, OnDestroy {
                                     await this.setReplacement(peer, track, stream);
                                 }
                             } else {
-                                this.zone.run(() => setTimeout(() =>  this.caSubject.next({
+                              //  this.zone.run(() => setTimeout(() =>
+                                    this.caSubject.next({
                                     peer: peer,
                                     fakeStream: this.fakestream,
                                     realStream: stream
-                                })));
+                                });
+                               // ));
                                 // this.callDeep(peer, this.fakestream);
                                 // await this.handleNegotiationNeededEvent(this.offerOptions, peer, stream.id, this.yostream)
                                 //     .then(async value => {
@@ -583,7 +585,7 @@ export class CameraComponent implements OnInit, OnDestroy {
                 this.shourenego.set(key, false);
                 const faked = new MediaStream([this.localStream.getVideoTracks()[0]]);
                 faked.removeTrack(faked.getVideoTracks()[0]);
-                hrt.push({peer: key, fstream: faked});
+                hrt.push({peer: key, fakeStream: faked});
             }
         }
         if (hrt.length > 0) {
