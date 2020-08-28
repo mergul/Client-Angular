@@ -29,17 +29,17 @@ export class BackendServiceService {
         });
     }
 
-    deleteImage(_id: string): Observable<boolean> {
-        return this.httpClient.delete('/api/image/delete/' + _id, {
-            responseType: 'json'
-        }).pipe(map(response => (<Boolean>response === true)));
-    }
-
-    getSignedUrl(name: string): Observable<string> {
-        return this.httpClient.get<string>('/api/rest/storage/' + name, {
-            responseType: 'json'
-        });
-    }
+    // deleteImage(_id: string): Observable<boolean> {
+    //     return this.httpClient.delete('/api/image/delete/' + _id, {
+    //         responseType: 'json'
+    //     }).pipe(map(response => (<Boolean>response === true)));
+    // }
+    //
+    // getSignedUrl(name: string): Observable<string> {
+    //     return this.httpClient.get<string>('/api/rest/storage/' + name, {
+    //         responseType: 'json'
+    //     });
+    // }
     postNews(newsFeed: NewsFeed): Observable<boolean> {
         return this.httpClient.post<boolean>('/api/rest/news/save', newsFeed, {
             responseType: 'json'

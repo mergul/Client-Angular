@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule} from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatTooltipModule, MatMenuModule, MatIconModule, MatButtonModule } from '@angular/material';
 import {NewsListModule} from '../news-list/news-list.module';
 import {ProfileHeaderComponent} from '../profile-header/profile-header.component';
 import {EditTagsListComponent} from '../edit-tags-list/edit-tags-list.component';
@@ -11,6 +10,10 @@ import {EditProfileComponent} from '../edit-profile/edit-profile.component';
 import {ProfileCardComponent} from './profile-card.component';
 import {ProfileListComponent} from '../profile-list/profile-list.component';
 import {ProfileCenterComponent} from '../profile-center/profile-center.component';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 
 @NgModule({

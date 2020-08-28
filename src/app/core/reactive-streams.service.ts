@@ -223,9 +223,13 @@ export class ReactiveStreamsService {
             });
         }
     }
+    statusOfNewsSource = () => {
+        return this.newsEventSource;
+    }
     closeSources() {
         this.sources.forEach(value => {
             value.close();
         });
+        console.log('Event Sources closed!');
     }
 }

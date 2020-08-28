@@ -7,16 +7,16 @@
         <br *ngIf="newsService.newsStreamCounts$ | async">
 <app-no-logged-nav [logged]="loggedinUser|async" [style.marginRight.%]="mobileQuery.matches ? 0 : 15"></app-no-logged-nav>
 <div *ngIf="loggedinUser|async as logged" [style.marginRight.%]="mobileQuery.matches ? 0 : 15"  [ngSwitch]="mobileQuery.matches">
-  <button  mat-icon-button (click)="btnClick('/search')" class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
+  <button id="search"  mat-icon-button (click)="btnClick('/search')" class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
     <mat-icon>search</mat-icon>
   </button>
-  <button *ngSwitchCase="false" matTooltip="add new contents" class="mat-icon-button" (click)="btnClick('/upload')">
+  <button id="upload" *ngSwitchCase="false" matTooltip="add new contents" class="mat-icon-button" (click)="btnClick('/upload')">
     <mat-icon>add_shopping_cart</mat-icon>
   </button>
-  <button *ngSwitchCase="true" mat-icon-button (click)="btnClick('/upload')" class="mat-icon-button" matTooltip="add new contents" aria-label="Center Align">
+  <button id="upload" *ngSwitchCase="true" mat-icon-button (click)="btnClick('/upload')" class="mat-icon-button" matTooltip="add new contents" aria-label="Center Align">
     <mat-icon>cloud_upload</mat-icon>
   </button>
-  <button *ngIf="role&&(role.includes('ROLE_ADMIN')||role.includes('ROLE_MODERATOR'))" mat-icon-button (click)="btnClick('/admin')" class="mat-icon-button" matTooltip="manage reports" style="margin-right: 15px;" aria-label="Center Align">
+  <button id="settings" *ngIf="role&&(role.includes('ROLE_ADMIN')||role.includes('ROLE_MODERATOR'))" mat-icon-button (click)="btnClick('/admin')" class="mat-icon-button" matTooltip="manage reports" style="margin-right: 15px;" aria-label="Center Align">
     <mat-icon>settings</mat-icon>
   </button>
 

@@ -14,17 +14,30 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 5px;">
+                    <mat-form-field class="my-options">
+                        <mat-select placeholder="Select your language"
+                                    [(ngModel)]="currentLanguage" [disabled]="recognizing">
+                          <mat-option *ngFor="let language of languages" [value]="language" (click)="onSelectLanguage(language)">
+                            {{language}}
+                          </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
 <form [formGroup]="documentGrp" (ngSubmit)="OnSubmit(documentGrp.value)"
-      ngNativeValidate>
+      ngNativeValidate style="margin-top: -25px;">
     <div class="box box-solid box-primary">
         <label class="padded" style="width: 100%;">
             News Topic:
+            <div style="align-items: flex-start; padding-top: 0px;">
+                <button #startTopButton type="button" [disabled]="startTopButtonDisabled" class="btn btn-primary" (click)="startCamera($event)">Start Microphone</button>
+            </div>
             <div class="form-group ">
                 <div class="md-form">
                     <i class="fa fa-pencil prefix grey-text"></i>
-                    <textarea formControlName="news_topic"
-                              class="md-textarea news_description form-control" rows="4"
-                              placeholder="Enter document topics"></textarea>
+                    <textarea #topBox formControlName="news_topic" id="news_topic"
+                              class="md-textarea news_topic form-control" rows="4"
+                              placeholder="Enter document topics" [value]="isTopicActivated?(speechMessages|async)?.transcript:miTopText"></textarea>
                 </div>
                 <div class="help-block"></div>
             </div>
@@ -33,13 +46,16 @@
     <div class="box box-solid box-primary">
         <label class="padded" style="width: 100%;">
             Describe News:
+            <div style="align-items: flex-start; padding-top: 0px;">
+                <button #startDescButton type="button" [disabled]="startDescButtonDisabled" class="btn btn-primary" (click)="startCamera($event)">Start Microphone</button>
+            </div>
             <div class="form-group ">
 
                 <div class="md-form">
                     <i class="fa fa-pencil prefix grey-text"></i>
-                    <textarea formControlName="news_description"
+                    <textarea #textBox formControlName="news_description" id="news_description"
                               class="md-textarea news_description form-control" rows="7"
-                              placeholder="Enter document Category"></textarea>
+                              placeholder="Enter document Category" [value]="isDescActivated?(speechMessages|async)?.transcript:miDescText"></textarea>
                 </div>
             </div>
         </label>
@@ -58,7 +74,7 @@
                                             <input type="file" class="custom-file-input" id="file-input" (change)="fileSelectionEvents($event,i)" multiple>
                                             <label class="custom-file-label" for="file-input" data-browse="Media-Ekle">Media Dosyası Ekle</label>
                                         </div>
-                            <app-files-thumbnails [thumbs]="url" style="display: table"></app-files-thumbnails>
+                            <app-files-thumbnails [thumbs]="thumbnails|async" style="display: table"></app-files-thumbnails>
                         </div>
                     </div>
                 </div>

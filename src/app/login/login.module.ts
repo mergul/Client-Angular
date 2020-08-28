@@ -4,12 +4,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from '../core/auth.guard';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatIconModule, MatTooltipModule, MatButtonModule } from '@angular/material';
 import { LoginComponent } from './login.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 
 const routes: Routes = [
     {path: '', component: LoginComponent, canActivate: [AuthGuard]}
-]
+];
 
 @NgModule({
     declarations: [

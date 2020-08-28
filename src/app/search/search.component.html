@@ -1,22 +1,21 @@
-<form [formGroup]="searchForm">
-   <div class="form-group"> 
-       <input type="search"
-                   class="form-control" autofocus="true"
-              placeholder="Enter search string"
-              [formControl]="searchField">
-   </div>
+<form [formGroup]="searchForm" style="height: 100%; overflow: hidden">
+    <div class="form-group">
+        <input type="search" class="form-control" autofocus="true" placeholder="Enter search string"
+            [formControl]="searchField">
+    </div>
 </form>
 <nav mat-tab-nav-bar>
-    <a mat-tab-link *ngFor="let link of links"
-       (click)="onClick(link)"
-       [active]="activeLink == link" style="min-width: 50%;"> {{link}} </a>
+    <a mat-tab-link *ngFor="let link of links" (click)="onClick(link)" [active]="activeLink == link"
+        style="min-width: 50%;"> {{link}} </a>
 </nav>
 <div class="news" style="margin-top: 0px">
-    <ul class="items">
+    
+    <ul class="items" [ngSwitch]="searchType===0">
 
-<app-news-list *ngIf="searchType!==0" [newsList]="results" [orderBy]="'count'" [activeLink]="null"></app-news-list>
-<app-profile-list *ngIf="searchType===0" [users]="results" [booled]="true"></app-profile-list>
+        <app-news-list *ngSwitchCase="false" [newsList]="newsResults" [orderBy]="'count'" [activeLink]="activeLink"
+            [currLink]="activeLink"></app-news-list>
+        <app-profile-list *ngSwitchCase="true" [users]="usersResults" [booled]="true"></app-profile-list>
 
     </ul>
-</div> 
+</div>
 <router-outlet></router-outlet>

@@ -1,12 +1,14 @@
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
-import {AuthService} from '../core/auth.service';
-import {Router} from '@angular/router';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {matchingPasswords} from './validators';
-import {Observable, of} from 'rxjs';
-import {Location} from '@angular/common';
-import {UserService} from '../core/user.service';
-import {FirebaseUserModel} from '../core/user.model';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AuthService } from '../core/auth.service';
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { matchingPasswords } from './validators';
+import { Observable, of } from 'rxjs';
+import { Location } from '@angular/common';
+import { UserService } from '../core/user.service';
+import { FirebaseUserModel } from '../core/user.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
     selector: 'app-register',
@@ -26,12 +28,13 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
         public userService: UserService,
         private router: Router,
         private location: Location,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private _snackBar: MatSnackBar
     ) {
         this.createForm();
     }
-ngOnInit(): void {
-}
+    ngOnInit(): void {
+    }
 
     createForm() {
         this.registerForm = this.fb.group({
@@ -41,7 +44,7 @@ ngOnInit(): void {
             password: ['', Validators.required],
             password2: ['', Validators.required],
             sozlesme: [false, Validators.requiredTrue]
-        }, {validator: matchingPasswords('password', 'password2')});
+        }, { validator: matchingPasswords('password', 'password2') });
     }
     isFieldValid(field: string) {
         return !this.registerForm.get(field).valid && this.registerForm.get(field).touched;
@@ -49,50 +52,56 @@ ngOnInit(): void {
     tryFacebookLogin() {
         this.authService.doFacebookLogin(false)
             .then(res => {
-                    this.router.navigate(['/user']);
-                }, err => console.log(err)
+                this.router.navigate(['/user']);
+            }, err => console.log(err)
             );
     }
 
     tryTwitterLogin() {
         this.authService.doTwitterLogin()
             .then(res => {
-                    this.router.navigate(['/user']);
-                }, err => console.log(err)
+                this.router.navigate(['/user']);
+            }, err => console.log(err)
             );
     }
 
     tryGoogleLogin() {
         this.authService.doGoogleLogin(false)
             .then(res => {
-                    this.router.navigate(['/user']);
-                }, err => console.log(err)
+                this.router.navigate(['/user']);
+            }, err => console.log(err)
             );
     }
 
     tryRegister(value) {
         this.authService.doRegister(value)
             .then(res => {
-                res.sendEmailVerification( {
+                res.sendEmailVerification({
                     'url': 'http://localhost:4200/auth', // Here we redirect back to this same page.
                     'handleCodeInApp': true // This must be true.
                 }).then(value1 => {
-                    alert('Verification Email Sent! Check yor email please!');
+                    this._snackBar.open('Verification Email Sent!', 'Check yor email please!', {
+                        duration: 3000,
+                    });
+
+                    // alert('Verification Email Sent! Check yor email please!');
                     setTimeout(
                         () => this.router.navigate(['/']),
-                        100
+                        1000
                     );
                 });
                 res.updateProfile({
                     displayName: value.name,
                     photoURL: ''
-                }).then(function() {
+                }).then(function () {
                     // Update successful.
-                }, function(error) {
-                    // An error happened.
+                }, function (error) {
+                    // An error happened. 
                 });
+                res.getIdToken().then(idToken => {
+                    this.userService.user.token = idToken;
                     const fg = new FirebaseUserModel();
-                    fg.token = res['ra'];
+                    fg.token = idToken;
                     fg.email = res.email;
                     fg.id = res.uid;
                     fg.provider = 'auth';
@@ -100,6 +109,7 @@ ngOnInit(): void {
                     this.userService.loggedUser = fg;
                     this.errorMessage = '';
                     this.successMessage = 'Your account has been created';
+                });
             }, err => {
                 console.log(err);
                 this.errorMessage = err.message;

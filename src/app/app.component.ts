@@ -5,10 +5,10 @@ import {
     OnInit,
     ChangeDetectorRef,
     OnDestroy,
-    AfterViewInit, HostListener, NgZone
+    AfterViewInit, HostListener, NgZone, Renderer2, Inject
 } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { NavigationStart, Router, NavigationEnd } from '@angular/router';
+import { Location, DOCUMENT } from '@angular/common';
 import { NewsService } from './core/news.service';
 import { AuthService } from './core/auth.service';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -18,8 +18,10 @@ import { ReactiveStreamsService } from './core/reactive-streams.service';
 import { WindowRef } from './core/window.service';
 import { RecordSSE } from './core/RecordSSE';
 import * as WebFontLoader from 'webfontloader';
-import { BackendServiceService } from './core/backend-service.service';
 import { SpeechService } from './core/speech-service';
+import { ScriptLoaderService } from './core/script-loader.service';
+
+declare var gtag;
 
 @Component({
     selector: 'app-root',
@@ -39,22 +41,27 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     listStyle = {};
     private newslistUrl = '/sse/chat/room/TopNews/subscribeMessages';
     cssUrl: string;
+    twttr: any;
 
     constructor(
         private reactiveService: ReactiveStreamsService, private speechService: SpeechService,
-        public service: UserService, private zone: NgZone,
+        public service: UserService, private zone: NgZone, private scriptService: ScriptLoaderService,
         private router: Router, public location: Location, public authService: AuthService,
         public newsService: NewsService, changeDetectorRef: ChangeDetectorRef, media: MediaMatcher,
-        private winRef: WindowRef) {
-
-        this.reactiveService.getNewsStream('top-news', this.newslistUrl);
+        private winRef: WindowRef, private renderer: Renderer2, @Inject(DOCUMENT) private _document: Document) {
 
         this.state$ = this.router.events
             .pipe(
                 filter(e => e instanceof NavigationStart),
                 map(() => this.router.getCurrentNavigation().extras.state)
             );
-
+        this.router.events
+            .pipe(
+                filter(e => e instanceof NavigationEnd),
+                map((event: NavigationEnd) => gtag('config', 'UA-167472179-1', {
+                    page_path: event.urlAfterRedirects,
+                  }) )
+            );
         this.mobileQuery = media.matchMedia('(max-width: 600px)');
         this._mobileQueryListener = () => changeDetectorRef.detectChanges();
         this.mobileQuery.addListener(this._mobileQueryListener);
@@ -66,26 +73,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             width: `${(myWis - 617) / 2}px`,
             paddingLeft: `${(myWis - 617) / 6}px`
         };
-
-        if (!this.newsService.newsStreamList$) {
-            this.newsService.newsStreamList$ = this.newsService.newsList$ = this.reactiveService.getMessage(this.links[0]);
-            this.newsService.tagsStreamList$ = this.reactiveService.getMessage(this.links[1]);
-            this.newsService.peopleStreamList$ = this.reactiveService.getMessage(this.links[2]);
-            this.newsService.meStreamList$ = this.reactiveService.getMessage('me');
-            this.newsService.newsStreamCounts$ = this.reactiveService.getMessage('user-counts')
-                .pipe(map(record => {
-                    if (record) {
-                        this.newsService.newsCounts$.set(record.key, String(record.value));
-                    }
-                    return record;
-                }));
-        }
-        if (!this.newsService.topTags) {
-            this.newsService.topTags = this.reactiveService.getMessage('top-tags')
-                .pipe(map(value =>
-                    value.filter(value1 =>
-                        value1.key.charAt(0) === '#')));
-        }
     }
     @HostListener('window:beforeunload', ['$event'])
     doSomething() {
@@ -122,25 +109,53 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit(): void {
         this.zone.run(() => {
             this.winRef.nativeWindow.onload = () => {
+                if (!this.reactiveService.statusOfNewsSource()) {
+                    this.reactiveService.getNewsStream('top-news', this.newslistUrl);
+                }
+
+                if (!this.newsService.newsStreamList$) {
+                    this.newsService.newsStreamList$ = this.newsService.newsList$ = this.reactiveService.getMessage(this.links[0]);
+                    this.newsService.tagsStreamList$ = this.reactiveService.getMessage(this.links[1]);
+                    this.newsService.peopleStreamList$ = this.reactiveService.getMessage(this.links[2]);
+                    this.newsService.meStreamList$ = this.reactiveService.getMessage('me');
+                    this.newsService.newsStreamCounts$ = this.reactiveService.getMessage('user-counts')
+                        .pipe(map(record => {
+                            if (record.key) {
+                                this.newsService.newsCounts$.set(record.key, String(record.value));
+                            }
+                            return record;
+                        }));
+                }
+                if (!this.newsService.topTags) {
+                    this.newsService.topTags = this.reactiveService.getMessage('top-tags')
+                        .pipe(map(value =>
+                            value.filter(value1 =>
+                                value1.key.charAt(0) === '#')));
+                }
                 WebFontLoader.load({
                     google: {
                         families: ['Roboto:300,400,500&display=swap']
                     }
                 });
-                const mrlink = document.createElement('link');
-                mrlink.setAttribute('rel', 'stylesheet');
-                mrlink.setAttribute('integrity', 'sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh');
-                mrlink.setAttribute('crossorigin', 'anonymous');
-                mrlink.setAttribute('href', 'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css');
-                document.head.appendChild(mrlink);
-                const mslink = document.createElement('link');
-                mslink.setAttribute('rel', 'stylesheet');
-                mslink.setAttribute('href', 'https://fonts.googleapis.com/icon?family=Material+Icons');
-                document.head.appendChild(mslink);
-                const scriptElement = document.createElement('script');
-                scriptElement.type = 'text/javascript';
-                scriptElement.src = 'https://webrtc.github.io/adapter/adapter-latest.js';
-                document.head.appendChild(scriptElement);
+                this.scriptService.injectScript(this.renderer, this._document,
+                     'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css', 'link',
+                 '', 'sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh', 'anonymous').then(val => val);
+                this.scriptService.injectScript(this.renderer, this._document, 'https://fonts.googleapis.com/icon?family=Material+Icons'
+                , 'link', '', '', 'anonymous')
+                .then(val => val);
+                // this.scriptService.injectScript('https://platform.twitter.com/widgets.js', 'script', 'twitter-wjs', '', '').then(val => {
+                //     this.twttr = (window as any).global.twttr;
+                //     this.twttr.widgets.load();
+                // });
+                this.scriptService.injectScript(this.renderer, this._document,
+                    'https://www.googletagmanager.com/gtag/js?id=UA-167472179-1', 'script', '', '', 'anonymous')
+               .then(val => val);
+                this.scriptService.injectScript(this.renderer, this._document,
+                     'https://webrtc.github.io/adapter/adapter-latest.js', 'script', '', '', 'anonymous')
+                .then(val => val);
+                this.scriptService.injectScript(this.renderer, this._document,
+                    'https://cdn.jsdelivr.net/npm/video-stream-merger@3.6.1/dist/video-stream-merger.min.js', 'script', '', '', 'anonymous')
+               .then(val => val);
 
                 if (!this.service.dbUser && this.location.path() !== '/user' && this.location.path() !== '/login' &&
                     this.location.path() !== '/upload' && !this.location.path().includes('/allusers/') &&

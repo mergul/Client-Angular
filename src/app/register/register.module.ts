@@ -4,12 +4,16 @@ import { RouterModule, Routes } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from '../core/auth.guard';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatIconModule, MatTooltipModule, MatButtonModule, MatCheckboxModule } from '@angular/material';
 import { RegisterComponent } from './register.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 
 const routes: Routes = [
     {path: '', component: RegisterComponent, canActivate: [AuthGuard]}
-]
+];
 
 @NgModule({
     declarations: [
@@ -19,7 +23,7 @@ const routes: Routes = [
       CommonModule,
       RouterModule.forChild(routes),
       NgbModule, ReactiveFormsModule, MatTooltipModule, MatIconModule
-      , MatButtonModule, MatCheckboxModule
+      , MatButtonModule, MatCheckboxModule, MatSnackBarModule
     ],
     entryComponents: [
     ],

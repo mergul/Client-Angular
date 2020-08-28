@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
 import { UserService } from '../core/user.service';
 import { NewsService } from '../core/news.service';
 import { Observable, Subject } from 'rxjs';
@@ -9,6 +9,7 @@ import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
   selector: 'app-profile-center',
+//  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile-center.component.html',
   styleUrls: ['./profile-center.component.scss']
 })
@@ -23,6 +24,8 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   _userIds: string[] = [];
   _users: Observable<Array<User>>;
   _tagz: Observable<Array<string>>;
+  private newslistUrl = '/sse/chat/room/TopNews/subscribeMessages';
+
   ngOnDestroy(): void {
     this.onDestroy.next();
     this.onDestroy.complete();
@@ -39,6 +42,7 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
     private reactiveService: ReactiveStreamsService,
     public service: NewsService) {
   }
+
   @Input()
   get user(): User {
     return this._user;
@@ -94,23 +98,25 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    if (!this.reactiveService.statusOfNewsSource()) {
+      this.reactiveService.getNewsStream('top-news', this.newslistUrl);
+  }
     this._newsList = this._isPub.pipe(switchMap(value2 => {
       if (!value2) {
         if (!this.service.meStreamList$) {
-         this.service.meStreamList$ = this.reactiveService.getMessage('me');
+          this.service.meStreamList$ = this.reactiveService.getMessage('me');
         }
-
         return this.service.meStreamList$;
-      //  this.service.newsStreamList$.pipe(map(value => value.filter(value1 =>
-      //    this.user.id === value1.newsOwnerId)));
       } else {
-        this.reactiveService.setOtherListener('@' + this.user.id, false);
-        this.service.setNewsUser('@' + this.user.id).pipe(takeUntil(this.onDestroy)).subscribe();
-        return this.reactiveService.getMessage('other-person');
+        if (!this.service.publicStreamList$.get(this._user.id)) {
+          this.reactiveService.setOtherListener('@' + this.user.id, false);
+          this.service.setNewsUser('@' + this.user.id).pipe(takeUntil(this.onDestroy)).subscribe();
+          this.service.publicStreamList$.set(this._user.id, this.reactiveService.getMessage('other-person'));
+        }
+        return this.service.publicStreamList$.get(this._user.id);
       }
     }));
   }
-
   getNewsByOwner(username: string) {
     this.orderBy = 'date';
     this.service.setNewsList(['@' + username], true);

@@ -8,6 +8,7 @@ import { NewsService } from '../core/news.service';
 import { Observable, of, Subject } from 'rxjs';
 import { WindowRef } from '../core/window.service';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
     selector: 'app-page-user',
@@ -25,13 +26,14 @@ export class UserComponent implements OnInit, OnDestroy {
     private _boolUser: Observable<number> = of(0);
     private _tags: Observable<Array<string>>;
     _isPub: Observable<boolean> = of(false);
+    private newslistUrl = '/sse/chat/room/TopNews/subscribeMessages';
 
     constructor(
         public userService: UserService,
         public authService: AuthService,
         private route: ActivatedRoute,
         public location: Location,
-        private winRef: WindowRef,
+        private winRef: WindowRef, private reactiveService: ReactiveStreamsService,
         private router: Router, private service: NewsService) {
     }
 
@@ -52,6 +54,9 @@ export class UserComponent implements OnInit, OnDestroy {
                 const data = routeData['data'];
                 //           this.boolUser = this.location.path() === '/user/edit' ? of(1) : of(0);
                 if (data) {
+                    if (!this.reactiveService.statusOfNewsSource()) {
+                        this.reactiveService.getNewsStream('top-news', this.newslistUrl);
+                    }
                     this.user = data;
                     this.user.provider = 'auth';
                     this.userService.loggedUser = this.user;

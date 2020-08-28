@@ -3,12 +3,14 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from '../core/auth.guard';
-import { MatIconModule, MatTooltipModule, MatButtonModule } from '@angular/material';
 import { ReqComponent } from './req.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
 
 const routes: Routes = [
     {path: '', component: ReqComponent, canActivate: [AuthGuard]}
-]
+];
 
 @NgModule({
     declarations: [

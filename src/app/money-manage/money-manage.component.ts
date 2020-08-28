@@ -3,6 +3,8 @@ import { FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs/internal/Subject';
 import { NewsService } from '../core/news.service';
 import { takeUntil } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-money-manage',
@@ -15,7 +17,7 @@ export class MoneyManageComponent implements OnInit, OnDestroy {
   adListStyle = {};
   searchField: FormControl;
   searchForm: FormGroup;
-  constructor(private fb: FormBuilder, private newsService: NewsService) { }
+  constructor(private fb: FormBuilder, private newsService: NewsService, private _snackBar: MatSnackBar) { }
 
   ngOnInit() {
     this.searchForm = this.fb.group({});
@@ -31,14 +33,12 @@ export class MoneyManageComponent implements OnInit, OnDestroy {
       alert('Hatalı İşlem!');
     } else {
       this.newsService.partitionMoney(value).pipe(takeUntil(this.onDestroy)).subscribe(() => {
-        this.searchField.patchValue(0);
-        // setTimeout(
-        //   () => this.newsService.setStoreValues().pipe(takeUntil(this.onDestroy)).subscribe(() => {
-        //     alert('İşlem başarıyla tamamlandı!');
-        //   }),
-        //   5000
-        // );
+          console.log('Money Partition request finished and returned!!!');
       });
+      this._snackBar.open('Your request sent successfully!', 'Check results!', {
+        duration: 3000,
+      });
+      this.searchField.patchValue(0);
     }
   }
 

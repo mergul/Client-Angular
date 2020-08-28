@@ -28,6 +28,8 @@ export class NewsService {
     mlink: string;
     newsStreamCounts$: Observable<RecordSSE>;
     meStreamList$: Observable<NewsPayload[]>;
+    publicStreamList$: Map<string, Observable<NewsPayload[]>> = new Map<string, Observable<NewsPayload[]>>();
+
 
     constructor(protected http: HttpClient) {
     }
@@ -56,16 +58,16 @@ export class NewsService {
         }
     }
 
-    getTopNewzList(etiketler: Array<string>): Observable<Array<NewsPayload>> {
-        return this.http.get<Array<NewsPayload>>('/sse/topnewzlist/' + etiketler, {
-            responseType: 'json', withCredentials: true
-        });
-    }
-    getNewsByOwnerIds(ids: Array<string>): Observable<Array<NewsPayload>> {
-        return this.http.get<Array<NewsPayload>>('/api/rest/news/getNewsByOwnerIds/' + ids, {
-            responseType: 'json', withCredentials: true
-        });
-    }
+    // getTopNewzList(etiketler: Array<string>): Observable<Array<NewsPayload>> {
+    //     return this.http.get<Array<NewsPayload>>('/sse/topnewzlist/' + etiketler, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
+    // getNewsByOwnerIds(ids: Array<string>): Observable<Array<NewsPayload>> {
+    //     return this.http.get<Array<NewsPayload>>('/api/rest/news/getNewsByOwnerIds/' + ids, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
     getTopNewsList(etiket: string): Observable<Array<NewsPayload>> {
         return this.http.get<Array<NewsPayload>>('/sse/topnewslist/' + encodeURIComponent(etiket), {
             responseType: 'json', withCredentials: true
@@ -81,26 +83,26 @@ export class NewsService {
             responseType: 'json', withCredentials: true
         });
     }
-    getList(): Observable<Array<NewsPayload>> {
-        // let apiURL = `${this.apiRoot}?term=${term}&media=music&limit=20`;
-        const apiURL = `${this.newsApiRoot}`;
-        return this.http.get<Array<NewsPayload>>(apiURL);
-    }
-    getTopList(list: Array<string>): Observable<Array<News>> {
-        return this.http.get<Array<News>>('/api/rest/news/topList/' + list, {
-            responseType: 'json', withCredentials: true
-        });
-    }
+    // getList(): Observable<Array<NewsPayload>> {
+    //     // let apiURL = `${this.apiRoot}?term=${term}&media=music&limit=20`;
+    //     const apiURL = `${this.newsApiRoot}`;
+    //     return this.http.get<Array<NewsPayload>>(apiURL);
+    // }
+    // getTopList(list: Array<string>): Observable<Array<News>> {
+    //     return this.http.get<Array<News>>('/api/rest/news/topList/' + list, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
     getTopReportedList(list: Array<string>): Observable<Array<News>> {
         return this.http.get<Array<News>>('/api/rest/news/topReportedList/' + list, {
             responseType: 'json', withCredentials: true
         });
     }
-    getNewsPayload(news: News) {
-        return {'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags,
-         'clean': news.clean, 'newsOwnerId': news.ownerId, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name,
-         'count': news.count, 'date': news.date};
-    }
+    // getNewsPayload(news: News) {
+    //     return {'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags,
+    //      'clean': news.clean, 'newsOwnerId': news.ownerId, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name,
+    //      'count': news.count, 'date': news.date};
+    // }
     getNewsById(id: string): Observable<News> {
         if (this.newzes$.has(id)) {
             const news = this.newzes$.get(id);
@@ -146,29 +148,29 @@ export class NewsService {
     set reportedNewsCounts(reportedNewsCounts: Map<string, string>) {
         this.reportedNewsCounts$ = reportedNewsCounts;
     }
-    getNewsByCounts(id: string) {
-        return this.http.get<string>('/sse/news/' + id, {
-            responseType: 'json', withCredentials: true
-        });
-    }
-    getUsersByCounts(id: string) {
-        return this.http.get<string>('/sse/users/' + id, {
-            responseType: 'json', withCredentials: true
-        });
-    }
+    // getNewsByCounts(id: string) {
+    //     return this.http.get<string>('/sse/news/' + id, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
+    // getUsersByCounts(id: string) {
+    //     return this.http.get<string>('/sse/users/' + id, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
+    //
+    // getNewsListCounts(list: Array<string>): Observable<Array<RecordSSE>> {
+    //     // @ts-ignore
+    //     return this.http.get<Array<RecordSSE>>('/sse/newslist/' + list, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
 
-    getNewsListCounts(list: Array<string>): Observable<Array<RecordSSE>> {
-        // @ts-ignore
-        return this.http.get<Array<RecordSSE>>('/sse/newslist/' + list, {
-            responseType: 'json', withCredentials: true
-        });
-    }
-
-    getUserTopNewsList(id: string): Observable<Array<NewsPayload>> {
-        return this.http.get<Array<NewsPayload>>('/sse/topnewslist/@' + id, {
-            responseType: 'json', withCredentials: true
-        });
-    }
+    // getUserTopNewsList(id: string): Observable<Array<NewsPayload>> {
+    //     return this.http.get<Array<NewsPayload>>('/sse/topnewslist/@' + id, {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
     getReportedNewsListCounts(list: Array<string>): Observable<Array<RecordSSE>> {
         // @ts-ignore
         return this.http.get<Array<RecordSSE>>('/reported/reportednewslist/' + list, {
@@ -186,11 +188,11 @@ export class NewsService {
             responseType: 'json', withCredentials: true
         });
     }
-    getStartCounts(): Observable<Array<RecordSSE>> {
-        return this.http.get<Array<RecordSSE>>('/sse/newscounts', {
-            responseType: 'json', withCredentials: true
-        });
-    }
+    // getStartCounts(): Observable<Array<RecordSSE>> {
+    //     return this.http.get<Array<RecordSSE>>('/sse/newscounts', {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
 
     sendReport(newsPayload1: NewsPayload, admin: boolean) {
         const jp = admin ? 'admin' : 'user';
@@ -200,11 +202,11 @@ export class NewsService {
 
     }
 
-    getTopTags(): Observable<Array<RecordSSE>> {
-        return this.http.get<Array<RecordSSE>>('/sse/toptagslist', {
-            responseType: 'json', withCredentials: true
-        });
-    }
+    // getTopTags(): Observable<Array<RecordSSE>> {
+    //     return this.http.get<Array<RecordSSE>>('/sse/toptagslist', {
+    //         responseType: 'json', withCredentials: true
+    //     });
+    // }
 
     deleteNewsById(id: string): Observable<boolean> {
         return this.http.delete<boolean>('/api/rest/news/delete/' + id, {
@@ -230,6 +232,11 @@ export class NewsService {
     setStoreValues() {
         return this.http.post<boolean>('/balance/rest/admin/newzstores', '0', {
             responseType: 'json', withCredentials: true
+        }).pipe();
+    }
+    setComment(comment: string, userId: string, newsId: string) {
+        return this.http.post<boolean>('/api/rest/news/comments', { 'newsId': newsId, 'userId': userId,
+          'comment': comment, 'date': new Date() }, { responseType: 'json', withCredentials: true
         }).pipe();
     }
 }

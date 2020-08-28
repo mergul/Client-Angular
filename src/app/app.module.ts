@@ -14,13 +14,19 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing-module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { WindowRef } from './core/window.service';
-import 'hammerjs';
- import {  } from './no-logged-nav/no-logged-nav.component';
 import { ReactiveStreamsService } from './core/reactive-streams.service';
 import { LoaderService } from './core/loader.service';
 import { APP_BASE_HREF } from '@angular/common';
 import {UserResolver} from './user/user.resolver';
 import { LoggedNavModule } from './logged-nav/logged-nav.module';
+import { ScriptLoaderService } from './core/script-loader.service';
+import * as Hammer from 'hammerjs';
+import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+export class MyHammerConfig extends HammerGestureConfig  {
+  overrides = <any>{
+      'swipe': { direction: Hammer.DIRECTION_ALL  }
+  };
+}
 
 @NgModule({
     declarations: [
@@ -34,14 +40,14 @@ import { LoggedNavModule } from './logged-nav/logged-nav.module';
         AngularFireAuthModule
     ],
     providers: [ReactiveStreamsService, AuthService, UserService, NewsService, SearchService
-        , WindowRef, AuthGuard, BackendServiceService, LoaderService, UserResolver,
+        , WindowRef, AuthGuard, BackendServiceService, LoaderService, UserResolver, ScriptLoaderService,
         {
             provide: HTTP_INTERCEPTORS,
             useClass: TokenInterceptor,
             multi: true
-        }, {
-            provide: FirebaseOptionsToken, useValue: environment.firebase
-        }, {provide: APP_BASE_HREF, useValue: '/'}
+        }, { provide: FirebaseOptionsToken, useValue: environment.firebase
+        }, { provide: APP_BASE_HREF, useValue: '/' },
+        { provide: HAMMER_GESTURE_CONFIG, useClass: MyHammerConfig }
     ],
     entryComponents: [],
     bootstrap: [AppComponent],

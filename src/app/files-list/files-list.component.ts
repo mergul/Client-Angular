@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {News} from '../core/news.model';
 import {BackendServiceService} from '../core/backend-service.service';
 import {DomSanitizer} from '@angular/platform-browser';
@@ -6,17 +6,21 @@ import { WindowRef } from '../core/window.service';
 
 @Component({
     selector: 'app-files-list',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './files-list.component.html',
     styleUrls: ['./files-list.component.scss']
 })
 export class FilesListComponent implements OnInit {
     itemWidth: number;
     private _thumbName: string;
-    private _imgUrl: string;
+    _imgUrl: string;
     private _news: News;
     width: number;
     height: number;
-    constructor(private backend: BackendServiceService, private sanitizer: DomSanitizer,
+   // @ViewChild('myImg', { read: ElementRef, static: false }) myImg;
+
+
+    constructor(public sanitizer: DomSanitizer,
         private winRef: WindowRef) {
     }
 
@@ -52,7 +56,7 @@ export class FilesListComponent implements OnInit {
 
             // this.getUrlReview(this._thumbName).then(value => this.imgUrl = value);
           // this.imgUrl = 'https://storage.googleapis.com/sentral-news-media/' + thumbName;
-          this._imgUrl = '/assets/' + thumbName;
+          this._imgUrl = 'assets/' + thumbName;
         }
     }
 

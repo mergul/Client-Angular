@@ -1,10 +1,35 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Renderer2, Inject, RendererFactory2 } from '@angular/core';
 import {Observable, Observer} from 'rxjs';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ScriptLoaderService {
     private scripts: ScriptModel[] = [];
+    constructor() {
+    }
 
+    public injectScript(renderer, _document, href, tag, id, integrity, crossorigin) {
+        return new Promise(function (resolve, reject) {
+            const s = renderer.createElement(tag);
+            s.onload = () => resolve(tag);
+            s.onerror = () => reject(tag);
+            if (tag === 'link') {
+                s.setAttribute('rel', 'stylesheet');
+                s.setAttribute('integrity', integrity);
+                s.setAttribute('crossorigin', crossorigin);
+                s.setAttribute('href', href);
+            } else {
+                s.setAttribute('type', 'text/javascript');
+                s.setAttribute('id', id);
+                s.setAttribute('data-add-client', integrity);
+                if (crossorigin !== '') {
+                    s.setAttribute('crossorigin', crossorigin);
+                }
+                s.setAttribute('src', href);
+            }
+            renderer.appendChild(_document.head, s);
+           // document.head.appendChild(s);
+        });
+    }
     public load(script: ScriptModel): Observable<ScriptModel> {
         return new Observable<ScriptModel>((observer: Observer<ScriptModel>) => {
             const existingScript = this.scripts.find(s => s.name === script.name);

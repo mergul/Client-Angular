@@ -1,5 +1,5 @@
 video{
-  width: 33%;
+  width: 100%;
 }
 .p-1{
   display: flex;
@@ -11,4 +11,13 @@ mat-form-field.speech-result-width{
   width: auto;
   min-width: 300px;
   text-align: center;
+}
+ul, li {list-style-type: none;}
+
+li {text-indent: -2em;}
+.chat {
+  min-width: 400px;
+}
+#textbox {
+  min-width: 380px;
 }

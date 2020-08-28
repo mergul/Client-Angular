@@ -78,21 +78,21 @@ export class UserService implements OnDestroy {
         });
     }
 
-    addFollowingTag(_activeLink: string) {
-        //  const user = firebase.auth().currentUser;
-        if (this.dbUser !== null) {
-            this.userTag.id = this.dbUser.id;
-            this.userTag.email = this.dbUser.email;
-            this.userTag.tag = _activeLink;
-            return this.http.put<boolean>('/api/rest/users/addtag', this.userTag, {
-                responseType: 'json', withCredentials: true
-            }).pipe();
-        } else {
-            this.authService.redirectUrl = '/users/' + _activeLink.substring(1);
-            this.router.navigate(['/loginin']);
-        }
-        return of(false);
-    }
+    // addFollowingTag(_activeLink: string) {
+    //     //  const user = firebase.auth().currentUser;
+    //     if (this.dbUser !== null) {
+    //         this.userTag.id = this.dbUser.id;
+    //         this.userTag.email = this.dbUser.email;
+    //         this.userTag.tag = _activeLink;
+    //         return this.http.put<boolean>('/api/rest/users/addtag', this.userTag, {
+    //             responseType: 'json', withCredentials: true
+    //         }).pipe();
+    //     } else {
+    //         this.authService.redirectUrl = '/users/' + _activeLink.substring(1);
+    //         this.router.navigate(['/loginin']);
+    //     }
+    //     return of(false);
+    // }
 
     get loggedUser(): FirebaseUserModel {
         return this._loggedUser;
@@ -195,7 +195,7 @@ export class UserService implements OnDestroy {
         return of(false);
     }
     public setDbUser(muser: User) {
-        if (muser != null && this.loggedUser) {
+        if (muser != null && this.loggedUser && muser.username) {
             this.newsCo.set(this.links[1], muser.tags.map(value => {
                 this.reactiveService.setUserListListeners('#' + value);
                 return '#' + value;
@@ -246,7 +246,7 @@ export class UserService implements OnDestroy {
             + 'profile-img.jpeg'; // this.loggedUser.image;
             this.back_url =  '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
             + 'back-img.jpeg';
-        } 
+        }
     }
     updateUser(userd: User) {
         return this.http.post<boolean>('/api/rest/userregis/save', userd, {

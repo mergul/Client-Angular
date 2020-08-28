@@ -14,7 +14,6 @@ export class SearchService {
     newsApiRoot = '/api/rest/news/search/';
     usersApiRoot = '/api/rest/users/search/';
 
-// 'https://itunes.apple.com/search';
     newsList: any;
     activeLink: any;
     orderBy: any;

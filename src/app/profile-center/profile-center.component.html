@@ -9,7 +9,7 @@
     <mat-icon>sort</mat-icon> 
     <span style="font-size: large">Sıralama</span>
   </button>
-  <app-news-list [newsList]="_newsList" [activeLink]="service.activeLink" [orderBy]="orderBy"></app-news-list>
+  <app-news-list [newsList]="_newsList" [activeLink]="service.activeLink" [orderBy]="orderBy" [currLink]="'me'"></app-news-list>
 </div>
   <app-edit-profile *ngIf="(boolUser|async) === 1" [user]="user" [booled]="(boolUser|async) === 1"></app-edit-profile>
   <app-profile-list *ngIf="(boolUser|async) === 2" [users]="users" [booled]="(boolUser|async) === 2"></app-profile-list>

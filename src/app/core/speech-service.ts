@@ -35,6 +35,7 @@ export class SpeechService {
     ignoreOnEnd: boolean;
     startTimestamp: any;
     utterance: SpeechSynthesisUtterance;
+    private _mitext = '';
 
     constructor(private zone: NgZone, protected http: HttpClient) {
     }
@@ -69,7 +70,9 @@ export class SpeechService {
         this._speech.lang = language;
         this.initListeners();
     }
-
+    public set mitext(text) {
+        this._mitext = text;
+    }
     private initListeners() {
         this._speech.onstart = (ev) => {
             this.zone.run(() => this.speechSubject.next({ transcript: 'speak now!' }));
@@ -78,7 +81,10 @@ export class SpeechService {
             if (this.ignoreOnEnd) {
                 return;
             }
-            this.zone.run(() => this.speechSubject.next({ transcript: 'silence now!' }));
+            this.zone.run(() => {
+                if (this._mitext !== '') { this.speechSubject.next({ transcript: this._mitext, info: 'print' }); }
+                this.speechSubject.next({ transcript: 'speech ended!' });
+            });
         };
         this._speech.onerror = (event: any) => {
             let result: SpeechError;

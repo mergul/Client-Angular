@@ -61,6 +61,8 @@ import 'zone.js/dist/zone';  // Included with Angular CLI.
 // import { Buffer } from 'buffer';
 // (window as any).Buffer = Buffer;
   (window as any).global.Buffer = (window as any).global.Buffer || require('buffer').Buffer;
+  (window as any).global.twttr = (window as any).global.twttr;
+  (window as any).global.adsbygoogle = (window as any).global.adsbygoogle;
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */

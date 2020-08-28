@@ -1,13 +1,14 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {globals} from '../../environments/environment';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class MultiFilesService {
 
-    private _url: Array<string> = [];
+    private _url: BehaviorSubject<Array<string>> = new BehaviorSubject([]);
     private _thumbs: Map<string, Blob> = new Map<string, Blob>();
     private _totalFiles: Array<File> = [];
 
@@ -31,12 +32,12 @@ export class MultiFilesService {
         this._totalFiles = value;
     }
 
-    get url(): Array<string> {
-        return this._url;
+    getUrls(): Observable<Array<string>> {
+        return this._url.asObservable();
     }
 
-    set url(value: Array<string>) {
-        this._url = value;
+    setUrls(value: Array<string>) {
+        this._url.next(value);
     }
 
     saveFiles(total_form) {
@@ -57,6 +58,6 @@ export class MultiFilesService {
     remove(index: number) {
         this.totalFiles.splice(index, 1);
         this.thumbs.delete(this.thumbs.keys()[index]);
-        this.url.splice(index, 1);
+        this._url.value.splice(index, 1);
     }
 }

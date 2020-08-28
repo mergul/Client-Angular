@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { PublicProfileComponent } from './public-profile.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import {NewsListModule} from "../news-list/news-list.module";
-import {ProfileModule} from "../profile-card/profile.module";
-import {ModalContainerComponent} from "../news-details/modal-container-component";
+import {NewsListModule} from '../news-list/news-list.module';
+import {ProfileModule} from '../profile-card/profile.module';
+import {ModalContainerComponent} from '../news-details/modal-container-component';
 
 const routes: Routes = [
   {path: '', component: PublicProfileComponent,

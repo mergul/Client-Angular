@@ -5,7 +5,10 @@ import { Routes, RouterModule } from '@angular/router';
 import {AdsComponent} from '../ads/ads.component';
 import {NewsListModule} from '../news-list/news-list.module';
 import {ModalContainerComponent} from '../news-details/modal-container-component';
-import { LoggedNavModule } from '../logged-nav/logged-nav.module';
+import { ScriptLoaderService } from '../core/script-loader.service';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatIconModule } from '@angular/material/icon';
+
 
 const routes: Routes = [
   {
@@ -22,12 +25,13 @@ const routes: Routes = [
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        NewsListModule,
+        NewsListModule, MatTabsModule, MatIconModule
     ],
   entryComponents: [
   ],
+  providers: [ScriptLoaderService],
   bootstrap: [HomeComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [AdsComponent, CommonModule]
+  exports: [AdsComponent, CommonModule, MatIconModule]
 })
 export class HomeModule { }

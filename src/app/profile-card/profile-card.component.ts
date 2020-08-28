@@ -37,8 +37,9 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
     set user(user1: User) {
         this._user = user1;
         this.folli = this.userService.loggedUser != null && this.userService.loggedUser.people.includes(this.user.id);
-        const leng = user1.mediaParts.length;
-        user1.mediaParts.forEach(thumb => {
+        const leng = user1.mediaParts ? user1.mediaParts.length : 0;
+        if (leng > 0) {
+            user1.mediaParts.forEach(thumb => {
             const img = thumb === 1 ? 'back-img.jpeg' : 'profile-img.jpeg';
             if (thumb === 1) {
                 this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + user1.id + '-' + img;
@@ -52,7 +53,7 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
                 }
             }
         });
-        if (leng === 0) {
+    } else if (leng === 0) {
             this.prof_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
                 + 'profile-img.jpeg'; // this.loggedUser.image;
             this.back_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'

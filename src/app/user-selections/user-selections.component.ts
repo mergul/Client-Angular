@@ -1,10 +1,10 @@
 import {Component, OnInit, ViewChild, OnDestroy} from '@angular/core';
-import {MatListOption, MatSelectionList, MatSelectionListChange} from '@angular/material';
 import {UserService} from '../core/user.service';
 import {map, takeUntil} from 'rxjs/operators';
 import {Observable, of, Subject} from 'rxjs';
 import {BalanceRecord} from '../core/user.model';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
+import {MatListOption, MatSelectionList, MatSelectionListChange} from '@angular/material/list';
 
 @Component({
   selector: 'app-user-selections',
