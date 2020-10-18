@@ -14,7 +14,6 @@ import { WindowRef } from './core/window.service';
 import { ReactiveStreamsService } from './core/reactive-streams.service';
 import { ScriptLoaderService } from './core/script-loader.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-// import {MatSidenavModule} from '@angular/material/sidenav';
 
 @NgModule({
     declarations: [
