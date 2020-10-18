@@ -5,10 +5,8 @@ import {
     HttpEvent,
     HttpInterceptor
 } from '@angular/common/http';
-import {AuthService} from './auth.service';
 import {Observable} from 'rxjs';
 import {finalize} from 'rxjs/operators';
-import {Router} from '@angular/router';
 import {LoaderService} from './loader.service';
 import {UserService} from './user.service';
 
@@ -17,15 +15,14 @@ const methods = ['PUT', 'POST', 'DELETE', 'PATCH'];
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
 
-    constructor(public auth: AuthService, private router: Router, private ui: LoaderService,
-    private userService: UserService) {
+    constructor(private ui: LoaderService, private userService: UserService) {
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const user = this.userService.user;
-        if (!methods.includes(request.method) && !request.url.includes('/user/')&& !request.url.includes('/balance/')) {
+        if (!methods.includes(request.method) && !request.url.includes('/user/') && !request.url.includes('/balance/')) {
             return next.handle(request);
-        } else if (request.url.includes('/user/')||request.url.includes('/balance/')) {
+        } else if (request.url.includes('/user/') || request.url.includes('/balance/')) {
            // return this.auth.getCurrentIdToken().pipe(
            //     switchMap((token: string) => {
                     const headers = request.headers;

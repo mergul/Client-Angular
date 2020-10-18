@@ -1,25 +1,20 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {AngularFireAuth} from '@angular/fire/auth';
-import * as firebase from 'firebase/app';
-import {HttpClient} from '@angular/common/http';
-import {FirebaseUserModel, User, UserTag, BalanceRecord} from './user.model';
-import {map} from 'rxjs/operators';
-import {Router} from '@angular/router';
-import {of} from 'rxjs/internal/observable/of';
-import {AuthService} from './auth.service';
-import {Observable, Subject} from 'rxjs';
-import {BackendServiceService} from './backend-service.service';
-import {Location} from '@angular/common';
-import {RecordSSE} from './RecordSSE';
-import {NewsPayload} from './news.model';
+import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { FirebaseUserModel, User, UserTag, BalanceRecord } from './user.model';
+import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { of } from 'rxjs/internal/observable/of';
+import { Observable, Subject } from 'rxjs';
+import { RecordSSE } from './RecordSSE';
+import { NewsPayload } from './news.model';
 import { ReactiveStreamsService } from './reactive-streams.service';
 
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class UserService implements OnDestroy {
 
     private readonly onDestroy = new Subject<void>();
-    user: FirebaseUserModel = new FirebaseUserModel();
+    public user: FirebaseUserModel = new FirebaseUserModel();
     _loggedUser: FirebaseUserModel;
     userTag: UserTag = new UserTag();
     _totalBalance: number;
@@ -35,64 +30,25 @@ export class UserService implements OnDestroy {
     reStreamList$: Observable<NewsPayload[]>;
     reStreamCounts$: Observable<RecordSSE>;
     _otherUser: Observable<User>;
+    redirectUrl = 'login';
+    random: number;
 
     constructor(
-        public afAuth: AngularFireAuth,
         protected http: HttpClient,
         private router: Router,
-        private authService: AuthService,
-        private reactiveService: ReactiveStreamsService, private location: Location,
-        private backend: BackendServiceService
+        private reactiveService: ReactiveStreamsService
     ) {
     }
-    getDbUser(url: string, loggedId: string): Observable<User> {
-        this.email = this.loggedUser && this.loggedUser.email ? this.loggedUser.email : this.email;
-        const username = this.loggedUser ? this.loggedUser.name : '';
-        return this.http.get<User>(url, {
-            responseType: 'json', withCredentials: true,
-            params: {'email': this.email, 'name': encodeURIComponent(username), visitor: loggedId}
-        }).pipe();
+    getDbUser(url: string): Observable<User> {
+        if (url) {
+            this.email = this.loggedUser && this.loggedUser.email ? this.loggedUser.email : this.email;
+            const username = this.loggedUser ? this.loggedUser.name : '';
+            return this.http.get<User>(url, {
+                responseType: 'json', withCredentials: true,
+                params: { 'email': this.email, 'name': encodeURIComponent(username) }
+            }).pipe();
+        }
     }
-
-    getCurrentUser() {
-        return new Promise<any>((resolve, reject) => {
-            const user = firebase.auth().onAuthStateChanged(function (userd) {
-                if (userd) {
-                    resolve(userd);
-                } else {
-                    reject('No user logged in');
-                }
-            });
-        });
-    }
-
-    updateCurrentUser(value) {
-        return new Promise((resolve, reject) => {
-            const user = firebase.auth().currentUser;
-            user.updateProfile({
-                displayName: value.name,
-                photoURL: user.photoURL
-            }).then(() => {
-                resolve('User Successfully Updated');
-            }, err => reject(err));
-        });
-    }
-
-    // addFollowingTag(_activeLink: string) {
-    //     //  const user = firebase.auth().currentUser;
-    //     if (this.dbUser !== null) {
-    //         this.userTag.id = this.dbUser.id;
-    //         this.userTag.email = this.dbUser.email;
-    //         this.userTag.tag = _activeLink;
-    //         return this.http.put<boolean>('/api/rest/users/addtag', this.userTag, {
-    //             responseType: 'json', withCredentials: true
-    //         }).pipe();
-    //     } else {
-    //         this.authService.redirectUrl = '/users/' + _activeLink.substring(1);
-    //         this.router.navigate(['/loginin']);
-    //     }
-    //     return of(false);
-    // }
 
     get loggedUser(): FirebaseUserModel {
         return this._loggedUser;
@@ -100,7 +56,7 @@ export class UserService implements OnDestroy {
     hex(length, n) {
         n = n.toString(16);
         return (n.length === length) ? n : '00000000'.substring(n.length, length) + n;
-      }
+    }
     set loggedUser(logged: FirebaseUserModel) {
         this._loggedUser = logged;
         if (logged != null) {
@@ -110,13 +66,13 @@ export class UserService implements OnDestroy {
                 if (logged.provider === 'auth') {
                     url = '/api/rest/user/' + logged.id.substring(0, 12);
                 } else if (this.loggedUser.id) {
-                    url = '/api/rest/users/get/' + logged.id.substring(0, 12);
+                    url = '/api/rest/users/get/' + logged.id.substring(0, 12) + '/b';
                 } else {
-                    url = '/api/rest/users/get/' + logged.email;
+                    url = '/api/rest/users/get/' + logged.email + '/a';
                 }
                 this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer.from(logged.id.substring(0, 12))]))
-                .map(this.hex.bind(this, 2)).join(''));
-                this.getDbUser(url, '').pipe(map(muser => {
+                    .map(this.hex.bind(this, 2)).join(''), this.random);
+                this.getDbUser(url + '/' + this.random).pipe(map(muser => {
                     this.setDbUser(muser);
                 })).subscribe();
             }
@@ -136,11 +92,6 @@ export class UserService implements OnDestroy {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
-    // setInterests(ids: string[]): Observable<boolean> {
-    //     return this.http.get<boolean>('/sse/setInterests/' + ids, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
 
     get prof_url(): string {
         return this._prof_url;
@@ -167,7 +118,7 @@ export class UserService implements OnDestroy {
     }
 
     newSummary(id: string, summary: string) {
-        return this.http.put<boolean>('/api/rest/description', {'id': id, 'summary': summary}, {
+        return this.http.put<boolean>('/api/rest/description', { 'id': id, 'summary': summary }, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
@@ -178,8 +129,8 @@ export class UserService implements OnDestroy {
             this.userTag.email = this.dbUser.email;
             this.userTag.tag = _activeLink;
             if (adding) {
-                this.reactiveService.setUserListListeners(_activeLink);
-                return this.http.put<boolean>('/api/rest/users/addtag', this.userTag, {
+                this.reactiveService.setUserListListeners(_activeLink, this.random);
+                return this.http.put<boolean>('/api/rest/users/addtag/' + this.random, this.userTag, {
                     responseType: 'json', withCredentials: true
                 }).pipe();
             } else {
@@ -189,7 +140,7 @@ export class UserService implements OnDestroy {
                 }).pipe();
             }
         } else {
-            if (_activeLink.charAt(0) === '@') { this.authService.redirectUrl = '/user/' + _activeLink.substring(1); }
+            if (_activeLink.charAt(0) === '@') { this.redirectUrl = '/user/' + _activeLink.substring(1); }
             this.router.navigate(['/loginin']);
         }
         return of(false);
@@ -197,11 +148,11 @@ export class UserService implements OnDestroy {
     public setDbUser(muser: User) {
         if (muser != null && this.loggedUser && muser.username) {
             this.newsCo.set(this.links[1], muser.tags.map(value => {
-                this.reactiveService.setUserListListeners('#' + value);
+                this.reactiveService.setUserListListeners('#' + value, this.random);
                 return '#' + value;
             }));
             this.newsCo.set(this.links[2], muser.users.map(value => {
-                this.reactiveService.setUserListListeners('@' + value);
+                this.reactiveService.setUserListListeners('@' + value, this.random);
                 return '@' + value;
             }));
             this.loggedUser.tags = muser.tags;
@@ -214,38 +165,38 @@ export class UserService implements OnDestroy {
             this.loggedUser.iban = muser.iban;
             const leng = muser.mediaParts === undefined ? 0 : muser.mediaParts.length;
             if (leng !== 0) {
-            muser.mediaParts.forEach(thumb => {
-                //  this.loggedUser.mediaParts.push(new ThumbModel(thumb['name'], thumb['content']));
-                const img = thumb === 1 ? 'back-img.jpeg' : 'profile-img.jpeg';
-                //       this.backend.fetchStream(img, '/api/rest/downloads/images/', 0)
-                //           .then(value => {
-                if (thumb === 1) {
-                    this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + muser.id + '-' + img;
-                    if (leng === 1) {
-                        this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
+                muser.mediaParts.forEach(thumb => {
+                    //  this.loggedUser.mediaParts.push(new ThumbModel(thumb['name'], thumb['content']));
+                    const img = thumb === 1 ? 'back-img.jpeg' : 'profile-img.jpeg';
+                    //       this.backend.fetchStream(img, '/api/rest/downloads/images/', 0)
+                    //           .then(value => {
+                    if (thumb === 1) {
+                        this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + muser.id + '-' + img;
+                        if (leng === 1) {
+                            this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
+                        }
+                    } else if (thumb === 0) {
+                        this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + muser.id + '-' + img;
+                        if (leng === 1) {
+                            this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
+                        }
                     }
-                } else if (thumb === 0) {
-                    this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + muser.id + '-' + img;
-                    if (leng === 1) {
-                        this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
-                    }
-                }
-                //        });
-            });
-        } else if (leng === 0) {
+                    //        });
+                });
+            } else if (leng === 0) {
                 this.prof_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
                     + 'profile-img.jpeg'; // this.loggedUser.image;
-                this.back_url =  '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
+                this.back_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
                     + 'back-img.jpeg';
             }
             this.dbUser = muser;
             this.dbUser.roles = muser.roles === undefined ? ['ROLE_USER'] : muser.roles;
             this.dbUser.email = this.dbUser.email == null ? this.email : this.dbUser.email;
         } else if (this.loggedUser) {
-            this.prof_url =  '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
-            + 'profile-img.jpeg'; // this.loggedUser.image;
-            this.back_url =  '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
-            + 'back-img.jpeg';
+            this.prof_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
+                + 'profile-img.jpeg'; // this.loggedUser.image;
+            this.back_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
+                + 'back-img.jpeg';
         }
     }
     updateUser(userd: User) {
@@ -262,32 +213,41 @@ export class UserService implements OnDestroy {
 
     blockUser(userd: User, block: boolean) {
         const eng = block ? '1' : '0';
-        return this.http.post<boolean>('/api/rest/userregis/block', {'id': this.loggedUser.id, 'email': userd.id, 'tag': eng}, {
+        return this.http.post<boolean>('/api/rest/userregis/block', { 'id': this.loggedUser.id, 'email': userd.id, 'tag': eng }, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
     getTotalBalance(id: string) {
-        return this.http.get<BalanceRecord>('/balance/rest/balance/total/@' + id, {
+        return this.http.get<BalanceRecord>('/api/rest/balance/total/@' + id, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
     checkOut(loggedUser: User) {
-        return this.http.post<Boolean>('/balance/rest/useradmin/userscheckout', loggedUser.id, {
+        return this.http.post<Boolean>('/api/rest/useradmin/userscheckout', loggedUser.id, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
 
     hotBalanceRecords(): Observable<Array<BalanceRecord>> {
-        return this.http.get<Array<BalanceRecord>>('/balance/rest/admin/hotBalanceRecords', {
+        // return this.http.get<Array<BalanceRecord>>('/api/rest/admin/hotBalanceRecords', {
+        //     responseType: 'json', withCredentials: true
+        // }).pipe();
+        return this.reactiveService.getMessage('hotRecords');
+    }
+
+    payToAll(value: string[]) {
+        return this.http.post<boolean>('/api/rest/admin/handlePayments', value, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
 
-    payToAll(value: string[]) {
-        return this.http.post<boolean>('/balance/rest/admin/handlePayments', value, {
-            responseType: 'json', withCredentials: true
-        }).pipe();
+    getAccountHistory(id: string): Observable<BalanceRecord[]> {
+        // return this.http.get<BalanceRecord[]>('/api/rest/balance/history/@' + id, {
+        //     responseType: 'json', withCredentials: true
+        // }).pipe();
+        return this.reactiveService.getMessage('user-history');
     }
+
     ngOnDestroy(): void {
         this.onDestroy.next();
     }

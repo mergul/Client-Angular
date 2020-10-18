@@ -1,91 +1,26 @@
-@media only screen and (min-width: 1280px) {
-  .mat-tab-links, .news ul {
-    width: 617px;
-    min-width: 617px;
-  }
-}
-@media only screen and (max-width: 1279px) {
-  .mat-tab-links, .news ul {
-    width: 617px;
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .mat-tab-links, .news ul {
-    width: 100%;
-  }
-
-  .top-tags{
-    display: none;
-  }
-  .reklam{
-    display: none;
-  }
-  .mat-tab-link {
-    padding: 0 0 !important;
-  }
-}
 .news{
   margin-bottom: 1px;
   text-align: left;
   display: flex;
 }
-.news ul{
-  display: block;
-  margin: 0;
-  padding: 0;
-}
+
 .news ul.items{
   display: table;
   margin: 0 auto;
   padding: 0;
-  // border-bottom: 17px solid #E3E3E3;
-}
-.news-list {
-  display: block;
-  width: 100%;
-  border-bottom: 1px solid #EDEDED;
-  padding: 10px 0 0;
-  min-height: 111px;
-  clear: both;
 }
  
-.news-list a {
-  display: block;
-  position: relative;
-  color: #222;
-  margin-left: 10px;
-  text-decoration: none;
+::ng-deep .mat-tab-label,::ng-deep .mat-tab-link {
+  color: #030303 !important;
+  opacity: 0.9 !important;
+  font-family: auto;
+  padding: 0 12px !important;
+}
+::ng-deep .mat-ink-bar {
+  background: purple !important;
+  height: 5px !important;
 }
 
-.news-list img {
-  display: block;
-  width: 100px;
-  height: 100px;
-  float: left;
-  margin-right: 10px;
-}
-
-.news-list h4 {
-  display: table-cell;
-  padding: 0 10px 8px 0px;
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-  height: 100px;
-  box-sizing: content-box;
-}
-
-span.date {
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
-  background-size: 12px;
-  text-indent: 15px;
-  color: #666;
-  font-size: 12px;
-  font-weight: 400;
-  margin-bottom: 6px;
-  display: inline-block;
-}
 .mat-tab-label-active{
   background: white;
 }
@@ -95,4 +30,29 @@ span.date {
   margin: 0 auto;
   text-align: -webkit-center;
   background-color: #f3f3f3;
+}
+.form-control {
+  display: inline-block;
+  width: 75%;
+  height: calc(1.5em + .75rem + 2px);
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+::ng-deep .mearch .mat-form-field-underline {
+  bottom: 5px !important;
+}
+::ng-deep .mearch .mat-form-field-wrapper {
+  padding-bottom: 5px !important;
+}
+::ng-deep .mearch .mat-form-field-infix {
+  padding: .5em 0;
+  border-top: .01em solid transparent;
 }

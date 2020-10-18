@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { User } from '../core/user.model';
 import { UserService } from '../core/user.service';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
     selector: 'app-profile-card',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './profile-card.component.html',
     styleUrls: ['./profile-card.component.scss']
 })

@@ -1,18 +1,15 @@
-<div style="display: flex">
+<div class="container" style="display: flex">
 <div class="containerx">
     <form [formGroup]="searchForm" style="width: 300px">
-        <div class="form-group">
             <input type="search"
                    class="form-control" autofocus="true"
                    placeholder="TL Miktarı Girin"
                    [formControl]="searchField">
-        </div>
-        <button type="submit" (click)="partitionMoney(searchField.value)" class="btn btn-block" style="background-color: #222222;color: white">Parayı Dağıt
+        <button type="submit" (click)="partitionMoney(searchField.value)" class="butto ripple button-outline" style="margin: 0; width: 300px;">Parayı Dağıt
         </button>
     </form>
     <div style="margin-top: 30px">
-        <button class="btn btn-block" [routerLink]="['/talepler']" style="font-size: larger; height: 50px; width: 300px;background-color: red;
-color: white;">Para Çekim Talepleri</button>
+        <button class="butto ripple button-outline" (click)="changeChild()" style="margin: 0; width: 300px;">Para Çekim Talepleri</button>
     </div>
 </div>
 </div>

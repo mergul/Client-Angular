@@ -1,8 +1,9 @@
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {AfterViewInit, Component, OnDestroy, OnInit, Inject, Renderer2, HostListener} from '@angular/core';
 import {Router} from '@angular/router';
-import {Location} from '@angular/common';
+import {Location, DOCUMENT} from '@angular/common';
 import {NewsService} from '../core/news.service';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { RegisterComponent } from '../register/register.component';
 
 @Component({
   selector: 'app-req',
@@ -10,31 +11,40 @@ import {NewsService} from '../core/news.service';
   styleUrls: ['./req.component.scss']
 })
 export class ReqComponent implements OnInit, AfterViewInit, OnDestroy {
-  showModal: Observable<boolean> = of(false);
   listenerFn: () => void;
+    color: string;
+  wideStyle: { width: string; };
   constructor(private router: Router,
               private location: Location,
-              private newsService: NewsService
-  ) { }
-
+              private newsService: NewsService,
+              public dialogRef: MatDialogRef<RegisterComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+              @Inject(DOCUMENT) private _document: Document, private renderer: Renderer2
+  ) {
+    this.color = data.color;
+  }
+  @HostListener('window:keyup.esc') onKeyUp() {
+    this.onClose('');
+  }
   ngOnInit() {
+    const minu = this.data.header$ > 500 ? 250 : 0;
+    const modalWidth = this.data.header$ - minu;
+    this.wideStyle = {
+        width: `${modalWidth}px`
+    };
+    this.dialogRef.updateSize(`${this.data.header$ - minu + 24}px`, '200px');
   }
   ngAfterViewInit() {
-    this.showModal = of(true);
+     this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
   }
 
-  onClose() {
-    this.newsService.activeLink = 'En Çok Okunanlar';
-    this.showModal = of(false);
-    // Allow fade out animation to play before navigating back
-    setTimeout(
-        () => this.location.back(), // this.router.navigate(['/']),
-        100
-    );
+  onClose(redir) {
+    if (redir === '') {
+      this.newsService.activeLink = 'En Çok Okunanlar';
+    }
+    this.dialogRef.close(redir);
   }
 
   onDialogClick(event: UIEvent) {
-    // Capture click on dialog and prevent it from bubbling to the modal background.
     event.stopPropagation();
     event.cancelBubble = true;
   }

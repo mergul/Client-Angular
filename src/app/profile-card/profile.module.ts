@@ -1,8 +1,5 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule} from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {NewsListModule} from '../news-list/news-list.module';
 import {ProfileHeaderComponent} from '../profile-header/profile-header.component';
 import {EditTagsListComponent} from '../edit-tags-list/edit-tags-list.component';
@@ -11,23 +8,28 @@ import {ProfileCardComponent} from './profile-card.component';
 import {ProfileListComponent} from '../profile-list/profile-list.component';
 import {ProfileCenterComponent} from '../profile-center/profile-center.component';
 import {MatMenuModule} from '@angular/material/menu';
-import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatTooltipModule} from '@angular/material/tooltip';
-
+import { AccountHistoryComponent } from '../account-history/account-history.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MoneyManageComponent } from '../money-manage/money-manage.component';
+import { UserSelectionsComponent } from '../user-selections/user-selections.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatListModule} from '@angular/material/list';
 
 @NgModule({
   declarations: [ ProfileHeaderComponent, EditTagsListComponent, EditProfileComponent,
-    ProfileCardComponent, ProfileListComponent, ProfileCenterComponent ],
+    ProfileCardComponent, ProfileListComponent, ProfileCenterComponent, AccountHistoryComponent, MoneyManageComponent
+  , UserSelectionsComponent ],
   imports: [
-    CommonModule,
     RouterModule,
-    NgbModule, NewsListModule,
-    ReactiveFormsModule,
-    FormsModule,
+    NewsListModule, ReactiveFormsModule,
     MatMenuModule,
-    MatIconModule,
-    MatButtonModule
+    MatIconModule, MatTooltipModule, MatListModule,
+    MatTableModule, MatSortModule, MatPaginatorModule, MatCheckboxModule
   ],
   entryComponents: [
   ],
@@ -35,12 +37,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
   bootstrap: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [ ProfileHeaderComponent, EditTagsListComponent, EditProfileComponent,
-    ProfileCardComponent, ProfileListComponent, ProfileCenterComponent,
-    ReactiveFormsModule,
-    FormsModule,
-    MatMenuModule, MatTooltipModule,
-    MatIconModule,
-    MatButtonModule, CommonModule
+    ProfileCardComponent, ProfileListComponent, ProfileCenterComponent, AccountHistoryComponent, MoneyManageComponent,
+    UserSelectionsComponent, NewsListModule, MatTooltipModule, ReactiveFormsModule
   ]
 })
 export class ProfileModule { }

@@ -1,11 +1,7 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot} from '@angular/router';
-import {AngularFireAuth} from '@angular/fire/auth';
 import {UserService} from '../core/user.service';
-import {SearchService} from '../core/search.service';
 import {FirebaseUserModel} from './user.model';
-import {Location} from '@angular/common';
-import {SearchUser} from './search.item';
 import {AuthService} from './auth.service';
 import { ReactiveStreamsService } from './reactive-streams.service';
 import { Subject } from 'rxjs';
@@ -18,7 +14,6 @@ export class AuthGuard implements CanActivate, OnDestroy {
     private readonly onDestroy = new Subject<void>();
 
     constructor(
-        public afAuth: AngularFireAuth,
         public userService: UserService,
         private router: Router,
         private authService: AuthService,
@@ -30,7 +25,7 @@ export class AuthGuard implements CanActivate, OnDestroy {
         this.onDestroy.complete();
       }
     canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (this.userService.user && this.userService.user.token) {
                 this.authService.getCurrentIdToken().then(token => {
                     this.userService.user.token = token;
@@ -47,7 +42,7 @@ export class AuthGuard implements CanActivate, OnDestroy {
                     } else { return resolve(false); }
                 });
             } else {
-                this.userService.getCurrentUser()
+                this.authService.getCurrentUser()
                     .then(user => {
                         // let pa = "/user/" + user.email.replace(/\s/g, '');
                         // this.userService.getDbUser(user.isAnonymous ? user.uid : user.email).subscribe(value => {
@@ -58,12 +53,11 @@ export class AuthGuard implements CanActivate, OnDestroy {
                         this.fuser.email = user.providerData[0].email;
                         this.fuser.name = user.displayName;
                         this.fuser.id = user.uid;
-                        const th = next.url;
                    //     this.userService.user.token = user['ma'];
                         if (state.url !== '/admin' && state.url !== '/talepler' && state.url !== '/money') {
                             this.userService.loggedUser = this.fuser;
                             if (state.url === '/loginin') {
-                                this.router.navigate([this.authService.redirectUrl]);
+                                this.router.navigate([this.userService.redirectUrl]);
                             } else if (state.url === '/login') {
                                 this.router.navigate(['/user']);
                             } else if (state.url === '/upload') {
@@ -73,10 +67,11 @@ export class AuthGuard implements CanActivate, OnDestroy {
                         } else {
                             this.userService._loggedUser = this.fuser;
                             this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer
-                                .from(this.fuser.id.substring(0, 12))])).map(this.userService.hex.bind(this, 2)).join(''));
+                                .from(this.fuser.id.substring(0, 12))])).map(this.userService.hex.bind(this, 2)).join('')
+                                , this.userService.random);
                             user.getIdToken().then(idToken => {
                                 this.userService.user.token = idToken;
-                                this.userService.getDbUser('/api/rest/user/' + user.uid.substring(0, 12), '')
+                                this.userService.getDbUser('/api/rest/user/' + user.uid.substring(0, 12) + '/' + this.userService.random)
                                 .pipe(takeUntil(this.onDestroy)).subscribe(value => {
                                     this.userService.setDbUser(value);
                                     if (state.url === '/talepler' && value.roles.includes('ROLE_ADMIN')) {
@@ -85,19 +80,22 @@ export class AuthGuard implements CanActivate, OnDestroy {
                                         || value.roles.includes('ROLE_MODERATOR')) {
                                         return resolve(true);
                                     } else {
-                                        this.router.navigate(['/']);
+                                        this.router.navigate(['/home']);
                                         //   return resolve(false);
                                     }
                                 });
                             });
                         }
                         // });
-                    }, err => {
+                    }, () => {
                         if (state.url === '/upload') {
-                            this.authService.redirectUrl = '/upload';
+                            this.userService.redirectUrl = '/upload';
                             this.router.navigate(['/loginin']);
-                        } else if (state.url === '/admin' || state.url === '/talepler') {
-                            return resolve(false);
+                        } else if (state.url === '/admin' || state.url === '/talepler' || state.url === '/money'
+                        || (state.url !== '/register' && state.url !== '/login' && state.url !== '/loginin'
+                        && this.userService.redirectUrl === '/home')) {
+                            this.router.navigate(['/home']);
+                            // return resolve(false);
                         }
                         return resolve(true);
                     });

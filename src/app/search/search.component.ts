@@ -1,20 +1,19 @@
-import {Component, OnInit} from '@angular/core';
-import {Observable, BehaviorSubject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, switchMap, map} from 'rxjs/operators';
-
-import {FormControl, FormBuilder, FormGroup} from '@angular/forms';
-import {SearchService} from '../core/search.service';
-import {Router} from '@angular/router';
-import {NewsService} from '../core/news.service';
+import { Component, OnInit, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
+import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
+import { SearchService } from '../core/search.service';
+import { NewsService } from '../core/news.service';
 import { NewsPayload } from '../core/news.model';
 import { User } from '../core/user.model';
+import { WindowRef } from '../core/window.service';
 
 @Component({
     selector: 'app-search',
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.scss'],
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent implements OnInit, AfterContentInit {
     newsSubject: BehaviorSubject<NewsPayload[]> = new BehaviorSubject<NewsPayload[]>([]);
     usersSubject: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
     newsResults: Observable<Array<any>>;
@@ -24,24 +23,38 @@ export class SearchComponent implements OnInit {
     searchType: number;
     links: string[] = ['Kullanıcılar', 'Içerikler'];
     lastTerm: string;
+    wdth: number;
+    @ViewChild('myInput') myInput: ElementRef;
+    hght: number;
+    public _activeLink: string;
+    public miLink: string;
 
 
-    constructor(private searchService: SearchService,
-                private router: Router, private newsService: NewsService,
-                private fb: FormBuilder) {
+    constructor(private searchService: SearchService, private winRef: WindowRef, private fb: FormBuilder,
+        private newsService: NewsService) {
+            this.miLink = this.newsService.activeLink ? this.newsService.activeLink : this.newsService.links[0];
+    }
+    ngAfterContentInit(): void {
+        setTimeout(() => {
+            this.myInput.nativeElement.focus();
+        }, 0);
     }
 
     ngOnInit() {
         this.searchForm = this.fb.group({});
         this.searchField = new FormControl();
-        this.activeLink = this.links[0];
+        this._activeLink = this.links[0];
         this.doJob();
-        this.newsResults =  this.newsSubject.asObservable();
-        this.usersResults =  this.usersSubject.asObservable();
+        this.newsResults = this.newsSubject.asObservable();
+        this.usersResults = this.usersSubject.asObservable();
+        this.wdth = this.winRef.nativeWindow.innerWidth;
+        this.wdth = this.wdth > 620 ? 620 : this.wdth;
+        this.hght = this.winRef.nativeWindow.innerHeight * 2;
+
     }
 
     doSearch(term: string): Observable<Array<any>> {
-        this.searchType = this.activeLink === this.links[0] ? 0 : 1;
+        this.searchType = this._activeLink === this.links[0] ? 0 : 1;
         this.lastTerm = term.charAt(0) === '@' || term.charAt(0) === '#' ? term.substring(1) : term;
         switch (this.searchType) {
             case 0:
@@ -52,13 +65,15 @@ export class SearchComponent implements OnInit {
     }
 
     onClick(link: string) {
-        this.activeLink = link;
-        if (link === this.links[0]) {
-            this.searchType = 0;
-            this.doSearch(this.lastTerm).subscribe(bv => this.usersSubject.next(bv));
-        } else if (link === this.links[1]) {
-            this.searchType = 2;
-            this.doSearch(this.lastTerm).subscribe(bv => this.newsSubject.next(bv));
+        if (this.lastTerm && this._activeLink !== link) {
+            this._activeLink = link;
+            if (link === this.links[0]) {
+                this.searchType = 0;
+                this.doSearch(this.lastTerm).subscribe(bv => this.usersSubject.next(bv));
+            } else if (link === this.links[1]) {
+                this.searchType = 2;
+                this.doSearch(this.lastTerm).subscribe(bv => this.newsSubject.next(bv));
+            }
         }
     }
 
@@ -67,14 +82,7 @@ export class SearchComponent implements OnInit {
             debounceTime(400),
             distinctUntilChanged(),
             switchMap(term => this.doSearch(term)),
-            map(bb => this.activeLink === this.links[1] ? this.newsSubject.next(bb) : this.usersSubject.next(bb))
+            map(bb => this._activeLink === this.links[1] ? this.newsSubject.next(bb) : this.usersSubject.next(bb))
         ).subscribe();
-    }
-    get activeLink(): string {
-        return this.newsService.activeLink;
-    }
-
-    set activeLink(value: string) {
-        this.newsService.activeLink = value;
     }
 }

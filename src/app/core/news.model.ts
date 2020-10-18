@@ -10,18 +10,18 @@ export class NewsPayload {
     private _thumb: string;
     private _date: number;
     private _count: number;
-    constructor(newsId: string, newsOwner: string, tags: [], topics: string[], clean: boolean, newsOwnerId: string,
+    constructor(newsId: string, newsOwner: string, tags: string[], topics: string[], clean: boolean, newsOwnerId: string,
                 topic: string, thumb: string, count: number, date: number) {
         this._newsId = newsId;
         this._newsOwner = newsOwner;
         this._tags = tags;
         this._topics = topics;
         this._clean = clean;
-        this._date=date;
-        this._newsOwnerId=newsOwnerId;
-        this._thumb=thumb;
-        this._topic=topic;
-        this._count=count;
+        this._date = date;
+        this._newsOwnerId = newsOwnerId;
+        this._thumb = thumb;
+        this._topic = topic;
+        this._count = count;
     }
     get newsId(): string {
         return this._newsId;

@@ -1,8 +1,9 @@
-import {Component, Input, OnInit, ChangeDetectorRef, OnDestroy} from '@angular/core';
-import {UserService} from '../core/user.service';
+import {Component, Input, OnInit, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
-import {AuthService} from '../core/auth.service';
-import { MediaMatcher } from '@angular/cdk/layout';
+import { NewsService } from '../core/news.service';
+import { of } from 'rxjs/internal/observable/of';
+import { Observable } from 'rxjs/internal/Observable';
+import { WindowRef } from '../core/window.service';
 
 @Component({
   selector: 'app-no-logged-nav',
@@ -10,33 +11,35 @@ import { MediaMatcher } from '@angular/cdk/layout';
   styleUrls: ['./no-logged-nav.component.scss']
 })
 export class NoLoggedNavComponent implements OnInit, OnDestroy {
-  _logged = true;
-  mobileQuery: MediaQueryList;
-  private _mobileQueryListener: () => void;
-
-  constructor(public changeDetectorRef: ChangeDetectorRef, media: MediaMatcher,
-    private router: Router, public authService: AuthService) {
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
-    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
-    this.mobileQuery.addListener(this._mobileQueryListener);
+  _loggedinUser = of(true);
+  toolbarStyle: { marginLeft: string; marginRight: string; float: string; width: string };
+  checkMedia = false;
+  constructor(private router: Router, private winRef: WindowRef,
+    public newsService: NewsService) {
   }
   @Input()
-  get logged(): boolean {
-    return this._logged;
+  get loggedinUser(): Observable<boolean> {
+    return this._loggedinUser;
   }
 
-  set logged(value: boolean) {
-    this._logged = value;
+  set loggedinUser(value: Observable<boolean>) {
+    this._loggedinUser = value;
+
   }
+
   ngOnInit() {
+    this.checkMedia = this.winRef.nativeWindow.innerWidth < 600;
+    this.toolbarStyle = {
+      marginLeft: `${this.checkMedia ? 0 : 130}px`,
+      marginRight: this.checkMedia ? '0px' : 'auto',
+      float: 'right',
+      width: 'auto'
+     };
   }
   btnClick(url: string) {
     this.router.navigateByUrl(url);
   }
-  // searchWrapperStyle(logged: boolean) {
-  //   return { marginRight: `${!logged ? 15 : 15}%`};
-  // }
+
   ngOnDestroy(): void {
-    this.mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
 }

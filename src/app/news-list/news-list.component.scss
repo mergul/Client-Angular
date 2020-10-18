@@ -1,28 +1,3 @@
-// @media only screen and (min-width: 1280px) {
-//   .mat-tab-links, .news ul {
-//     width: 617px;
-//     min-width: 617px;
-//   }
-// }
-// @media only screen and (max-width: 1279px) {
-//   .mat-tab-links, .news ul {
-//     width: 617px;
-//   }
-// }
-// @media only screen and (max-width: 600px) {
-//   .mat-tab-links, .news ul {
-//     width: 100%;
-//   }
-//   .top-tags{
-//     display: none;
-//   }
-//   .reklam{
-//     display: none;
-//   }
-//   .mat-tab-link {
-//     padding: 0 0 !important;
-//   }
-// }
 .news{
   margin-bottom: 1px;
   text-align: left;
@@ -33,19 +8,21 @@
   margin: 0 auto;
   padding: 0;
   border-bottom: 17px solid #E3E3E3;
+  width: 100%;
 }
 .news-list {
   display: flex;
   border-top: 17px solid #E3E3E3;
   border-left: 17px solid #E3E3E3;
   border-right: 17px solid #E3E3E3;
-  max-height: 147px;
+ // max-height: 147px;
   clear: both;
   padding: 10px;
 }
 
 .news-list a {
-  height: 109px;
+  //height: 109px;
+  //max-height: 109px;
   display: contents;
   position: relative;
   color: #222;
@@ -54,21 +31,21 @@
 }
 img {
   display: block !important;
-  width: 174px !important;
-  height: 109px !important;
+ // width: 174px !important;
+ // height: 109px !important;
   float: left !important;
-  margin-right: 10px;
+  margin: 0;
 }
 
 .news-list h4 {
   display: table-cell;
-  padding: 0 10px 8px 0px;
+  padding: 0;
   margin: 0;
   font-size: 0.8rem;
   font-weight: 400;
   box-sizing: content-box;
-  height: 80px;
-  max-height: 81px;
+  max-width: 375px;
+  width: auto;
 }
 span.date {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
@@ -79,14 +56,14 @@ span.date {
   font-weight: 400;
   margin-bottom: 6px;
   display: inline-block;
+  width: auto;
+  max-height: 12px;
 }
 span.text{
   font-size: 15px;
+  max-height: 81px;
 }
-.mat-toolbar.mat-primary {
-  background: #eb212e;
-  color: #fff;
-}
+
 .mat-ink-bar{
   ::before,
   ::after {
@@ -106,10 +83,13 @@ span.text{
   display: block;
   margin: 0 auto;
 }
-
+a.users{
+  cursor: grabbing;
+}
 label{
   font-size: 15px;
-  cursor: grabbing;
+  max-width: 375px;
+  width: auto;
 }
 .tag{
   cursor: grabbing;

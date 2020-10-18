@@ -1,17 +1,17 @@
-import {Component, OnInit, Inject, AfterViewInit, OnDestroy, Renderer2, ViewChild, ElementRef} from '@angular/core';
+import {Component, OnInit, Inject, AfterViewInit, OnDestroy, Renderer2, ViewChild, ElementRef, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, FormArray, FormControl} from '@angular/forms';
 
-import {MultiFilesService} from './multifiles.service';
+import {MultiFilesService} from './multi-files.service';
 import {BackendServiceService} from '../core/backend-service.service';
-import {Observable, of, Subject, from} from 'rxjs';
+import {Observable, Subject, from} from 'rxjs';
 import {NewsFeed} from '../core/news.model';
-import {DOCUMENT, Location} from '@angular/common';
-import {Router} from '@angular/router';
-import { takeUntil, distinctUntilChanged, switchMap, debounceTime, map } from 'rxjs/operators';
+import {DOCUMENT} from '@angular/common';
+import { takeUntil, map } from 'rxjs/operators';
 import { SpeechService, RecognitionResult } from '../core/speech-service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UserService } from '../core/user.service';
 
-declare function uploadItWorker(requests): any;
 @Component({
     selector: 'app-multi-files-upload',
     templateUrl: './multi-files-upload.component.html',
@@ -24,7 +24,6 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     private _purl: Array<string> = [];
     private thumburl: Array<string> = [];
     protected thumbnails: Observable<string[]>;
-    showModal: Observable<boolean> = of(false);
     listenerFn: () => void;
     private signed: Map<string, string> = new Map<string, string>();
     public documentGrp: FormGroup;
@@ -53,11 +52,17 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     @ViewChild('startDescButton', {static: true}) startDescButton: ElementRef;
     @ViewChild('topBox', {static: true}) topBox: ElementRef;
     @ViewChild('textBox', {static: true}) textBox: ElementRef;
+    color: string;
+    wideStyle: { width: string; };
+    loggedID: string;
+    isTopicValid = false;
+    isDescValid = false;
 
-    constructor(private formBuilder: FormBuilder,
+    constructor(private formBuilder: FormBuilder, public dialogRef: MatDialogRef<MultiFilesUploadComponent>,
+                @Inject(MAT_DIALOG_DATA) public data: any,
                 protected multifilesService: MultiFilesService, private _snackBar: MatSnackBar,
-                private router: Router, private speechService: SpeechService,
-                private location: Location, private backendService: BackendServiceService,
+                private speechService: SpeechService, private service: UserService,
+                private backendService: BackendServiceService,
                 @Inject(DOCUMENT) private document: Document, private renderer: Renderer2
     ) {
         this.documentGrp = this.formBuilder.group({
@@ -65,14 +70,14 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             news_description: new FormControl(['']),
             items: this.formBuilder.array([this.createUploadDocuments()])
         });
+        this.color = data.color;
     }
 
     ngOnInit() {
-        // this.documentGrp.get('news_description').valueChanges.pipe(
-        //     debounceTime(5000),
-        //     distinctUntilChanged(),
-        //     switchMap(term => this.doPatch(term)),
-        // );
+        const modalWidth = this.data.header$;
+        this.wideStyle = {
+            width: `${modalWidth}px`
+        };
         this.thumbnails = this.multifilesService.getUrls();
         this.speechService.init();
         if (this.speechService._supportRecognition) {
@@ -95,6 +100,14 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             this.startDescButtonDisabled = true;
             this.startTopButtonDisabled = true;
         }
+        this.loggedID = window.history.state.loggedID;
+        this.documentGrp.valueChanges.subscribe(x => {
+           this.isTopicValid = this.documentGrp.controls.news_topic.value.toString().trim().length > 3;
+           this.isDescValid = this.documentGrp.controls.news_description.value.toString().trim().length > 3;
+        });
+    }
+    @HostListener('window:keyup.esc') onKeyUp() {
+        this.onClose();
     }
     handleSentence = (text) => {
         if (this.isTopicActivated && this.miTopText !== text) {
@@ -114,10 +127,10 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         this.doPatch(text);
     }
     gotDevices(mediaDevices: MediaDeviceInfo[]) {
-        return mediaDevices.filter(value => value.kind === 'videoinput');
+        return mediaDevices.filter(value => value.kind === 'audioinput');
     }
     startCamera(ev: Event) {
-        this.whichButton = (ev.target as HTMLElement).parentElement.parentElement.innerText.startsWith('News');
+        this.whichButton = (ev.target as HTMLElement).parentElement.nextElementSibling.textContent.trimLeft().startsWith('Topic');
         if ((this.whichButton && this.startTopButton.nativeElement.innerHTML.startsWith('Start')) ||
         (!this.whichButton && this.startDescButton.nativeElement.innerHTML.startsWith('Start'))) {
             if (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
@@ -131,26 +144,25 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             }
             if (this.whichButton) {
                 this.isTopicActivated = true;
-                this.startTopButtonDisabled = true;
+                this.startDescButtonDisabled = true;
             } else {
                 this.isDescActivated = true;
-                this.startDescButtonDisabled = true;
+                this.startTopButtonDisabled = true;
             }
         } else {
             this.speechService.stop();
             if (this.whichButton) {
                 this.renderer.setProperty(this.startTopButton.nativeElement, 'innerHTML', 'Start Microphone');
-                this.renderer.setStyle(this.startTopButton.nativeElement, 'backgroundColor', '#007bff');
-                this.renderer.setStyle(this.startTopButton.nativeElement, 'borderColor', '#007bff');
-                this.renderer.setStyle(this.startTopButton.nativeElement, 'boxShadow', '0 0 0 0.2rem #007bff');
+                this.renderer.addClass(this.startTopButton.nativeElement, 'button-outline');
                 this.isTopicActivated = false;
+                this.startDescButtonDisabled = false;
             } else {
                 this.renderer.setProperty(this.startDescButton.nativeElement, 'innerHTML', 'Start Microphone');
-                this.renderer.setStyle(this.startDescButton.nativeElement, 'backgroundColor', '#007bff');
-                this.renderer.setStyle(this.startDescButton.nativeElement, 'borderColor', '#007bff');
-                this.renderer.setStyle(this.startDescButton.nativeElement, 'boxShadow', '0 0 0 0.2rem #007bff');
+                this.renderer.addClass(this.startDescButton.nativeElement, 'button-outline');
                 this.isDescActivated = false;
+                this.startTopButtonDisabled = false;
             }
+            this.micStop(this.localStream);
         }
     }
     onSelectLanguage(language: string) {
@@ -167,15 +179,17 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             this.speechService.startSpeech(stream.startTime);
             if ( this.isTopicActivated) {
                 this.renderer.setProperty(this.startTopButton.nativeElement, 'innerHTML', 'Stop Microphone');
-                this.renderer.setStyle(this.startTopButton.nativeElement, 'backgroundColor', 'red');
-                this.renderer.setStyle(this.startTopButton.nativeElement, 'borderColor', 'red');
-                this.renderer.setStyle(this.startTopButton.nativeElement, 'boxShadow', '0 0 0 0.2rem red');
+                this.renderer.removeClass(this.startTopButton.nativeElement, 'button-outline');
+                // this.renderer.setStyle(this.startTopButton.nativeElement, 'backgroundColor', '#d824ff');
+                // this.renderer.setStyle(this.startTopButton.nativeElement, 'borderColor', '#d824ff');
+                // this.renderer.setStyle(this.startTopButton.nativeElement, 'color', '#fff');
 
             } else {
                 this.renderer.setProperty(this.startDescButton.nativeElement, 'innerHTML', 'Stop Microphone');
-                this.renderer.setStyle(this.startDescButton.nativeElement, 'backgroundColor', 'red');
-                this.renderer.setStyle(this.startDescButton.nativeElement, 'borderColor', 'red');
-                this.renderer.setStyle(this.startDescButton.nativeElement, 'boxShadow', '0 0 0 0.2rem red');
+                this.renderer.removeClass(this.startDescButton.nativeElement, 'button-outline');
+                // this.renderer.setStyle(this.startDescButton.nativeElement, 'backgroundColor', '#d824ff');
+                // this.renderer.setStyle(this.startDescButton.nativeElement, 'borderColor', '#d824ff');
+                // this.renderer.setStyle(this.startDescButton.nativeElement, 'boxShadow', '#fff');
             }
         }
     }
@@ -200,9 +214,9 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     }
     doPatch(term: any): any {
         if (this.whichButton) {
-            this.documentGrp.controls.news_topic.patchValue(term, { onlySelf: true });
+            this.documentGrp.controls.news_topic.patchValue(term);
         } else {
-            this.documentGrp.controls.news_description.patchValue(term, { onlySelf: true });
+            this.documentGrp.controls.news_description.patchValue(term);
         }
     }
 
@@ -223,7 +237,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     get items(): FormArray {
         return this.documentGrp.get('items') as FormArray;
     }
-     removeAll() {
+    removeAll() {
         this.totalFiles.splice(0, this.totalFiles.length);
         this.thumbs.clear();
         this._url.splice(0, this._url.length);
@@ -238,7 +252,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         return new Promise<string>((resolve, reject) => {
             canvas.addEventListener('error', reject);
             video.addEventListener('error', reject);
-            video.addEventListener('canplay', event => {
+            video.addEventListener('canplay', () => {
                 let wi, he;
                 const rati = 174 / 109;
                 const ra = video.videoWidth / video.videoHeight;
@@ -356,7 +370,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                     }, 'image/jpeg', 0.5);
                 };
             };
-            reader.onloadend = (event: any) => {
+            reader.onloadend = () => {
                 // this.backendService.getSignedUrl(this.totalFiles[oldIndex].name)
                 // .pipe(takeUntil(this.onDestroy)).subscribe(value => {
                 //     this.signed.set(this.totalFiles[oldIndex].name, value);
@@ -389,7 +403,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         const AllFilesObj = [];
         let MediaPartObj = [];
         if (this.signed.size > 1) {
-            this.totalFiles.forEach((element, index) => {
+            this.totalFiles.forEach((element) => {
                 const eachObj = {
                     'file_name': element.name,
                     'file_type': element.type,
@@ -420,11 +434,11 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             , this._purl != null ? this._purl : []
             , AllFilesObj, MediaPartObj, Date.now());
 
-        this.backendService.postNews(this.newsFeed).pipe(takeUntil(this.onDestroy)).subscribe(value => {
+        this.backendService.postNews(this.newsFeed).pipe(takeUntil(this.onDestroy)).subscribe(() => {
           //  this.userService.increaseCount().pipe(takeUntil(this.onDestroy)).subscribe(value1 => {
                 this.removeAll();
-                this.router.navigateByUrl('user');
-           // });
+                this.dialogRef.close('/user');
+                // });
         });
     }
 
@@ -449,7 +463,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     ngAfterViewInit() {
-        this.showModal = of(true);
+        this.renderer.setStyle(this.document.querySelector('.mat-dialog-container'), 'background', this.color);
         if (!this.speechService._supportRecognition) {
             this._snackBar.open('Your Browser has no support for Speech!', 'Try Chrome for Speech!', {
                 duration: 3000,
@@ -458,11 +472,8 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     onClose() {
-        this.showModal = of(false);
-        setTimeout(
-            () => this.location.back(), // this.router.navigate(['/']),
-            100
-        );
+        this.micStop(this.localStream);
+        this.dialogRef.close((this.service.redirectUrl === '/upload' && !this.loggedID) ? '/home' : '');
     }
 
     onDialogClick(event: UIEvent) {
@@ -471,7 +482,6 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     ngOnDestroy() {
-        this.micStop(this.localStream);
         if (this.listenerFn) {
             this.listenerFn();
         }
@@ -481,11 +491,5 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
 
     private checkIt(file: File): boolean {
         return this.totalFiles.some(value => value.name === file.name && value.size === file.size);
-    }
-
-    isValid() {
-        return this.documentGrp.controls.news_topic.value.toString().trim().length > 0
-            && this.documentGrp.controls.news_description.value.toString().trim().length > 0;
-    // && !this.documentGrp.controls.news_topic.pristine && !this.documentGrp.controls.news_description.pristine
     }
 }

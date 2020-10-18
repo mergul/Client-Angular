@@ -3,9 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserService} from '../core/user.service';
 import {matchingPasswords} from '../register/validators';
 import {FirebaseUserModel, User} from '../core/user.model';
-import {Observable, of, Subject} from 'rxjs';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Location} from '@angular/common';
+import {Subject} from 'rxjs';
 import {AuthService} from '../core/auth.service';
 import {IbanValidatorDirective} from '../iban-validator.directive';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
@@ -16,7 +14,7 @@ import { takeUntil } from 'rxjs/internal/operators/takeUntil';
     styleUrls: ['./edit-profile.component.scss']
 })
 export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
-    showModal: Observable<boolean> = of(false);
+   // showModal: Observable<boolean> = of(false);
     listenerFn: () => void;
     public profileForm: FormGroup;
     errorMessage = '';
@@ -28,10 +26,7 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(private formBuilder: FormBuilder,
                 private userService: UserService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private authService: AuthService,
-                private location: Location) {
+                private authService: AuthService) {
         this.createForm();
     }
 
@@ -45,10 +40,9 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.userService.getTotalBalance(this.userService.dbUser.id).pipe(takeUntil(this.onDestroy)).subscribe(value => {
-            if (value) {
-                this.userService._totalBalance = value.totalBalance;
-                this.userService._totalBalance.toPrecision(7);
+        this.userService.getAccountHistory(this.userService.dbUser.id).pipe(takeUntil(this.onDestroy)).subscribe(value => {
+            if (value && value.length > 0) {
+                this.userService._totalBalance = +value[value.length - 1].totalBalance.toFixed(2);
             }
         });
     }
@@ -79,7 +73,7 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         if (!this.profileForm.hasError('mismatchedPasswords')) {
             if (value.name !== this.userService.loggedUser.name) {
-                this.userService.updateCurrentUser(value);
+                this.authService.updateCurrentUser(value);
             }
             if (value.password.trim().length > 5 && value.email.trim() === this.userService.dbUser.email) {
                 this.authService.updatePassword(value.email, value.password);
@@ -94,16 +88,15 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onClose() {
-        this.showModal = of(false);
+      //  this.showModal = of(false);
         // Allow fade out animation to play before navigating back
-        setTimeout(
-            () => this.location.back(), // this.router.navigate(['/']),
-            100
-        );
+        // setTimeout(
+        //     () => this.location.back(), // this.router.navigate(['/']),
+        //     100
+        // );
     }
 
     onDialogClick(event: UIEvent) {
-        // Capture click on dialog and prevent it from bubbling to the modal background.
         event.stopPropagation();
         event.cancelBubble = true;
     }

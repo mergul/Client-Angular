@@ -1,11 +1,11 @@
 import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Observable, of, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {UserService} from '../core/user.service';
 import {Router} from '@angular/router';
 import {AuthService} from '../core/auth.service';
-import {MediaMatcher} from '@angular/cdk/layout';
 import { NewsService } from '../core/news.service';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
+import { WindowRef } from '../core/window.service';
 
 @Component({
   selector: 'app-logged-nav',
@@ -14,7 +14,21 @@ import { ReactiveStreamsService } from '../core/reactive-streams.service';
 })
 export class LoggedNavComponent implements OnInit, OnDestroy {
   private readonly onDestroy = new Subject<void>();
+  toolbarStyle = {};
+  private _logged: boolean;
+  checkMedia = false;
+  constructor(public newsService: NewsService, private winRef: WindowRef,
+              public service: UserService, private router: Router, public authService: AuthService
+              , private reactiveService: ReactiveStreamsService) { }
 
+  @Input()
+  get logged(): boolean {
+    return this._logged;
+  }
+
+  set logged(value: boolean) {
+    this._logged = value;
+  }
   get image(): string {
     return this.service.prof_url;
   }
@@ -24,55 +38,37 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
     }
   }
 
-  mobileQuery: MediaQueryList;
-  _loggedinUser = of(true);
-  private _mobileQueryListener: () => void;
-  constructor(public changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public newsService: NewsService,
-              public service: UserService, private router: Router, public authService: AuthService
-              , private reactiveService: ReactiveStreamsService) {
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
-    this._mobileQueryListener = () => changeDetectorRef.detectChanges();
-    this.mobileQuery.addListener(this._mobileQueryListener);
-  }
-  @Input()
-  get loggedinUser(): Observable<boolean> {
-    return this._loggedinUser;
-  }
-
-  set loggedinUser(value: Observable<boolean>) {
-    this._loggedinUser = value;
-
-  }
   ngOnInit() {
-
+    this.checkMedia = this.winRef.nativeWindow.innerWidth < 600;
   }
   btnClick(url: string) {
-    this.router.navigateByUrl(url);
+    this.router.navigateByUrl(url, {state: {loggedID: this.service.dbUser.id}});
   }
   logout() {
-    this.authService.doLogout()
-        .then(() => {
-          this.service.loggedUser = null;
-          this.service.user = null;
-          for (const tag of this.service.dbUser.tags) {
-             this.reactiveService.resetUserListListeners('#' + tag);
-          }
-          for (const tag of this.service.dbUser.users) {
-            this.reactiveService.resetUserListListeners('@' + tag);
-         }
-          this.service.dbUser = null;
-          this.service.newsCo.clear();
-          this.router.navigateByUrl('/');
-        }, () => {
-        //  console.log('Logout error', error);
-        });
+    if (this.router.url === '/home') {
+      this.newsService.callToggle.next(this.newsService.links.indexOf(this.newsService.activeLink));
+    }
+    setTimeout(() => {
+      this.authService.doLogout()
+      .then(() => {
+        this.service.loggedUser = null;
+        this.service.user = null;
+        for (const tag of this.service.dbUser.tags) {
+           this.reactiveService.resetUserListListeners('#' + tag);
+        }
+        for (const tag of this.service.dbUser.users) {
+          this.reactiveService.resetUserListListeners('@' + tag);
+       }
+        this.service.dbUser = null;
+        this.service.newsCo.clear();
+        this.newsService.activeLink = this.newsService.links[0];
+        this.router.navigateByUrl('/home');
+      }, () => {
+      });
+    }, 50);
   }
-  // searchWrapperStyle(logged: boolean) {
-  //   return { marginRight: `${!logged ? 15 : 15}%`};
-  // }
 
   ngOnDestroy(): void {
     this.onDestroy.next();
-    this.mobileQuery.removeEventListener('change', this._mobileQueryListener);
   }
 }

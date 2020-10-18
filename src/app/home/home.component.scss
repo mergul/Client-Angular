@@ -1,60 +1,31 @@
-// .example-container {
-//     display: flex;
-//     flex-direction: column;
-//     top: 0;
-//     bottom: 0;
-//     left: 0;
-//     right: 0;
-//     overflow-y: scroll;
-//     height: 666px;
-//   }
-  
-  .example-is-mobile .example-toolbar {
-    position: fixed;
-    /* Make sure the toolbar will stay on top of the content as it scrolls past. */
-    z-index: 2;
+  h3 {
+    max-width: 200px;
+    text-align: center;
+    font-size: 1.75rem;
+    margin-bottom: .5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 0;
   }
-  
-  h1.example-app-name {
-    margin-left: 8px;
+  .top-tags {
+    font-weight: 600;
+    color: #666666;
+    padding-right: 0px;
+    line-height: 1.5;
+    // max-width: 374.5px;
+    padding-left: 125px;
   }
-  
-  .example-sidenav-container {
-    /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
-       causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
-    flex: 1;
-    /* padding: 10px;*/
-  }
-  
-  .example-is-mobile .example-sidenav-container {
-    /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
-       `<body>` to be our scrolling element for mobile layouts. */
-    flex: 1 0 auto;
-  }
-  
-  .form-control {
-    padding: 0em !important;
-  }
-  
+
   .mat-toolbar-single-row{
     height: 80px;
   }
   
   .newsm{
-    /*  padding: 17px;*/
     margin-bottom: 1px;
     text-align: left;
     display: flex;
     width: 100%;
   }
-  // app-news-list ul{
-  //   /*  width: 50%; */
-  //   display: table;
-  //   margin: 0 auto;
-  //   padding: 0;
-  //   border-bottom: 17px solid #E3E3E3;
-  // }
-
   .mat-tab-label-active{
     background: white;
   }
@@ -65,12 +36,7 @@
     text-align: -webkit-center;
     background-color: #f3f3f3;
   }
-  span.mat-button-wrapper {
-    ::before,
-    ::after {
-      height: 66px;
-    }
-  }
+
   .mat-icon-button, .mat-icon{
     width: 66px;
     height: 66px;
@@ -88,23 +54,12 @@
 .sliderrr-wrapper {
   overflow: hidden !important;
   visibility: visible;
-  // min-width: 617px;
-}
-
-.sliderrr {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  position: relative;
-  // width: 1200%;
-  height: 100%;
 }
 
 .bx-wrapper {
   position: relative;
   margin: 0 auto 0;
   padding: 0;
-  // width: 617px;
   *zoom: -1;
 }
 
@@ -112,20 +67,12 @@
   width: 360px;
   position: relative;
 }
-
-.sliderrr .item {
-  float: left;
-  position: relative;
-  width: 360px;
-}
-
 .bx-wrapper .bx-viewport {
   overflow: hidden;
   position: relative;
   -moz-box-shadow: 0 0 5px #ccc;
   -webkit-box-shadow: 0 0 5px #ccc;
   box-shadow: 0 0 5px #ccc;
-  /*border:  5px solid #fff;*/
   background: #fff;
   -webkit-transform: translatez(0);
   -moz-transform: translatez(0);
@@ -141,139 +88,32 @@
   margin: 0;
 }
 .media-image{
-  // margin: auto 0 auto 0;
   float: left;
   width: 100%;
   height: 100%;
 }
-// .bx-controls-direction .bx-prev, .slider-bx-prev {
-//   left: 30px;
-//   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAA/CAMAAAAonj0oAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABvUExURQAAAP///////wAAAAUFBfv7+/z8/AAAAAICAgAAAOvr6/39/YCAgNDQ0PLy8gAAAPX19f39/X9/f2ZmZgAAAJ2dna2trWZmZgAAAGZmZgAAAO7u7vj4+KKiovv7++/v72ZmZgAAAAAAAGdnZwAAALU+K0sAAAAjdFJOUwDy+RwY1N4BCDAt7U9dTR4iUTfu7kFtT09xcUSnZMhttrYmGKa/dQAAAf5JREFUWMPtl9eWgyAURbGDZCzpxWgS+f9vHIiJwYKhPs3wlLXEveUCWfcAwI0EwrICUoNOrRrx4zuafyncxVhOAPMg8kvhY0Lu4Qw/WMX4Iil4oHXtlWIB2Z6hAR/AEC0ZCBvb44TvXRIguwfMIKwS6Qa3FYwfyfN7g2AN5D2On+mrCCvwvxjGK9DgLxtGe/Dke5ka/2XYzRqGp+jJ95X5b0PsZcv3QPP7uTXgbOkmG/DFhtsaGNdnsUptewv7K7mq9fkfw2UkaDenbpMpHxvwn1eUVSnORgKqOLCfqPIbE/7L0PjVREDrRLcC7eMoBWaGEO1xnc4I2vYAEPrx4tRsBfnejwogWEFuauj4aQIEewCZAetXifG9qEiA6BQlZoZ5Pn8PXgYvLqzVZ3iTe0NU6H5/mnyfpmegL17xd762QZqvaWB8esAT2cnU4KsYlPj9GupChR/L85UN9B/uilX4nypJdnYBUuR3hkcj2V3T3rQq1duQIIeyvWkQQq02RDYfwHAxHwj5tvLBlpAzONL2y1U+mBNYzQczArv5YCqwnA8mAtv5YCywng9GAvv5YChwkA8GAhf5gBc4yQecwE0+2LTtCRxo++UqH3ACN/mAE7jJB7zAST7gBU7yASdwkw/4U+QkH3ACN/mAE7jJB7zAST4YCP7zwX8++PP54BePA0t5NZI3dQAAAABJRU5ErkJggg==) no-repeat 0 -32px;
-// }
+::ng-deep .mat-ink-bar {
+  background: purple !important;
+  height: 5px !important;
+}
 
-// .bx-controls-direction .bx-next, .slider-bx-next {
-//   right: 10px;
-//   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAA/CAMAAAAonj0oAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABvUExURQAAAP///////wAAAAUFBfv7+/z8/AAAAAICAgAAAOvr6/39/YCAgNDQ0PLy8gAAAPX19f39/X9/f2ZmZgAAAJ2dna2trWZmZgAAAGZmZgAAAO7u7vj4+KKiovv7++/v72ZmZgAAAAAAAGdnZwAAALU+K0sAAAAjdFJOUwDy+RwY1N4BCDAt7U9dTR4iUTfu7kFtT09xcUSnZMhttrYmGKa/dQAAAf5JREFUWMPtl9eWgyAURbGDZCzpxWgS+f9vHIiJwYKhPs3wlLXEveUCWfcAwI0EwrICUoNOrRrx4zuafyncxVhOAPMg8kvhY0Lu4Qw/WMX4Iil4oHXtlWIB2Z6hAR/AEC0ZCBvb44TvXRIguwfMIKwS6Qa3FYwfyfN7g2AN5D2On+mrCCvwvxjGK9DgLxtGe/Dke5ka/2XYzRqGp+jJ95X5b0PsZcv3QPP7uTXgbOkmG/DFhtsaGNdnsUptewv7K7mq9fkfw2UkaDenbpMpHxvwn1eUVSnORgKqOLCfqPIbE/7L0PjVREDrRLcC7eMoBWaGEO1xnc4I2vYAEPrx4tRsBfnejwogWEFuauj4aQIEewCZAetXifG9qEiA6BQlZoZ5Pn8PXgYvLqzVZ3iTe0NU6H5/mnyfpmegL17xd762QZqvaWB8esAT2cnU4KsYlPj9GupChR/L85UN9B/uilX4nypJdnYBUuR3hkcj2V3T3rQq1duQIIeyvWkQQq02RDYfwHAxHwj5tvLBlpAzONL2y1U+mBNYzQczArv5YCqwnA8mAtv5YCywng9GAvv5YChwkA8GAhf5gBc4yQecwE0+2LTtCRxo++UqH3ACN/mAE7jJB7zAST7gBU7yASdwkw/4U+QkH3ACN/mAE7jJB7zAST4YCP7zwX8++PP54BePA0t5NZI3dQAAAABJRU5ErkJggg==) no-repeat -43px -32px;
-// }
-// .bx-controls-direction .bx-prev {
-//   left: 20px;
-//   z-index: 1110;
-//   position: absolute;
-//   top: 50%;
-//   margin-top: -16px;
-//   outline: 0;
-//   width: 32px;
-//   height: 32px;
-//   text-indent: -9999px;
-// }
-  /*
-  .sidenav-container {
-    height: 100%;
-  }
-  
-  .sidenav {
-    width: 200px;
-  }
-  
-  .mat-toolbar.mat-primary {
-    position: sticky;
-    top: 0; 
-  }
-  */
-// .bx-controls-direction .bx-next {
-//   position: absolute;
-//   top: 50%;
-//   margin-top: -16px;
-//   outline: 0;
-//   width: 32px;
-//   height: 32px;
-//   text-indent: -9999px;
-//   right: 20px;
-//   z-index: 1110;
-// }
-// .bx-controls-direction .slider-bx-prev {
-//   left: 20px;
-//   z-index: 1110;
-//   position: absolute;
-//   outline: 0;
-//   width: 32px;
-//   height: 32px;
-//   text-indent: -9999px;
-//   margin-top: 50px
-// }
+::ng-deep .mat-tab-label,::ng-deep .mat-tab-link {
+  color: #030303 !important;
+  opacity: 0.7 !important;
+  font-family: auto;
+  padding: 0 12px !important;
+}
+::ng-deep .mat-tab-label:active,::ng-deep  .mat-tab-link:active {
+  opacity: 0.9 !important;
+}
+::ng-deep .mat-tab-label:focus,::ng-deep .mat-tab-link:focus {
+  opacity: 0.8 !important;
+}
 
-// .bx-controls-direction .slider-bx-next {
-//   position: absolute;
-//   outline: 0;
-//   width: 32px;
-//   height: 32px;
-//   text-indent: -9999px;
-//   right: 20px;
-//   z-index: 1110;
-//   margin-top: 50px;
-// }
-    // .news-list {
-  //   display: flex;
-  //   width: 100%;
-  //   border-top: 10px solid #E3E3E3;
-  //   border-left: 10px solid #E3E3E3;
-  //   border-right: 10px solid #E3E3E3;
-  //   min-height: 111px;
-  //   clear: both;
-  //   /* min-width: 617px; */
-  //   padding: 10px 0 10px;
-  // }
-  
-  // .news-list a {
-  //   display: contents;
-  //   position: relative;
-  //   color: #222;
-  //   margin-left: 10px;
-  //   text-decoration: none;
-  //   height: 100px;
-  // }
-  
-  // .news-list img {
-  //   display: block;
-  //   width: 174px;
-  //   height: 109px;
-  //   float: left;
-  //   margin-right: 0px;
-  // }
-  
-  // .news-list h4 {
-  //   display: table-cell;
-  //   padding: 0 10px 8px 10px;
-  //   margin-right: 10px;
-  //   font-size: 0.8rem;
-  //   font-weight: 400;
-  //   /*  height: 100px; */
-  //   box-sizing: content-box;
-  //   height: 80px;
-  //   max-height: 81px;
-  // }
-  // span.date {
-  //   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
-  //   background-size: 12px;
-  //   text-indent: 15px;
-  //   color: #666;
-  //   font-size: 12px;
-  //   font-weight: 400;
-  //   margin-bottom: 6px;
-  //   display: inline-block;
-  // }
-  // .mat-toolbar.mat-primary {
-  //   background: purple;
-  //   color: #fff;
-  // }
-  // .mat-ink-bar{
-  //   ::before,
-  //   ::after {
-  //     content: "";
-  //     height: 2px;
-  //     width: 33% !important;
-  //     background-color: white;
-  //     position: absolute;
-  //     left: 0;
-  //   }
-  // }
+::ng-deep .mat-tab-link {
+  border-left: 1px solid #e6e6e6;
+  white-space: normal !important;
+}
+::ng-deep .mat-tab-link:hover {
+  background-color: #fce8f4 !important;
+}

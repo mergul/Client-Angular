@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from '../core/auth.guard';
 import { ReqComponent } from './req.component';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
+import { GenericModalComponent } from '../shared-modal/generic-modal.component';
+import { SharedModalModule } from '../shared-modal/shared-modal.module';
 
 const routes: Routes = [
-    {path: '', component: ReqComponent, canActivate: [AuthGuard]}
+    {path: '', component: GenericModalComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
@@ -19,7 +17,7 @@ const routes: Routes = [
     imports: [
       CommonModule,
       RouterModule.forChild(routes),
-      NgbModule, MatTooltipModule, MatIconModule, MatButtonModule
+      SharedModalModule
     ],
     entryComponents: [
     ],

@@ -1,122 +1,124 @@
-<div id="backdrop" class="modal-backdrop fade" [ngClass]="{ show: showModal }"></div>
-<div class="modal d-block fade" [ngClass]="{ show: showModal }" (click)="onClose('')" id="listing-dialog" tabindex="-1"
-    role="dialog" aria-labelledby="modalIdLabel">
-    <div class="modal-dialog" role="document" (click)="onDialogClick($event)">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" (click)="onClose('')" aria-label="Close"
-                    style="padding: 0.7rem;"><span aria-hidden="true"
-                        style="font-weight: bolder; font-size: xx-large">&times;</span>
-                </button>
+<div id="modal-content-wrapper">
+    <header id="modal-header" [ngStyle]="wideStyle">
+        <button type="button" class="close" (click)="onClose('')" aria-label="Close">
+            <span aria-hidden="true" style="font-weight: bolder; font-size: xx-large;line-height: 30px !important;">&times;</span>
+        </button>
+    </header>
+    <section id="modal-body" [ngStyle]="wideStyle">
+        <div id="newsContent" *ngIf="news$ as news">
+            <div id="ContentPlaceHolder1_mansetDiv" class="sliderrr-wrapper" [ngStyle]="sliderWrapperStyle">
+                <div class="bx-wrapper">
+                    <div #carouselWrapper class="carousel-wrapper" [ngStyle]="carouselWrapperStyle">
+                        <ul class="carousel-inner" #carousel [ngStyle]="carouselWrapStyle">
+                            <li class="media-image" *ngFor="let review of news.mediaReviews"
+                                [ngSwitch]="review.has_medium">
+                                <app-media-source *ngSwitchCase="false" [review]="getReview(review)">
+                                </app-media-source>
+                                <app-files-list *ngSwitchCase="true" [thumbName]="'medium-' + review.file_name">
+                                </app-files-list>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bx-controls bx-has-controls-direction">
+                        <div class="bx-controls-direction">
+                            <a class="bx-prev"  (click)="prev()">Prev</a><a class="bx-next"
+                                 (click)="next()">Next</a>
+                        </div>
+                    </div>
+                </div>
+                <div id="sliderrr-pager" [style.height.px]="thumbHeight">
+                    <ul class="sliderrr-page" #slider [ngStyle]="carouselPagerStyle">
+                        <li *ngFor="let thumbFile of news.mediaReviews; index as i" [style.width.px]="thumbWidth">
+                            <a (click)="currentDiv(i)" [style.height.px]="thumbHeight" [style.line-height.px]="thumbHeight">
+                                <app-files-list [thumbName]="'thumb-kapak-' + thumbFile.file_name"></app-files-list>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="bx-controls bx-has-controls-direction">
+                        <div class="bx-controls-direction">
+                            <a class="slider-bx-prev"  (click)="prev()">Prev</a><a class="slider-bx-next"
+                                 (click)="next()">Next</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <div id="newsContent" *ngIf="news$ as news">
-                    <div id="ContentPlaceHolder1_mansetDiv" class="sliderrr-wrapper">
-                        <div class="bx-wrapper">
-                            <div #carouselWrapper class="carousel-wrapper" [ngStyle]="carouselWrapperStyle">
-                                <ul class="carousel-inner" #carousel [ngStyle]="carouselWrapStyle">
-                                    <li class="media-image" *ngFor="let review of news.mediaReviews"
-                                        [ngSwitch]="review.has_medium">
-                                        <app-media-source *ngSwitchCase="false" [review]="getReview(review)">
-                                        </app-media-source>
-                                        <app-files-list *ngSwitchCase="true"
-                                            [thumbName]="getName( review.file_name, -1)"></app-files-list>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="bx-controls bx-has-controls-direction">
-                                <div class="bx-controls-direction">
-                                    <a class="bx-prev" target="_blank" (click)="prev()">Prev</a><a class="bx-next"
-                                        target="_blank" (click)="next()">Next</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="sliderrr-pager" style="overflow: hidden !important;">
-                            <ul class="sliderrr-page" #slider [ngStyle]="carouselPagerStyle">
-                                <li *ngFor="let thumbFile of news.mediaReviews; index as i" class="buttos">
-                                    <a (click)="currentDiv(i)" class="wed" target="_blank"
-                                        matTooltip="{{news.mediaReviews[0].doc_name}}">
-                                        <app-files-list [thumbName]="getName(thumbFile.file_name, i)"></app-files-list>
-                                    </a>
-                                </li>
-                            </ul>
-                            <div class="bx-controls bx-has-controls-direction">
-                                <div class="bx-controls-direction">
-                                    <a class="slider-bx-prev" target="_blank" (click)="prev()">Prev</a><a
-                                        class="slider-bx-next" target="_blank" (click)="next()">Next</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="preknow">
-                        <span class='date pre'>{{news.date | date:'medium'}}</span>
-                        <span class="pre bet">|</span>
-                        <span class="pre">
-                        <button (click)="onClose('/allusers/'+news.owner)" type="button" class="btn btn-primary" style="margin-top: -6px;">{{ news.owner }}</button></span>
-                        <span class="pre bet">|</span>
-                        <span class="pre" style="cursor: pointer;" (click)="setSocial();">Paylaş
-                        </span>
-                        <span class="pre bet">|</span>
-                        <span class="pre"> {{ newsCounts.get(news.id) }}</span>
-                    </div>
-                    <app-media-social [social]="social"></app-media-social>
-                    <h2>
-                        <span class="text" *ngIf="news.topic.charAt(0)!=='#'">{{news.topic.split('#')[0]}}</span>
-                        <span class="text" *ngFor="let tag of news.tags; let i = index">
-                            <a class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
-                                style="font-weight: 600;color: #666666; cursor: pointer;"> {{tag}} </a>
-                            {{news.topic.split('#')[i + 1].replace(news.tags[i].substring(1), '')}}
-                        </span>
-                    </h2>
-                    <!-- <div>
+            <div class="preknow">
+                <span class='date pre'>{{news.date | date:'medium'}}</span>
+                <span class="pre bet">|</span>
+                <span class="own pre">
+                    <button (click)="onClose(loggedID&&loggedID===news.ownerId?'/user':'/allusers/'+news.owner)" type="button" class="butto ripple button-outline"
+                        style="margin-top: -3px; padding: 10px 10px !important;">{{ news.owner }}</button></span>
+                <span class="pre bet">|</span>
+                <span class="social pre">
+                    <button type="button" (click)="setSocial()" class="butto ripple button-outline" style="margin-top: -3px;padding: 10px 10px !important;">Paylaş</button>   
+                </span>
+                <span class="pre bet">|</span>
+                <span class="pre" style="margin-top: 10px;"> {{ newsCounts.get(news.id) }}</span>
+            </div>
+            <app-media-social [social]="social"></app-media-social>
+            <h2>
+                <span class="text" *ngIf="news.topic.charAt(0)!=='#'">{{news.topic.split('#')[0]}}</span>
+                <span class="text" *ngFor="let tag of news.tags; let i = index">
+                    <a class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
+                        style="font-weight: 600;color: #666666; cursor: pointer;"> {{tag}} </a>
+                    {{news.topic.split('#')[i + 1].replace(news.tags[i].substring(1), '')}}
+                </span>
+            </h2>
+            <!-- <div>
                         <iframe #myframe id="youtu" width='560' height='315' src="" frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe>
                     </div> -->
-                    <div id="mihtml" style="padding-top: 20px"></div>
-                    <div id="newsTags" style="margin-bottom: 20px">
-                        <label *ngFor="let tag of news.tags"><a> {{tag}} ; </a></label>
-                    </div>
-                </div>
-                <div class="chat">
-                    Comments:<br/>
-                    <textarea #textBox id="textbox" type="text" name="text" placeholder="Say something meaningful..." autocomplete="off" cdkTextareaAutosize cdkAutosizeMinRows="2"
-                    cdkAutosizeMaxRows="5" style="width: 85%; box-sizing: content-box"></textarea>
-                    <button style="vertical-align: text-bottom;" type="button" class="btn btn-primary" (click)="handleSendButton(textBox.value)">Send</button>
-                </div> 
-                <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 15px;">
-                    <mat-form-field class="my-options">
-                        <mat-select placeholder="Select your language"
-                                    [(ngModel)]="currentLanguage" [disabled]="recognizing">
-                          <mat-option *ngFor="let language of languages" [value]="language" (click)="onSelectLanguage(language)">
-                            {{language}}
-                          </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div style="width: 90%; padding: 20px; display: flex; flex-direction: row;justify-content: space-evenly"> 
-                    <div style="align-items: flex-start; padding-top: 20px;">
-                        <button #startButton [disabled]="startButtonDisabled" type="button" class="btn btn-primary" (click)="startCamera()">Start Microphone</button>
-                    </div>
-                    <div style="align-items: flex-end;">
-                        <form>
-                            <mat-form-field class="speech-result-width">
-                                <mat-label>Speech Input Result</mat-label>
-                              <textarea #speechTextBox matInput [value]="(speechMessages|async)?.transcript" placeholder="Speech Input Result" disabled="true" cdkTextareaAutosize cdkAutosizeMinRows="2"
-                              cdkAutosizeMaxRows="5" style="text-align: center;"></textarea>
-                            </mat-form-field>
-                        </form>
-                    </div>
-                </div>
-                <div style="height: auto;max-height: 400px; width: 800px;max-width: 800px;display: flex;flex-direction: column; margin-bottom: 200px;">
-                    <div style="flex-grow: 1; padding: 20px 30px; overflow: auto;">
-                        <div #publicChatBox class="publicChatBox" style="display: flex; flex-direction: column;align-items: flex-end;"></div>    
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer" style="justify-content: space-between;">
-                <app-ngbd-modal-stacked></app-ngbd-modal-stacked>
-                <button type="button" class="btn btn-primary" (click)="onClose('')">Close</button>
-                <app-news-manage *ngIf="isManager()" [news]="news$"></app-news-manage>
+            <div id="mihtml" style="padding-top: 20px"></div>
+            <div id="newsTags" style="margin-bottom: 20px">
+                <label *ngFor="let tag of news.tags"><a> {{tag}} ; </a></label>
             </div>
         </div>
-    </div>
+        <div class="chat">
+            <label>
+            Comments:<br />
+            <textarea #textBox id="textbox" type="text" name="text" placeholder="Say something meaningful..."
+                autocomplete="off" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="5"
+                style="width: 80%; box-sizing: content-box; height: 38px !important;"></textarea></label>
+            <button id="micro3" style="vertical-align: text-bottom;" type="button" class="butto ripple button-outline"
+                (click)="handleSendButton(textBox.value)">Send</button>
+        </div>
+        <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 15px;">
+            <mat-form-field class="my-options">
+                <mat-label>Select your language</mat-label>
+                <mat-select role="combobox" [(value)]="currentLanguage">
+                    <mat-option role="option" *ngFor="let language of languages" [value]="language"
+                        (click)="onSelectLanguage(language)">
+                        {{language}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div style="width: 95%; padding: 20px; display: flex; flex-direction: row;justify-content: space-around">
+            <div style="align-items: flex-start; padding-top: 20px;">
+                <button id="micro1" #startButton [disabled]="startButtonDisabled" type="button" class="butto ripple button-outline"
+                    (click)="startCamera()">Start Microphone</button>
+            </div>
+            <div style="align-items: flex-end;">
+                <form>
+                    <mat-form-field class="speech-result-width" [style.min-width.px]="itemWidth / 2">
+                        <mat-label>Speech Input Result</mat-label>
+                        <textarea #speechTextBox matInput [value]="(speechMessages|async)?.transcript"
+                            placeholder="Speech Input Result" disabled="true" cdkTextareaAutosize cdkAutosizeMinRows="2"
+                            cdkAutosizeMaxRows="5" style="text-align: center;"></textarea>
+                    </mat-form-field>
+                </form>
+            </div>
+        </div>
+        <div
+            style="height: auto;max-height: 400px; width: 800px;max-width: 800px;display: flex;flex-direction: column; margin-bottom: 200px;">
+            <div style="flex-grow: 1; padding: 20px 30px; overflow: auto;">
+                <div #publicChatBox class="publicChatBox"
+                    style="display: flex; flex-direction: column;align-items: flex-end;"></div>
+            </div>
+        </div>
+    </section>
+    <footer id="modal-footer" [ngStyle]="wideStyle" style="display: flex;justify-content: space-between;">
+        <!-- <app-ngbd-modal-stacked></app-ngbd-modal-stacked> -->
+        <button id="closes" type="button" class="butto ripple button-outline" (click)="onClose('')">Close</button>
+        <app-news-manage *ngIf="isManager" [news]="news$"></app-news-manage>
+    </footer>
 </div>

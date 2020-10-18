@@ -1,21 +1,20 @@
-<form [formGroup]="searchForm" style="height: 100%; overflow: hidden">
-    <div class="form-group">
-        <input type="search" class="form-control" autofocus="true" placeholder="Enter search string"
-            [formControl]="searchField">
-    </div>
+<form [formGroup]="searchForm" style="overflow: hidden">
+        <mat-form-field style="width: 100%;line-height: 1.7 !important;" class="mearch">
+            <label style="vertical-align: -webkit-baseline-middle;">Search
+            <input matInput type="search" class="form-control"
+            [formControl]="searchField" #myInput></label>
+            <!-- <mat-icon matSuffix style="font-size: 1.2em">search</mat-icon> -->
+        </mat-form-field>
 </form>
 <nav mat-tab-nav-bar>
-    <a mat-tab-link *ngFor="let link of links" (click)="onClick(link)" [active]="activeLink == link"
+    <a mat-tab-link *ngFor="let link of links" (click)="onClick(link)" [active]="_activeLink == link"
         style="min-width: 50%;"> {{link}} </a>
 </nav>
 <div class="news" style="margin-top: 0px">
-    
-    <ul class="items" [ngSwitch]="searchType===0">
-
-        <app-news-list *ngSwitchCase="false" [newsList]="newsResults" [orderBy]="'count'" [activeLink]="activeLink"
-            [currLink]="activeLink"></app-news-list>
-        <app-profile-list *ngSwitchCase="true" [users]="usersResults" [booled]="true"></app-profile-list>
-
+    <ul class="items" [ngSwitch]="searchType===0" [style.width]="wdth+'px'" [style.minHeight]="hght+'px'">
+       <li style="display: block;"> <app-news-list *ngSwitchCase="false" [newsList]="newsResults" [activeLink]="miLink"
+            [currLink]="miLink"></app-news-list>
+        <app-profile-list *ngSwitchCase="true" [users]="usersResults" [booled]="true"></app-profile-list> </li>
     </ul>
 </div>
 <router-outlet></router-outlet>

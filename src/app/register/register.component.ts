@@ -1,13 +1,13 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, Inject, Renderer2, HostListener } from '@angular/core';
 import { AuthService } from '../core/auth.service';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { matchingPasswords } from './validators';
-import { Observable, of } from 'rxjs';
-import { Location } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import { UserService } from '../core/user.service';
 import { FirebaseUserModel } from '../core/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 
 @Component({
@@ -20,22 +20,30 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     registerForm: FormGroup;
     errorMessage = '';
     successMessage = '';
-    showModal: Observable<boolean> = of(false);
     listenerFn: () => void;
+    color: string;
+    wideStyle: { width: string; };
 
     constructor(
-        public authService: AuthService,
-        public userService: UserService,
+        private authService: AuthService,
+        private userService: UserService,
         private router: Router,
-        private location: Location,
+        private dialogRef: MatDialogRef<RegisterComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
         private fb: FormBuilder,
-        private _snackBar: MatSnackBar
+        private _snackBar: MatSnackBar, @Inject(DOCUMENT) private _document: Document, private renderer: Renderer2
     ) {
         this.createForm();
+        this.color = data.color;
     }
     ngOnInit(): void {
+        const modalWidth = this.data.header$;
+        this.wideStyle = {
+            width: `${modalWidth}px`
+        };
     }
-
+    @HostListener('window:keyup.esc') onKeyUp() {
+        this.dialogRef.close();
+    }
     createForm() {
         this.registerForm = this.fb.group({
             name: ['', Validators.required],
@@ -51,24 +59,27 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     tryFacebookLogin() {
         this.authService.doFacebookLogin(false)
-            .then(res => {
-                this.router.navigate(['/user']);
-            }, err => console.log(err)
+            .then(() => {
+                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
+                this.onClose('user');
+             }, err => console.log(err)
             );
     }
 
     tryTwitterLogin() {
         this.authService.doTwitterLogin()
-            .then(res => {
-                this.router.navigate(['/user']);
+            .then(() => {
+                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
+                this.onClose('user');
             }, err => console.log(err)
             );
     }
 
     tryGoogleLogin() {
         this.authService.doGoogleLogin(false)
-            .then(res => {
-                this.router.navigate(['/user']);
+            .then(() => {
+                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
+                this.onClose('user');
             }, err => console.log(err)
             );
     }
@@ -79,14 +90,14 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
                 res.sendEmailVerification({
                     'url': 'http://localhost:4200/auth', // Here we redirect back to this same page.
                     'handleCodeInApp': true // This must be true.
-                }).then(value1 => {
+                }).then(() => {
                     this._snackBar.open('Verification Email Sent!', 'Check yor email please!', {
                         duration: 3000,
                     });
 
                     // alert('Verification Email Sent! Check yor email please!');
                     setTimeout(
-                        () => this.router.navigate(['/']),
+                        () => this.router.navigate([this.userService.redirectUrl]),
                         1000
                     );
                 });
@@ -95,8 +106,8 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
                     photoURL: ''
                 }).then(function () {
                     // Update successful.
-                }, function (error) {
-                    // An error happened. 
+                }, function () {
+                    // An error happened.
                 });
                 res.getIdToken().then(idToken => {
                     this.userService.user.token = idToken;
@@ -117,20 +128,17 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
             });
     }
     ngAfterViewInit() {
-        this.showModal = of(true);
+    //    setTimeout(() => {
+            this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
+      //  });
     }
 
-    onClose() {
-        this.showModal = of(false);
-        // Allow fade out animation to play before navigating back
-        setTimeout(
-            () => this.location.back(), // this.router.navigate(['/']),
-            100
-        );
+    onClose(redir) {
+       // this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', 'transparent');
+        this.dialogRef.close(redir);
     }
 
     onDialogClick(event: UIEvent) {
-        // Capture click on dialog and prevent it from bubbling to the modal background.
         event.stopPropagation();
         event.cancelBubble = true;
     }

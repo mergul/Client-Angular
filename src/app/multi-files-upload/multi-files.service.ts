@@ -12,7 +12,6 @@ export class MultiFilesService {
     private _thumbs: Map<string, Blob> = new Map<string, Blob>();
     private _totalFiles: Array<File> = [];
 
-
     constructor(private http: HttpClient) {
     }
 

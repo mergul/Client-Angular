@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
 import { UserService } from '../core/user.service';
 import { NewsService } from '../core/news.service';
-import { Observable, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { User } from '../core/user.model';
 import { NewsPayload } from '../core/news.model';
 import { switchMap, takeUntil } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
   selector: 'app-profile-center',
-//  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile-center.component.html',
   styleUrls: ['./profile-center.component.scss']
 })
@@ -24,23 +24,16 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   _userIds: string[] = [];
   _users: Observable<Array<User>>;
   _tagz: Observable<Array<string>>;
-  private newslistUrl = '/sse/chat/room/TopNews/subscribeMessages';
-
-  ngOnDestroy(): void {
-    this.onDestroy.next();
-    this.onDestroy.complete();
-  }
-  get users(): Observable<Array<User>> {
-    return this._users;
-  }
-
-  set users(value: Observable<Array<User>>) {
-    this._users = value;
-  }
+  private newslistUrl: string;
+  message: any;
 
   constructor(public userService: UserService,
     private reactiveService: ReactiveStreamsService,
     public service: NewsService) {
+    if (!this.userService.random) {
+      this.userService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+    }
+    this.newslistUrl = '/sse/chat/room/TopNews' + this.userService.random + '/subscribeMessages';
   }
 
   @Input()
@@ -99,24 +92,33 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this.reactiveService.statusOfNewsSource()) {
-      this.reactiveService.getNewsStream('top-news', this.newslistUrl);
-  }
-    this._newsList = this._isPub.pipe(switchMap(value2 => {
+      this.reactiveService.getNewsStream(this.userService.random, this.newslistUrl);
+    }
+    this._isPub.pipe(switchMap(value2 => {
       if (!value2) {
         if (!this.service.meStreamList$) {
           this.service.meStreamList$ = this.reactiveService.getMessage('me');
         }
-        return this.service.meStreamList$;
+        this._newsList = this.service.meStreamList$;
       } else {
-        if (!this.service.publicStreamList$.get(this._user.id)) {
-          this.reactiveService.setOtherListener('@' + this.user.id, false);
-          this.service.setNewsUser('@' + this.user.id).pipe(takeUntil(this.onDestroy)).subscribe();
-          this.service.publicStreamList$.set(this._user.id, this.reactiveService.getMessage('other-person'));
-        }
-        return this.service.publicStreamList$.get(this._user.id);
+        // if (!this.reactiveService.publicStreamList$.get(this._user.id)) {
+        //   this.reactiveService.setOtherListener('@' + this.user.id, this.userService.random, false);
+        //   this.service.setNewsUser('@' + this.user.id, this.userService.random).pipe(takeUntil(this.onDestroy)).subscribe();
+        // } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(this._user.id)); }
+        this._newsList = this.reactiveService.getMessage('other-person');
       }
-    }));
+      return this._newsList;
+    })).subscribe();
   }
+
+  get users(): Observable<Array<User>> {
+    return this._users;
+  }
+
+  set users(value: Observable<Array<User>>) {
+    this._users = value;
+  }
+
   getNewsByOwner(username: string) {
     this.orderBy = 'date';
     this.service.setNewsList(['@' + username], true);
@@ -129,5 +131,12 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   getNewsByOwnerOlder(username: string) {
     this.orderBy = '';
     this.service.setNewsList(['@' + username], true);
+  }
+  ngOnDestroy(): void {
+    this.onDestroy.next();
+    this.onDestroy.complete();
+  }
+  receiveMessage($event) {
+    this.boolUser = $event;
   }
 }

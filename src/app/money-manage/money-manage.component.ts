@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs/internal/Subject';
 import { NewsService } from '../core/news.service';
 import { takeUntil } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Observable, of } from 'rxjs';
 
 
 @Component({
@@ -17,13 +18,23 @@ export class MoneyManageComponent implements OnInit, OnDestroy {
   adListStyle = {};
   searchField: FormControl;
   searchForm: FormGroup;
+  @Output() boolChange = new EventEmitter<Observable<number>>();
+  private _boolUser: Observable<number>;
   constructor(private fb: FormBuilder, private newsService: NewsService, private _snackBar: MatSnackBar) { }
 
   ngOnInit() {
     this.searchForm = this.fb.group({});
     this.searchField = new FormControl();
   }
+  @Input()
+  get boolUser(): Observable<number> {
+    return this._boolUser;
+  }
 
+  set boolUser(value: Observable<number>) {
+    this._boolUser = value;
+  //  this.boolChange.emit(value);
+  }
   ngOnDestroy(): void {
     this.onDestroy.next();
     this.onDestroy.complete();
@@ -41,5 +52,7 @@ export class MoneyManageComponent implements OnInit, OnDestroy {
       this.searchField.patchValue(0);
     }
   }
-
+  changeChild() {
+    this.boolChange.emit(of(6));
+  }
 }

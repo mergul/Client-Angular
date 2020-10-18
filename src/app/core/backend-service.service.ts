@@ -1,7 +1,6 @@
-import {Injectable, NgZone} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
 import {News, NewsFeed} from './news.model';
 
 @Injectable({
@@ -9,17 +8,17 @@ import {News, NewsFeed} from './news.model';
 })
 export class BackendServiceService {
 
-    constructor(private httpClient: HttpClient, private zone: NgZone) {
+    constructor(private httpClient: HttpClient) {
     }
 
-    private _controller: AbortController = new AbortController();
-    get abortController(): AbortController {
-        return this._controller;
-    }
+    // private _controller: AbortController = new AbortController();
+    // get abortController(): AbortController {
+    //     return this._controller;
+    // }
 
-    set abortController(value: AbortController) {
-        this._controller = value;
-    }
+    // set abortController(value: AbortController) {
+    //     this._controller = value;
+    // }
     postImage(formData: FormData): Observable<News> {
         return this.httpClient.post<News>('/api/image/save', formData, {
             responseType: 'json',

@@ -30,7 +30,6 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
     targetLanguage = 'tr';
     @ViewChild('canvas', { static: true }) canvas: ElementRef;
     @ViewChild('soundCanvas', { static: true }) soundCanvas: ElementRef;
-    private mediaRecorder: MediaRecorder;
     foods: Observable<MediaDeviceInfo[]>;
     videoWidth = 0;
     videoHeight = 0;
@@ -162,14 +161,14 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
     onSelectTargetLanguage(language: string) {
         this.targetLanguage = language;
     }
-    public record() {
-        this.isRecording = true;
-        this.mediaRecorder.start();
-    }
-    public stop() {
-        this.isRecording = false;
-        this.mediaRecorder.stop();
-    }
+    // public record() {
+    //     this.isRecording = true;
+    //     this.mediaRecorder.start();
+    // }
+    // public stop() {
+    //     this.isRecording = false;
+    //     this.mediaRecorder.stop();
+    // }
     capture() {
         this.renderer.setProperty(this.canvas.nativeElement, 'width', this.videoWidth);
         this.renderer.setProperty(this.canvas.nativeElement, 'height', this.videoHeight);

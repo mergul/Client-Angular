@@ -1,21 +1,18 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
-import * as firebase from 'firebase/app';
+import {auth, User} from 'firebase/app';
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
-    redirectUrl = 'login';
     private preemail = '';
     private prepass = '';
 
-    constructor(
-        public afAuth: AngularFireAuth
-    ) {
+    constructor(public afAuth: AngularFireAuth) {
     }
 
     doFacebookLogin(isMobile: boolean) {
         return new Promise<any>((resolve, reject) => {
-            const provider = new firebase.auth.FacebookAuthProvider();
+            const provider = new auth.FacebookAuthProvider();
             provider.addScope('email');
             if (isMobile) {
                 this.afAuth.auth.signInWithRedirect(provider)
@@ -40,7 +37,7 @@ export class AuthService {
 
     doTwitterLogin() {
         return new Promise<any>((resolve, reject) => {
-            const provider = new firebase.auth.TwitterAuthProvider();
+            const provider = new auth.TwitterAuthProvider();
             this.afAuth.auth
                 .signInWithPopup(provider)
                 .then(res => {
@@ -54,7 +51,7 @@ export class AuthService {
 
     doGoogleLogin(isMobile: boolean) {
         return new Promise<any>((resolve, reject) => {
-            const provider = new firebase.auth.GoogleAuthProvider();
+            const provider = new auth.GoogleAuthProvider();
             provider.addScope('profile');
             provider.addScope('email');
             if (isMobile) {
@@ -78,9 +75,9 @@ export class AuthService {
         });
     }
 
-    doRegister(value): Promise<firebase.User> {
+    doRegister(value): Promise<User> {
         return new Promise<any>((resolve, reject) => {
-            firebase.auth().createUserWithEmailAndPassword(value.email, value.password)
+            this.afAuth.auth.createUserWithEmailAndPassword(value.email, value.password)
                 .then(res => {
                         resolve(res.user);
                     }, err => reject(err)
@@ -100,7 +97,7 @@ export class AuthService {
 
     doLogin(value) {
         return new Promise<any>((resolve, reject) => {
-            firebase.auth().signInWithEmailAndPassword(value.email, value.password)
+            this.afAuth.auth.signInWithEmailAndPassword(value.email, value.password)
                 .then(res => {
                     resolve(res);
                 }, err => reject(err));
@@ -109,7 +106,7 @@ export class AuthService {
 
     doAnonimousLogin() {
         return new Promise<any>((resolve, reject) => {
-            firebase.auth().signInAnonymously()
+            this.afAuth.auth.signInAnonymously()
                 .then(res => {
                     resolve(res);
                 }, err => reject(err));
@@ -118,7 +115,7 @@ export class AuthService {
 
     doLogout() {
         return new Promise((resolve, reject) => {
-            if (firebase.auth().currentUser) {
+            if (this.afAuth.auth.currentUser) {
                 this.afAuth.auth.signOut();
                 resolve();
             } else {
@@ -128,7 +125,7 @@ export class AuthService {
     }
 
     getCurrentIdToken(): Promise<string> {
-        return firebase.auth().currentUser.getIdToken(true);
+        return this.afAuth.auth.currentUser.getIdToken(true);
     }
 
     resetPassword(email: string) {
@@ -159,9 +156,31 @@ export class AuthService {
     }
 
     updatePassword(email: string, newPassword: string) {
-        firebase.auth().currentUser.updatePassword(newPassword)
+        this.afAuth.auth.currentUser.updatePassword(newPassword)
             .then(function () {
             }).catch(function (err) {
+        });
+    }
+    getCurrentUser() {
+        return new Promise<any>((resolve, reject) => {
+            this.afAuth.auth.onAuthStateChanged(function (userd) {
+                if (userd) {
+                    resolve(userd);
+                } else {
+                    reject('No user logged in');
+                }
+            });
+        });
+    }
+    updateCurrentUser(value) {
+        return new Promise((resolve, reject) => {
+            const user = this.afAuth.auth.currentUser;
+            user.updateProfile({
+                displayName: value.name,
+                photoURL: user.photoURL
+            }).then(() => {
+                resolve('User Successfully Updated');
+            }, err => reject(err));
         });
     }
 }

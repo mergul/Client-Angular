@@ -2,19 +2,19 @@ import { MultiFilesUploadComponent } from './multi-files-upload.component';
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthGuard } from '../core/auth.guard';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesThumbnailsComponent } from '../files-thumbnails/files-thumbnails.component';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatIconModule} from '@angular/material/icon';
-import {MatButtonModule} from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { SharedModalModule } from '../shared-modal/shared-modal.module';
+import { GenericModalComponent } from '../shared-modal/generic-modal.component';
 
 const routes: Routes = [
-    {path: '', component: MultiFilesUploadComponent, canActivate: [AuthGuard]}
+     {path: '', component: GenericModalComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({
@@ -22,15 +22,14 @@ const routes: Routes = [
       MultiFilesUploadComponent, FilesThumbnailsComponent
     ],
     imports: [
-      CommonModule, FormsModule,
-      RouterModule.forChild(routes), MatSelectModule, MatFormFieldModule, MatSnackBarModule,
-      NgbModule, ReactiveFormsModule, MatTooltipModule, MatIconModule, MatButtonModule
+      CommonModule, FormsModule, SharedModalModule,
+      RouterModule.forChild(routes), MatSelectModule, MatFormFieldModule, MatSnackBarModule, MatInputModule,
+      ReactiveFormsModule, MatIconModule
     ],
-    entryComponents: [
-    ],
+    entryComponents: [MultiFilesUploadComponent],
     providers: [AuthGuard],
     bootstrap: [MultiFilesUploadComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    exports: [CommonModule]
+    exports: [CommonModule, MultiFilesUploadComponent, MatIconModule]
   })
   export class MultiFilesUploadModule { }

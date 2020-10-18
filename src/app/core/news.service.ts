@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { News, NewsPayload } from './news.model';
 import { RecordSSE } from './RecordSSE';
-import { switchMap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class NewsService {
 
-    // private readonly onDestroy = new Subject<void>();
+    callToggle: Subject<number> = new Subject();
     newsApiRoot = '/api/rest/news/list';
     newsRoot = '/api/rest/news/get/';
     adlinks = ['Ençok Şikayet', 'Müstehcen', 'Şiddet'];
@@ -28,53 +27,32 @@ export class NewsService {
     mlink: string;
     newsStreamCounts$: Observable<RecordSSE>;
     meStreamList$: Observable<NewsPayload[]>;
-    publicStreamList$: Map<string, Observable<NewsPayload[]>> = new Map<string, Observable<NewsPayload[]>>();
-
+    list$: NewsPayload[];
 
     constructor(protected http: HttpClient) {
     }
-    get newsList(): Observable<NewsPayload[]> {
-        return this.newsList$;
-    }
-    set newsList(newsLists: Observable<NewsPayload[]>) {
-        this.newsList$ = newsLists;
-    }
+
     setNewsList(tags: Array<string>, byOwners: boolean) {
         if (byOwners) {
             this.newsList$ = this.peopleStreamList$;
-            //  this.newsStreamList$.pipe(map(value => value.filter(value1 =>
-            //          tags.includes('@' + value1.newsOwnerId))));
         } else if (tags.length === 0) {
             this.newsList$ = of([]);
         } else if (tags.length === 1) {
             if (tags[0] !== 'main') {
                 this.newsList$ = this.tagsStreamList$;
-                // this.newsStreamList$.pipe(map(value => value.filter(value1 => value1.topics.includes(tags[0]))));
             } else { this.newsList$ = this.newsStreamList$; }
         } else {
             this.newsList$ = this.tagsStreamList$;
-            //  this.newsStreamList$.pipe(map(value => value.filter(value1 =>
-            //          tags.some(value2 => value1.topics.includes(value2)))));
         }
     }
 
-    // getTopNewzList(etiketler: Array<string>): Observable<Array<NewsPayload>> {
-    //     return this.http.get<Array<NewsPayload>>('/sse/topnewzlist/' + etiketler, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
-    // getNewsByOwnerIds(ids: Array<string>): Observable<Array<NewsPayload>> {
-    //     return this.http.get<Array<NewsPayload>>('/api/rest/news/getNewsByOwnerIds/' + ids, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
     getTopNewsList(etiket: string): Observable<Array<NewsPayload>> {
         return this.http.get<Array<NewsPayload>>('/sse/topnewslist/' + encodeURIComponent(etiket), {
             responseType: 'json', withCredentials: true
         });
     }
-    setNewsUser(etiket: string): Observable<boolean> {
-        return this.http.get<boolean>('/sse/setUser/' + encodeURIComponent(etiket), {
+    setNewsUser(etiket: string, random: number): Observable<boolean> {
+        return this.http.get<boolean>('/sse/setUser/' + encodeURIComponent(etiket) + '/' + random, {
             responseType: 'json', withCredentials: true
         });
     }
@@ -83,41 +61,41 @@ export class NewsService {
             responseType: 'json', withCredentials: true
         });
     }
-    // getList(): Observable<Array<NewsPayload>> {
-    //     // let apiURL = `${this.apiRoot}?term=${term}&media=music&limit=20`;
-    //     const apiURL = `${this.newsApiRoot}`;
-    //     return this.http.get<Array<NewsPayload>>(apiURL);
-    // }
-    // getTopList(list: Array<string>): Observable<Array<News>> {
-    //     return this.http.get<Array<News>>('/api/rest/news/topList/' + list, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
     getTopReportedList(list: Array<string>): Observable<Array<News>> {
         return this.http.get<Array<News>>('/api/rest/news/topReportedList/' + list, {
             responseType: 'json', withCredentials: true
         });
     }
-    // getNewsPayload(news: News) {
-    //     return {'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags,
-    //      'clean': news.clean, 'newsOwnerId': news.ownerId, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name,
-    //      'count': news.count, 'date': news.date};
-    // }
     getNewsById(id: string): Observable<News> {
         if (this.newzes$.has(id)) {
-            const news = this.newzes$.get(id);
-            // const newsPayload = this.getNewsPayload(news);
-            // return this.http.put<boolean>('/sse/setNewsCounts', newsPayload, {
+            // fetch('/api/rest/news/setNewsCounts/' + id, {
+            //     keepalive: true,
+            //     method: 'GET',
+            //     headers: {
+            //       'Content-Type': 'application/json',
+            //     },
+            //   });
+            fetch('/sse/setNewsCounts', {
+                keepalive: true,
+                method: 'PATCH',
+                body: JSON.stringify(this.extractNewsPayload(this.newzes$.get(id))),
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+            return of(this.newzes$.get(id));
+            // return this.http.get<boolean>('/api/rest/news/setNewsCounts/' + id, {
             //     responseType: 'json', withCredentials: true
             // }).pipe(switchMap(() => of(news)));
-            return this.http.get<boolean>('/api/rest/news/setNewsCounts/' + id, {
-                responseType: 'json', withCredentials: true
-            }).pipe(switchMap(() => of(news)));
         } else {
             return this.http.get<News>('/api/rest/news/get/' + id, {
                 responseType: 'json', withCredentials: true
             });
         }
+    }
+    extractNewsPayload(news: News): any {
+        return { 'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags, 'clean': news.clean,
+        'newsOwnerId': news.ownerId, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name, 'count': +news.count, 'date': news.date};
     }
 
     getNewsByOwnerId(id: string): Observable<Array<News>> {
@@ -148,37 +126,12 @@ export class NewsService {
     set reportedNewsCounts(reportedNewsCounts: Map<string, string>) {
         this.reportedNewsCounts$ = reportedNewsCounts;
     }
-    // getNewsByCounts(id: string) {
-    //     return this.http.get<string>('/sse/news/' + id, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
-    // getUsersByCounts(id: string) {
-    //     return this.http.get<string>('/sse/users/' + id, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
-    //
-    // getNewsListCounts(list: Array<string>): Observable<Array<RecordSSE>> {
-    //     // @ts-ignore
-    //     return this.http.get<Array<RecordSSE>>('/sse/newslist/' + list, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
-
-    // getUserTopNewsList(id: string): Observable<Array<NewsPayload>> {
-    //     return this.http.get<Array<NewsPayload>>('/sse/topnewslist/@' + id, {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
     getReportedNewsListCounts(list: Array<string>): Observable<Array<RecordSSE>> {
-        // @ts-ignore
         return this.http.get<Array<RecordSSE>>('/reported/reportednewslist/' + list, {
             responseType: 'json', withCredentials: true
         });
     }
     getTopReportedNewsList(etiket: string): Observable<Array<RecordSSE>> {
-        //   const params = new HttpParams({encoder: this.customEncoder});
         return this.http.get<Array<RecordSSE>>('/reported/topreportednewslist/' + encodeURIComponent(etiket), {
             responseType: 'json', withCredentials: true
         });
@@ -188,11 +141,6 @@ export class NewsService {
             responseType: 'json', withCredentials: true
         });
     }
-    // getStartCounts(): Observable<Array<RecordSSE>> {
-    //     return this.http.get<Array<RecordSSE>>('/sse/newscounts', {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
 
     sendReport(newsPayload1: NewsPayload, admin: boolean) {
         const jp = admin ? 'admin' : 'user';
@@ -201,13 +149,6 @@ export class NewsService {
         }).pipe();
 
     }
-
-    // getTopTags(): Observable<Array<RecordSSE>> {
-    //     return this.http.get<Array<RecordSSE>>('/sse/toptagslist', {
-    //         responseType: 'json', withCredentials: true
-    //     });
-    // }
-
     deleteNewsById(id: string): Observable<boolean> {
         return this.http.delete<boolean>('/api/rest/news/delete/' + id, {
             responseType: 'json', withCredentials: true
@@ -225,7 +166,7 @@ export class NewsService {
         });
     }
     partitionMoney(para: number): Observable<number> {
-        return this.http.post<number>('/balance/rest/admin/partitionMoney', para, {
+        return this.http.post<number>('/api/rest/admin/partitionMoney', para, {
             responseType: 'json', withCredentials: true
         });
     }

@@ -1,4 +1,4 @@
-<div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
+<div class="example-container" [class.example-is-mobile]="this.checkMedia()">
     <!-- <mat-toolbar color="primary" class="example-toolbar">
         <button mat-icon-button (click)="btnClick('/home')" class="mat-icon-button" style="margin-right: auto;width: 188px;
   height: 66px;
@@ -8,9 +8,9 @@
                 [style.marginLeft.px]="mobileQuery.matches ? 0 : 130"></mat-icon>Büşra Nur
         </button> -->
         <!-- <br *ngIf="newsService.newsStreamCounts$ | async"> -->
-        <app-logged-nav [loggedinUser]="loggedinUser" [ngStyle]="searchWrapperStyle()"></app-logged-nav>
+        <app-no-logged-nav [loggedinUser]="loggedinUser" [ngStyle]="searchWrapperStyle()"></app-no-logged-nav>
     <!-- </mat-toolbar> -->
-    <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 0 : 0">
+    <mat-sidenav-container class="example-sidenav-container">
         <mat-sidenav-content>
             <router-outlet></router-outlet>
         </mat-sidenav-content>

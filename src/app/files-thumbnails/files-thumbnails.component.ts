@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {MultiFilesService} from '../multi-files-upload/multifiles.service';
+import {MultiFilesService} from '../multi-files-upload/multi-files.service';
 import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
@@ -10,7 +10,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 export class FilesThumbnailsComponent implements OnInit {
   private _thumbs: Array<string>;
   private _cycle: number;
-  constructor(private service: MultiFilesService, private sani: DomSanitizer) { }
+  constructor(private service: MultiFilesService, protected sani: DomSanitizer) { }
 
   ngOnInit() {
   }

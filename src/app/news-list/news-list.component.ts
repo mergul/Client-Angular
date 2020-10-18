@@ -1,34 +1,49 @@
 import { Component, Input, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { NewsService } from '../core/news.service';
-import { Observable, fromEvent, Subject, of } from 'rxjs';
+import { Observable, fromEvent, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { NewsPayload } from '../core/news.model';
 import { Location } from '@angular/common';
-import { map, takeUntil, debounceTime } from 'rxjs/operators';
+import { map, takeUntil, debounceTime, distinctUntilChanged, switchMap, throttleTime } from 'rxjs/operators';
 import { UserService } from '../core/user.service';
+import { WindowRef } from '../core/window.service';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
     selector: 'app-news-list',
-    //  changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './news-list.component.html',
     styleUrls: ['./news-list.component.scss']
 })
 export class NewsListComponent implements OnInit, OnDestroy {
     public state = '';
     public thumbName;
-    newsList$: Observable<NewsPayload[]>;
+    private newsBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
+    newsList$ = this.newsBehaviorSubject.asObservable();
     _orderBy = 'count';
     currentPage = 0;
-    newsPayCounts = 4;
-
+    currentOffset = 0;
+    isUp = false;
+    newsListCounts = 0;
+    private unsubscriber$: Subject<boolean> = new Subject<boolean>();
     destroy = new Subject();
     destroy$ = this.destroy.asObservable();
     private _currLink: string;
+    prevOffset = 0;
+    thumbHeight = 109;
+    fontSize = 12;
+    height = 109;
+    private _newsList: Observable<NewsPayload[]>;
+    subs: Subscription;
+    list: NewsPayload[];
+    othersList$: NewsPayload[];
 
-    constructor(private zone: NgZone, private newsService: NewsService, public location: Location, public userService: UserService) {
+    constructor(private zone: NgZone, private newsService: NewsService, public location: Location,
+         public userService: UserService, private reactiveService: ReactiveStreamsService, private winRef: WindowRef) {
     }
 
     ngOnDestroy(): void {
         this.destroy.next();
+        this.destroy.complete();
+        this.unsubscriber$.unsubscribe();
     }
     @Input()
     get activeLink(): string {
@@ -56,27 +71,62 @@ export class NewsListComponent implements OnInit, OnDestroy {
 
     set newsList(value: Observable<NewsPayload[]>) {
         if (value) {
-            this.newsList$ = value;
+            this._newsList = value;
             this.currentPage = 1;
             this.getStories();
-        } else {
-            this.newsList$ = of([]);
         }
     }
+    // checkSame = (a: NewsPayload[], b: NewsPayload[]) => {
+    //    return a.every(val => b.some(ca => ca.newsId === val.newsId));
+    // }
     getStories = () => {
-        this.newsList$ = this.newsList$.pipe(map(x => x.slice(0, 4 * this.currentPage)));
+        this._newsList.pipe(takeUntil(this.destroy$), map(x => {
+            if (x.length > 5 && !this.unsubscriber$.closed) {
+                if (this.currentPage > 1 && x.length < (this.currentPage * 5)) {
+                    this.unsubscriber$.next(true);
+                    this.unsubscriber$.unsubscribe();
+                    this.currentPage = 1;
+                    this.newsBehaviorSubject.next(x);
+                    console.log('stopped to listen --> ' + this.prevOffset);
+                } else { // if (!this.checkSame(x.slice(0, 5 * this.currentPage), this.newsBehaviorSubject.getValue()))
+                    this.newsBehaviorSubject.next(x.slice(0, 5 * this.currentPage));
+                    // if (this.unsubscriber$.observers.length === 0) {
+                    //     this.subsToScroll();
+                    // }
+                }
+            } else if (x.length > 0) { this.newsBehaviorSubject.next(x); }
+            return this.newsList$;
+        })).subscribe();
     }
-    scrollObs = () => this.zone.runOutsideAngular(() => fromEvent(window, 'scroll').pipe(takeUntil(this.destroy$), debounceTime(100)));
+    scrollObs = () => this.zone.runOutsideAngular(() => fromEvent(window.document.querySelector('.example-container'), 'scroll', {
+        passive: true }).pipe(takeUntil(this.unsubscriber$), throttleTime(100), distinctUntilChanged()))
 
     getYPosition(): number {
-        return document.documentElement.scrollTop;
+        this.currentOffset = document.querySelector('.example-container').scrollTop;
+        this.isUp = this.prevOffset > this.currentOffset;
+        // console.log('is Up --> ' + this.isUp + ' ::prev-offset --> ' + this.prevOffset + ' ::page --> ' + this.currentPage
+        // + ' ::curr-offset --> ' + this.currentOffset + ' ::Max-Height --> ' +
+        // this.winRef.nativeWindow.document.documentElement.offsetHeight);
+        return this.isUp ? 0 : this.currentOffset;
     }
     ngOnInit() {
         this.state = window.history.state ? window.history.state.userID : this.state;
-        this.scrollObs().subscribe((e: Event) => {
-            if (this.activeLink === this.currLink || this.currLink === 'me') {
-                if (this.getYPosition() > 80 + ((document.documentElement.offsetHeight - 80) * (this.currentPage - 1))) {
+        if (this.winRef.nativeWindow.innerWidth < 1080) {
+            this.height = this.thumbHeight * (4 / 5);
+            this.thumbHeight = this.height - 19;
+            this.fontSize = 9;
+        } else {
+             this.thumbHeight = this.thumbHeight - 19;
+         }
+         this.subs = this.subsToScroll();
+    }
+    subsToScroll() {
+        return this.scrollObs().subscribe((e: Event) => {
+            if (this.activeLink === this.currLink) {
+                if (this.getYPosition() > (((document.querySelector('.example-container') as HTMLElement).offsetHeight - 100)
+                    * (this.currentPage - 1))) {
                     this.currentPage++;
+                    this.prevOffset = this.currentOffset;
                     this.getStories();
                 }
             }
@@ -87,15 +137,25 @@ export class NewsListComponent implements OnInit, OnDestroy {
     }
 
     onTagClick(tag: string) {
-        this.newsList$ = this.newsService.newsList$ = this.newsService.newsStreamList$
-            .pipe(map(value => value.filter(value1 => value1.topics.includes(tag))));
+        if (!this.newsService.list$) {
+            this.newsService.list$ = this.reactiveService.getNewsSubject('main').value;
+        }
+        this.othersList$ = this.newsService.list$.filter(value1 => value1.topics.includes(tag));
+        this.reactiveService.getNewsSubject('main').next(this.othersList$);
+
+        // this.newsService.newsList$ = this.newsService.newsStreamList$
+        //     .pipe(takeUntil(this.destroy$), map(value => value.filter(value1 => value1.topics.includes(tag)))
+        //     , map(dfs => {
+        //         this.newsBehaviorSubject.next(dfs);
+        //         return dfs;
+        //     }));
 
         this.newsService.activeLink = tag;
     }
-
-    getName(file_name: string) {
-        if (!file_name) { file_name = 'bae.jpg'; }
-        const ja = file_name.lastIndexOf('.');
-        return 'thumb-kapak-' + file_name.slice(0, ja) + '.jpeg';
-    }
+    byId(index, item: NewsPayload) {
+        if (!item) {
+            return null;
+        }
+        return item.newsId;
+     }
 }

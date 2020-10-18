@@ -10,6 +10,6 @@ const routes: Routes = [];
     CommonModule, RouterModule.forChild(routes), NewsDetailsModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [NewsListComponent, NewsDetailsModule, CommonModule]
+  exports: [NewsListComponent, NewsDetailsModule]
 })
 export class NewsListModule { }

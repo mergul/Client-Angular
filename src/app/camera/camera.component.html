@@ -40,7 +40,7 @@
         </div> -->
         <div style="width: 100%; padding: 20px; display: flex; flex-direction: row;justify-content: space-between"> 
             <div style="align-items: flex-start; padding: 15px;">
-                <button #startButton [disabled]="startButtonDisabled" (click)="startCamera()" class="btn btn-primary" style="max-height: 44px; min-width: max-content;">Start Webcam</button>
+                <button #startButton [disabled]="startButtonDisabled" id="micro" (click)="startCamera()" class="btn btn-primary" style="max-height: 44px; min-width: max-content;">Start Webcam</button>
             </div>
             <div style="padding-left: 15px;">
                 <form>
@@ -67,14 +67,14 @@
         </div>
         <div *ngIf="peerList.size > 0" class="pb-2">
             <button class="btn btn-primary" (click)="capture()">Capture Image</button>
-            <button [disabled]="isRecording" (click)="record()">Record</button>
-            <button [disabled]="!isRecording" (click)="stop()">Stop</button>
+            <!-- <button [disabled]="isRecording" (click)="record()">Record</button> -->
+            <!-- <button [disabled]="!isRecording" (click)="stop()">Stop</button> -->
         </div>
         <div class="chat">
             Chat:<br/>
             <textarea #textBox [disabled]="false" id="textbox" type="text" name="text" placeholder="Say something meaningful..." autocomplete="off" (keyup)="handleKey($event)" cdkTextareaAutosize cdkAutosizeMinRows="2"
             cdkAutosizeMaxRows="5"></textarea>
-            <input #sendChat class="btn btn-primary" [disabled]="chatBoxDisabled" type="button" id="send" name="send" value="Send" (click)="handleSendButton(textBox.value, '')" style="vertical-align: text-bottom;">
+            <input #sendChat class="btn btn-primary" [disabled]="chatBoxDisabled" type="button" id="send" name="send" value="Send" (click)="handleSendButton(textBox.value)" style="vertical-align: text-bottom;">
         </div>
         <div style="height: auto;max-height: 400px; width: 800px;max-width: 800px;display: flex;flex-direction: column; margin-bottom: 200px;">
             <div style="flex-grow: 1; padding: 20px 30px; overflow: auto;">

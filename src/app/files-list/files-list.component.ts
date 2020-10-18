@@ -1,7 +1,6 @@
 import {Component, Input, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {News} from '../core/news.model';
-import {BackendServiceService} from '../core/backend-service.service';
-import {DomSanitizer} from '@angular/platform-browser';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
 import { WindowRef } from '../core/window.service';
 
 @Component({
@@ -13,12 +12,10 @@ import { WindowRef } from '../core/window.service';
 export class FilesListComponent implements OnInit {
     itemWidth: number;
     private _thumbName: string;
-    _imgUrl: string;
+    _imgUrl: SafeUrl;
     private _news: News;
     width: number;
     height: number;
-   // @ViewChild('myImg', { read: ElementRef, static: false }) myImg;
-
 
     constructor(public sanitizer: DomSanitizer,
         private winRef: WindowRef) {
@@ -42,32 +39,30 @@ export class FilesListComponent implements OnInit {
     }
 
     set thumbName(thumbName: string) {
-        this._thumbName = thumbName;
+        const ja = thumbName.lastIndexOf('.');
+        this._thumbName = thumbName.slice(0, ja) + '.jpeg';
+        this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
         if (!this._imgUrl) {
-            if (thumbName.includes('medium-')) {
-                this.itemWidth = this.winRef.nativeWindow.innerWidth - 20;
+            if (this._thumbName.includes('medium-')) {
                 if (this.itemWidth > 788) { this.itemWidth = 788; }
                 this.width = this.itemWidth;
                 this.height = 500 * (this.itemWidth / 788);
             } else {
-                this.width = 174;
-                this.height = 109;
+                if (this.itemWidth > 1040) {
+                    this.width = 174;
+                    this.height = 109;
+                } else {
+                    this.width = 174 * (4 / 5);
+                    this.height = 109 * (4 / 5);
+                }
             }
 
             // this.getUrlReview(this._thumbName).then(value => this.imgUrl = value);
           // this.imgUrl = 'https://storage.googleapis.com/sentral-news-media/' + thumbName;
-          this._imgUrl = 'assets/' + thumbName;
+          this._imgUrl = this.sanitizer.bypassSecurityTrustUrl('assets/' + this._thumbName);
         }
     }
 
     ngOnInit() {
-    }
-
-    get imgUrl(): string {
-        return this._imgUrl;
-    }
-
-    set imgUrl(value: string) {
-        this._imgUrl = value;
     }
 }

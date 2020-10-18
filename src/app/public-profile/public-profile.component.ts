@@ -1,15 +1,16 @@
-import { Component, Input, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, AfterViewInit, ElementRef, ViewChild, Renderer2 } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Observable, of, Subscription, Subject } from 'rxjs';
 import { NewsService } from '../core/news.service';
 import { map, takeUntil } from 'rxjs/operators';
-import { News} from '../core/news.model';
+import { News } from '../core/news.model';
 import { UserService } from '../core/user.service';
 import { Location } from '@angular/common';
 import { FirebaseUserModel, User } from '../core/user.model';
 import { DomSanitizer } from '@angular/platform-browser';
-import { BackendServiceService } from '../core/backend-service.service';
 import { WindowRef } from '../core/window.service';
+import { AuthService } from '../core/auth.service';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
     selector: 'app-public-profile',
@@ -26,14 +27,37 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     folli: boolean;
     private _tags: Observable<Array<string>>;
     subscription_newslist: Subscription;
-
-    constructor(public userService: UserService,
-        private route: ActivatedRoute,
-        private location: Location, private winRef: WindowRef,
+    isMobile = false;
+    _user: Observable<User>;
+    _username: string;
+    orderBy = 'date';
+    userID: string;
+    _boolUser: Observable<number> = of(0);
+    controller = new AbortController();
+    signal = this.controller.signal;
+    public loggedID = '';
+    listStyle = {};
+    compStyle = {};
+    private newslistUrl: string;
+    private myInput: ElementRef;
+    @ViewChild('myInput', { static: false })
+    public set value(v: ElementRef) {
+        if (v) {
+            this.myInput = v;
+            this.renderer.addClass(this.myInput.nativeElement, 'active');
+        }
+    }
+    constructor(public userService: UserService, private reactiveService: ReactiveStreamsService,
+        private route: ActivatedRoute, private authService: AuthService,
+        private location: Location, private winRef: WindowRef, private renderer: Renderer2,
         public service: NewsService, public domSanitizer: DomSanitizer) {
         // this.router.routeReuseStrategy.shouldReuseRoute = function () {
         //     return false;
         // };
+        if (!this.userService.random) {
+            this.userService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+          }
+          this.newslistUrl = '/sse/chat/room/TopNews' + this.userService.random + '/subscribeMessages';
     }
 
     @Input()
@@ -48,31 +72,34 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     get newsCounts(): Map<string, string> {
         return this.service.newsCounts;
     }
-
-    _user: Observable<User>;
-    _username: string;
-    orderBy = 'date';
-    userID: string;
-    _boolUser: Observable<number> = of(0);
-    controller = new AbortController();
-    signal = this.controller.signal;
-    public loggedID = '';
-    listStyle = {};
-    compStyle = {};
-
     ngOnInit() {
+        if (!this.reactiveService.statusOfNewsSource()) {
+            this.reactiveService.getNewsStream(this.userService.random, this.newslistUrl);
+          }
         this.loggedID = window.history.state.loggedID;
         this._username = window.history.state.userID;
         this._user = this.userService._otherUser;
         const myWis = this.winRef.nativeWindow.innerWidth;
-        this.listStyle = {
-            width: `${(myWis) / 3.5}px`,
-            marginRight: `${3 * (myWis) / 350}px`,
-            display: `${(myWis > 1080) ? 'block' : 'none'}`
-        };
         const mwidth = myWis > 620 ? 620 : myWis;
+        let rght = '0px';
+        let lft = '0px';
+        this.isMobile = this.winRef.nativeWindow.innerWidth < 620;
+        if (this.isMobile) {
+            lft = `${myWis > 390 ? (myWis - 390) / 2 : myWis / 20}px`;
+            rght = `${myWis > 390 ? (3 * (myWis) / 350) : myWis / 20}px`;
+        } else {
+            rght = `${3 * (myWis) / 350}px`;
+        }
+        this.listStyle = {
+            // width: `${(myWis) / 3.5}px`,
+            minWidth: this.isMobile ? `auto` : `390px`,
+            marginRight: rght,
+            marginLeft: lft
+            // display: `${(myWis > 1080) ? 'block' : 'none'}`
+        };
         this.compStyle = {
-            width: `${mwidth}px`
+            width: `${mwidth}px`,
+            overflow: 'hidden'
         };
         if (!this._username) {
             this.route.paramMap.pipe(takeUntil(this.onDestroy)).subscribe((params: ParamMap) => {
@@ -93,7 +120,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     tagClick(user: User) {
-      //  const fet = ['people'];
+        //  const fet = ['people'];
         if (!this.folli) {
             this.userService.manageFollowingTag('@' + user.id, true).pipe(takeUntil(this.onDestroy)).subscribe(value => {
                 this.folli = value;
@@ -119,7 +146,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
             // });
             // fet.push(encodeURIComponent('@' + this.userService.dbUser.id));
         }
-       // this.subscription_newslist = this.userService.setInterests(fet).pipe(takeUntil(this.onDestroy)).subscribe();
+        // this.subscription_newslist = this.userService.setInterests(fet).pipe(takeUntil(this.onDestroy)).subscribe();
     }
 
     getNewsByOwner(userId: string): Observable<Array<News>> {
@@ -127,8 +154,8 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         return this.service.getNewsByOwnerId(userId);
     }
     ngAfterViewInit(): void {
-        if (!this.userService.loggedUser) {
-            this.userService.getCurrentUser()
+        if (!this.userService.loggedUser && !this._username) {
+            this.authService.getCurrentUser()
                 .then(value => {
                     if (value) {
                         this.userService.user = new FirebaseUserModel();
@@ -147,7 +174,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                         }
                     }
                 }).catch(reason => {
-                  //  console.log('Bu mu dur', reason);
+                    //  console.log('Bu mu dur', reason);
                     this.loggedID = '';
                     if (!this.userService._otherUser) {
                         this._user = this.userService._otherUser = this.findMother();
@@ -184,7 +211,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         this._boolUser = value;
     }
     proClick(people: string[]) {
-        // return this.router.navigateByUrl('/profiles/' + people);
+        this.renderer.removeClass(this.myInput.nativeElement, 'active');
         this._userIds = people;
         this.boolUser = of(2);
     }
@@ -206,9 +233,9 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     }
     private findMother(): Observable<User> {
         if (this.userService._otherUser) { return this._user; } else {
-            return this.userService
-                .getDbUser('/api/rest/users/get/' + encodeURIComponent(this._username), this.loggedID)
-                .pipe(map(user => {
+            const url = '/api/rest/users/get/' + encodeURIComponent(this._username)
+            + '/' + (this.loggedID !== '' ? this.loggedID : 'a') + '/' + this.userService.random;
+            return this.userService.getDbUser(url).pipe(map(user => {
                     if (user.id) {
                         this.userID = user.id;
                         const leng = user.mediaParts.length;
@@ -241,6 +268,10 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                         this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + 'back-img.jpeg';
                         this.boolUser = of(0);
                     }
+                    if (!this.reactiveService.publicStreamList$.get(user.id)) {
+                        this.reactiveService.setOtherListener('@' + user.id, this.userService.random, false);
+                        this.service.setNewsUser('@' + user.id, this.userService.random).pipe(takeUntil(this.onDestroy)).subscribe();
+                    } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(user.id)); }
                     return user;
                 }));
         }
@@ -255,5 +286,9 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     followTags(tagst: string[]) {
         this.tags = of(tagst);
         this.boolUser = of(3);
+        this.renderer.removeClass(this.myInput.nativeElement, 'active');
+    }
+    contents() {
+        this.boolUser = of(0);
     }
 }

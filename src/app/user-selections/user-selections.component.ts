@@ -1,7 +1,7 @@
-import {Component, OnInit, ViewChild, OnDestroy} from '@angular/core';
+import {Component, OnInit, ViewChild, OnDestroy, Input} from '@angular/core';
 import {UserService} from '../core/user.service';
 import {map, takeUntil} from 'rxjs/operators';
-import {Observable, of, Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {BalanceRecord} from '../core/user.model';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {MatListOption, MatSelectionList, MatSelectionListChange} from '@angular/material/list';
@@ -14,6 +14,7 @@ import {MatListOption, MatSelectionList, MatSelectionListChange} from '@angular/
 export class UserSelectionsComponent implements OnInit, OnDestroy {
 
   private readonly onDestroy = new Subject<void>();
+  private _booled: boolean;
   userList: Observable<Array<BalanceRecord>>;
   selectedList: Array<BalanceRecord>;
   idList = [];
@@ -21,6 +22,7 @@ export class UserSelectionsComponent implements OnInit, OnDestroy {
   clientForm: FormGroup;
 
   @ViewChild('users', {static: false}) private users: MatSelectionList;
+
   constructor( private service: UserService, private fb: FormBuilder) {
     this.clientForm = this.fb.group( {
       myOtherControl: new FormControl([])
@@ -30,7 +32,14 @@ export class UserSelectionsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.userList = this.service.hotBalanceRecords().pipe(map(value => value));
   }
+  @Input()
+  get booled(): boolean {
+    return this._booled;
+  }
 
+  set booled(value: boolean) {
+    this._booled = value;
+  }
   onSelection($event: MatSelectionListChange, selected: MatListOption[]) {
     this._selected = $event.option.value;
   }
@@ -47,12 +56,6 @@ export class UserSelectionsComponent implements OnInit, OnDestroy {
     this.service.payToAll(this.idList).pipe(takeUntil(this.onDestroy)).subscribe(value => {
       this.userList = this.userList.pipe(
           map(value1 => value1.filter(previousValue => !this.idList.includes(previousValue.key))));
-      // setTimeout(
-      //     () =>  this.newsService.setStoreValues().pipe(takeUntil(this.onDestroy)).subscribe(value1 => {
-      //       alert('İşlem başarıyla tamamlandı!');
-      //     }),
-      //     5000
-      // );
     });
   }
 

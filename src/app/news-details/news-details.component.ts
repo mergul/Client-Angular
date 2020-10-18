@@ -3,8 +3,7 @@ import {
     Input,
     OnInit,
     AfterViewInit,
-    OnDestroy, ViewChild, ElementRef, NgZone, Renderer2, Inject} from '@angular/core';
-import { Router } from '@angular/router';
+    OnDestroy, ViewChild, ElementRef, Renderer2, Inject, HostListener} from '@angular/core';
 import { Observable, of, Subject, from, fromEvent } from 'rxjs';
 import { takeUntil, map, takeWhile } from 'rxjs/operators';
 import { News, Review } from '../core/news.model';
@@ -12,15 +11,15 @@ import { NewsService } from '../core/news.service';
 import { WindowRef } from '../core/window.service';
 import { animate, AnimationBuilder, AnimationFactory, AnimationPlayer, style } from '@angular/animations';
 import { UserService } from '../core/user.service';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
 import { SpeechService, RecognitionResult } from '../core/speech-service';
 import {HammerGestureConfig} from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogConfig } from '@angular/material/dialog';
 
 @Component({
-    selector: 'app-listing-dialog',
+    selector: 'app-details',
     templateUrl: 'news-details.components.html',
     styleUrls: ['./news-details.component.scss']
 })
@@ -29,19 +28,19 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     public tagList: Array<string>;
     private readonly onDestroy = new Subject<void>();
     storagepath = 'https://storage.googleapis.com/sentral-news-media/';
-    showModal: Observable<boolean> = of(false);
     @ViewChild('publicChatBox', {static: true}) publicChatBox: ElementRef;
     @ViewChild('textBox', {static: true}) textBox: ElementRef;
     @ViewChild('speechTextBox', {static: true}) speechTextBox: ElementRef;
     @ViewChild('startButton', {static: true}) startButton: ElementRef;
 
-    @Input() news$: News;
+    color: string;
+    news$: News;
     listenerFn: () => void;
     count: Observable<string>;
-    public state = '';
+    // public state = '';
     private player: AnimationPlayer;
     private playerS: AnimationPlayer;
-    private itemWidth = 1000;
+    itemWidth = 788;
     private currentSlide = 0;
     @ViewChild('carousel', { read: ElementRef, static: false }) carousel;
     @ViewChild('slider', { read: ElementRef, static: false }) slider;
@@ -50,6 +49,8 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     carouselWrapperStyle = {};
     carouselWrapStyle = {};
     carouselPagerStyle: {};
+    sliderWrapperStyle: {};
+    wideStyle: {};
     private _social = of(false);
     twttr: any;
     mySrc: Observable<string>;
@@ -68,19 +69,45 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     };
     mitext = '';
     alive = true;
+    height: number;
+    thumbWidth = 174;
+    thumbHeight = 109;
+    isManager = false;
+    loggedID: string;
 
-    constructor(private router: Router, private service: NewsService, private speechService: SpeechService,
+    constructor(public dialogRef: MatDialogRef<NewsDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+     private service: NewsService, private speechService: SpeechService,
         private userService: UserService, private winRef: WindowRef, protected sanitizer: DomSanitizer
-        , private builder: AnimationBuilder, public activeModal: NgbActiveModal, private _snackBar: MatSnackBar,
+        , private builder: AnimationBuilder, private _snackBar: MatSnackBar,
          private renderer: Renderer2, @Inject(DOCUMENT) private _document: Document) {
+             this.news$ = data.news$;
+             this.color = data.color;
     }
-
+    @HostListener('window:keyup.esc') onKeyUp() {
+        this.onClose('');
+    }
     ngOnInit() {
-        this.state = window.history.state ? window.history.state.userID : this.state;
-        this.itemWidth = this.winRef.nativeWindow.innerWidth - 50;
+        this.loggedID = window.history.state ? window.history.state.loggedID : this.loggedID;
+        this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
+        if (this.itemWidth < 1040) {
+            this.thumbWidth = this.thumbWidth * (4 / 5) + 10;
+            this.thumbHeight = this.thumbHeight * (4 / 5) + 20;
+        } else {
+            this.thumbWidth = this.thumbWidth + 10;
+            this.thumbHeight = this.thumbHeight + 20;
+        }
         if (this.itemWidth > 788) { this.itemWidth = 788; }
+        this.height = 580 * (this.itemWidth / 788);
         this.carouselWrapperStyle = {
-            width: `${this.itemWidth}px`
+            width: `${this.itemWidth}px`,
+            height: `${500 * (this.itemWidth / 788)}px`
+        };
+        const modalWidth = this.data.header$;
+        this.wideStyle = {
+            width: `${modalWidth}px`
+        };
+        this.sliderWrapperStyle = {
+            minHeight: `${this.height}px`
         };
         this.service.newsPayload = {
             'newsId': this.news$.id, 'newsOwnerId': this.news$.ownerId, 'newsOwner': this.news$.owner, 'tags': [], topics: []
@@ -92,8 +119,10 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
             width: `${this.itemWidth * this.news$.mediaReviews.length}px`
         };
         this.carouselPagerStyle = {
-            width: `${190 * this.news$.mediaReviews.length}px`
+            width: `${(this.thumbWidth + 10) * this.news$.mediaReviews.length}px`
         };
+        this.isManager = this.userService.dbUser && (this.userService.dbUser.roles.includes('ROLE_ADMIN')
+        || this.userService.dbUser.roles.includes('ROLE_MODERATOR'));
         this.speechService.init();
         if (this.speechService._supportRecognition) {
             this.speechService.initializeSettings(this.currentLanguage);
@@ -112,7 +141,9 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.showModal = of(true);
+     //   setTimeout(() => {
+            this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
+      //  });
         this.renderer.setProperty(this._document.getElementById('mihtml'), 'innerHTML', this.news$.summary);
         const hammerConfig = new HammerGestureConfig();
         const hammer = hammerConfig.buildHammer(this.carousel.nativeElement);
@@ -134,7 +165,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     startCamera() {
         if (this.startButton.nativeElement.innerHTML.startsWith('Start')) {
             if (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
-                this.startButtonDisabled = true;
+               // this.startButtonDisabled = true;
                 this.foods = from(navigator.mediaDevices.enumerateDevices()
                     .then(this.gotDevices));
                 navigator.mediaDevices.getUserMedia(this.constraints)
@@ -146,6 +177,8 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
             this.speechService.stop();
             this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Start Microphone');
+            this.renderer.addClass(this.startButton.nativeElement, 'button-outline');
+            this.micStop(this.localStream);
         }
     }
     onSelectLanguage(language: string) {
@@ -161,6 +194,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             this.speechService.startSpeech(stream.startTime);
             this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Stop Microphone');
+            this.renderer.removeClass(this.startButton.nativeElement, 'button-outline');
         }
     }
     handleError(error) {
@@ -177,7 +211,9 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this._social = value;
     }
     onClose(redir: string) {
-        this.activeModal.close(redir);
+        this.micStop(this.localStream);
+      //  this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', 'transparent');
+      this.dialogRef.close(redir);
     }
 
     onDialogClick(event: UIEvent) {
@@ -186,7 +222,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.micStop(this.localStream);
         if (this.listenerFn) {
             this.listenerFn();
         }
@@ -261,15 +296,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getReview(review: Review) {
         return new Review(this.storagepath + review.file_name, '', '', review.file_type);
-    }
-    getName(file_name: string, i: number) {
-        const na = i === 0 ? 'thumb-kapak-' : i === -1 ? 'medium-' : 'thumb-kapak-';
-        const ja = file_name.lastIndexOf('.');
-        return na + file_name.slice(0, ja) + '.jpeg';
-    }
-    isManager() {
-        return this.userService.dbUser && (this.userService.dbUser.roles.includes('ROLE_ADMIN')
-            || this.userService.dbUser.roles.includes('ROLE_MODERATOR'));
     }
 
     onTagClick(tag: string) {

@@ -19,7 +19,7 @@
           <input type="iban" [(ngModel)]="user.iban" formControlName="iban" placeholder="IBAN" class="form-control"/>
           <div class="alert-danger errormessageadduser" *ngIf="!profileForm.controls.iban.valid">Lütfen Geçerli bir IBAN ile Kaydet butonuna basınız!! </div>
         </div>
-        <div style="margin-bottom: -5px" class="form-group">
+        <div class="form-group">
                               <label>Password</label>
           <input type="password" class="form-control" formControlName="password" placeholder="Password" autocomplete="new-password"/>
           <label class="error">{{errorMessage}}</label>
@@ -35,7 +35,7 @@
           <div class="alert-danger errormessageadduser" *ngIf="profileForm.hasError('mismatchedPasswords')">Passwords do not match</div>
         </div>
 
-        <button [disabled]="profileForm.pristine||(profileForm.hasError('mismatchedPasswords')||!profileForm.controls.email.valid||!profileForm.controls.iban.valid)" type="submit" (click)="trySave(profileForm.value)" class="btn btn-block" style="background-color: #222222;color: white">Kaydet
+        <button id="kaydet" [disabled]="profileForm.pristine||(profileForm.hasError('mismatchedPasswords')||!profileForm.controls.email.valid||!profileForm.controls.iban.valid)" type="submit" (click)="trySave(profileForm.value)" class="butto ripple button-outline">Kaydet
         </button>
       </form>
     </div>

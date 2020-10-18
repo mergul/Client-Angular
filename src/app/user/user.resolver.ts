@@ -2,15 +2,12 @@ import {Injectable} from '@angular/core';
 import {Resolve, ActivatedRouteSnapshot, Router} from '@angular/router';
 import {UserService} from '../core/user.service';
 import {FirebaseUserModel} from '../core/user.model';
-import {map} from 'rxjs/operators';
-import {ReactiveStreamsService} from '../core/reactive-streams.service';
-import {NewsService} from '../core/news.service';
+import { AuthService } from '../core/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserResolver implements Resolve<FirebaseUserModel> {
 
-    constructor(public userService: UserService, private router: Router,
-    private reactiveService: ReactiveStreamsService, private newsService: NewsService) {
+    constructor(public userService: UserService, private router: Router, private authService: AuthService) {
     }
 
     resolve(route: ActivatedRouteSnapshot): Promise<FirebaseUserModel> {
@@ -18,7 +15,7 @@ export class UserResolver implements Resolve<FirebaseUserModel> {
         const user = new FirebaseUserModel();
 
         return new Promise((resolve, reject) => {
-            this.userService.getCurrentUser()
+            this.authService.getCurrentUser()
                 .then(res => {
                     if (res.providerData.length > 0 && !res.isAnonymous)  {
                         if (res.providerData[0].providerId === 'password') {

@@ -1,27 +1,17 @@
-<div id="backdrop" class="modal-backdrop fade" [ngClass]="{ show: showModal }"></div>
-<div class="modal d-block fade"
-     [ngClass]="{ show: showModal }"
-     (click)="onClose()"
-     id="listing-dialog"
-     tabindex="-1" role="dialog" aria-labelledby="modalIdLabel">
-  <div class="modal-dialog" role="document" (click)="onDialogClick($event)">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button"
-                class="close"
-                (click)="onClose()"
-                aria-label="Close"><span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-<p>
-  Sadece Üyeler Kişi veya Etiket Takibi Yapabilirler.<br>
-  Lütfen Hesabınıza <a [routerLink]="'../login/'"> Giriş Yapınız</a>  veya <a [routerLink]="'../register/'">Üye Olunuz</a>
-</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" (click)="onClose()">Close</button>
-      </div>
-    </div>
-  </div>
+<div id="modal-content-wrapper">
+  <header id="modal-header" [ngStyle]="wideStyle">
+    <button type="button" class="close" (click)="onClose('')" aria-label="Close">
+      <span style="font-weight: bolder;font-size: x-large;line-height: 25px !important;" aria-hidden="true">&times;</span>
+    </button>
+  </header>
+  <section id="modal-body" [ngStyle]="wideStyle">
+    <p>
+      Sadece Üyeler Kişi veya Etiket Takibi Yapabilirler.<br>
+      Lütfen Hesabınıza <a (click)="onClose('/login')"> Giriş Yapınız</a> veya <a (click)="onClose('/register')">Üye
+        Olunuz</a>
+    </p>
+  </section>
+  <footer class="modal-footer" [ngStyle]="wideStyle">
+    <button id="closes" type="button" class="butto ripple button-outline" (click)="onClose('')">Close</button>
+  </footer>
 </div>

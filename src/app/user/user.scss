@@ -1,27 +1,91 @@
-.fb-image-lg{
-  z-index: 0;
-  width: 100%;
-  height: 225px;
-  float: left;
-}
-
-.fb-image-profile
-{
- // margin: -120px 10px 0px 170px;
+.fb-image-profile {
   z-index: 9;
   width: 225px;
   height: 225px;
   border-radius: 50%;
   float: left;
 }
-.sfb-image-profile
-{
+.sfb-image-profile {
   margin: -121px 0px 0px 250px;
   z-index: 9;
   width: 225px;
   height: 225px;
   border-radius: 50%;
   float: left;
+}
+.fb-image-lg{
+    z-index: 0;
+    width: 100%;
+    height: 225px;
+    float: left;
+}
+.hoverable1{
+    position: relative;
+    display: block;
+    cursor: pointer;
+    height: 225px;
+    width: 225px;
+    border-radius: 50%;
+    margin: -145px 10px 0px 250px;
+  }
+  .hoverable1 .hover-text1{
+    position: absolute;
+    display: none;
+    top: 50%;
+    left:  50%;
+    transform: translate(-50%,-50%);
+    z-index: 2;
+  }
+  .hoverable1 .background{
+    position: absolute;
+    display: none;
+    top: 0;
+    left:  0;
+    bottom: 0;
+    right: 0;
+    background-color:rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .hoverable1:hover .hover-text1{
+    display: block;
+  }
+  .hoverable1:hover .background{
+    display: block;
+  }
+  
+.hoverable2{
+    position: relative;
+    display: block;
+    cursor: pointer;
+    height: 225px;
+    width: 100%;
+}
+.hoverable2 .hover-text2{
+    position: absolute;
+    display: none;
+    top: 50%;
+    left:  50%;
+    transform: translate(-50%,-50%);
+    z-index: 2;
+}
+.hoverable2 .background{
+    position: absolute;
+    display: none;
+    top: 0;
+    left:  0;
+    bottom: 0;
+    right: 0;
+    background-color:rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    z-index: 1;
+}
+.hoverable2:hover .hover-text2{
+    display: block;
+}
+.hoverable2:hover .background{
+    display: block;
 }
 @media (max-width:768px)
 {
@@ -36,7 +100,6 @@
   }
   .sfb-image-profile
   {
-   // margin: -45px 10px 0px 25px;
     margin: -95px 0px 0px 10px;
     z-index: 9;
     width: 170px;
@@ -45,34 +108,11 @@
   }
   .fb-image-profile
   {
-  //  margin: -125px 0px 0px 10px;
-  // margin: 5px 10px 0px -105px;
     z-index: 9;
     width: 170px;
     height: 170px;
     border-radius: 50%;
   }
-}
-.follow{
-  border: 0;
-  // width: 120px;
-  // height: 30px;
-  color: white;
-  background: red;
-  border-radius: 22px;
-  font-size: medium;
-  cursor: pointer;
-  margin-bottom: 5px;
-}
-.followed {
-  border: 0;
- // width: 120px;
- // height: 30px;
-  color: white;
-  background: red;
-  border-radius: 22px;
-  font-size: medium;
-  margin-bottom: 5px;
 }
 .mat-icon-button, .mat-icon{
   width: 46px;
@@ -83,85 +123,41 @@
 .container{
   max-width: 100%;
 }
-.hoverable1{
-  position: relative;
-  display: block;
-  cursor: pointer;
-  height: 225px;
-  width: 225px;
-  //border: 5px solid #000;
-  border-radius: 50%;
-  margin: -145px 10px 0px 250px;
-}
-.hoverable1 .hover-text1{
-  position: absolute;
-  display: none;
-  top: 50%;
-  left:  50%;
-  transform: translate(-50%,-50%);
-  z-index: 2;
-}
-.hoverable1 .background{
-  position: absolute;
-  display: none;
-  top: 0;
-  left:  0;
-  bottom: 0;
-  right: 0;
-  background-color:rgba(255, 255, 255, 0.5);
-  pointer-events: none;
-  border-radius: 50%;
-  z-index: 1;
-}
-.hoverable1:hover .hover-text1{
-  display: block;
-}
-.hoverable1:hover .background{
-  display: block;
-}
-
 #fileInput1, #fileInput2{
   display: none;
-}
-
-.hoverable2{
-  position: relative;
-  display: block;
-  cursor: pointer;
-  height: 225px;
-  width: 100%;
-  //border: 5px solid #000;
-  //border-radius: 50%;
-  //margin: -120px 10px 0px 170px;
-}
-.hoverable2 .hover-text2{
-  position: absolute;
-  display: none;
-  top: 50%;
-  left:  50%;
-  transform: translate(-50%,-50%);
-  z-index: 2;
-}
-.hoverable2 .background{
-  position: absolute;
-  display: none;
-  top: 0;
-  left:  0;
-  bottom: 0;
-  right: 0;
-  background-color:rgba(255, 255, 255, 0.5);
-  pointer-events: none;
-  //border-radius: 50%;
-  z-index: 1;
-}
-.hoverable2:hover .hover-text2{
-  display: block;
-}
-.hoverable2:hover .background{
-  display: block;
 }
 .followee{
   border: none;
   background-color: rgb(240, 240, 240);
   padding: 0;
+  margin: 5px 0;
+  cursor: pointer;
 }
+.followee:hover{
+  background-color: #fce8f4;
+}
+.followee:focus{
+  background-color: #fce8f4;
+  text-decoration: underline;
+}
+.active{
+  background-color: #fce8f4;
+  text-decoration: underline;
+}
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+.row {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+}
+button {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+} 
