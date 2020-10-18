@@ -10,9 +10,7 @@
         <!-- <br *ngIf="newsService.newsStreamCounts$ | async"> -->
         <app-no-logged-nav [loggedinUser]="loggedinUser" [ngStyle]="searchWrapperStyle()"></app-no-logged-nav>
     <!-- </mat-toolbar> -->
-    <mat-sidenav-container class="example-sidenav-container">
-        <mat-sidenav-content>
-            <router-outlet></router-outlet>
-        </mat-sidenav-content>
-    </mat-sidenav-container>
+    <div class="example-sidenav-container">
+        <router-outlet></router-outlet>
+    </div>
 </div>
