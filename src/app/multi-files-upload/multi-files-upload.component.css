@@ -87,7 +87,7 @@ table{
     width: 100%;
 }
 #mifiles {
-    width: -webkit-fill-available;
+    width: 100%;
     border: none;
     background-color: white;
     cursor: grabbing;
