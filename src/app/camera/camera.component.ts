@@ -119,7 +119,10 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
         if (!this.scriptService.checkExists('3')) {
             this.scriptService.injectScript(this.renderer, this._document,
                 'https://cdn.jsdelivr.net/npm/video-stream-merger@3.6.1/dist/video-stream-merger.min.js', 'script', '3', '', 'anonymous')
-                .then(val => val);
+                .then(val => {
+                    this.merger = new VideoStreamMerger();
+                    this.merger.start();
+                });
         }
     }
 
@@ -331,8 +334,6 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
                 return text;
             }));
         }
-        this.merger = new VideoStreamMerger();
-        this.merger.start();
     }
     attachVideo(stream) {
         this.localStream = stream;
