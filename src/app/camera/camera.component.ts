@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild, OnDestroy, HostListener, NgZone, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild, OnDestroy, HostListener, NgZone, AfterViewInit, Inject } from '@angular/core';
 import { BehaviorSubject, from, Observable, Subject, zip } from 'rxjs';
 import { FormControl, Validators } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
@@ -7,6 +7,8 @@ import { SpeechService, RecognitionResult } from '../core/speech-service';
 import { map, takeUntil } from 'rxjs/operators';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ScriptLoaderService } from '../core/script-loader.service';
+import { DOCUMENT } from '@angular/common';
 declare var VideoStreamMerger: any;
 
 declare interface Window {
@@ -106,8 +108,19 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
     sender: RTCRtpSender;
     transceiver: RTCRtpTransceiver;
 
-    constructor(private reactive: ReactiveStreamsService, private renderer: Renderer2,
-        private speechService: SpeechService, private zone: NgZone, private _snackBar: MatSnackBar) {
+    constructor(private reactive: ReactiveStreamsService, private renderer: Renderer2, private scriptService: ScriptLoaderService,
+        private speechService: SpeechService, private zone: NgZone, private _snackBar: MatSnackBar,
+        @Inject(DOCUMENT) private _document: Document) {
+        if (!this.scriptService.checkExists('2')) {
+            this.scriptService.injectScript(this.renderer, this._document,
+                'https://webrtc.github.io/adapter/adapter-latest.js', 'script', '2', '', 'anonymous')
+                .then(val => val);
+        }
+        if (!this.scriptService.checkExists('3')) {
+            this.scriptService.injectScript(this.renderer, this._document,
+                'https://cdn.jsdelivr.net/npm/video-stream-merger@3.6.1/dist/video-stream-merger.min.js', 'script', '3', '', 'anonymous')
+                .then(val => val);
+        }
     }
 
     gotDevices(mediaDevices: MediaDeviceInfo[]) {
@@ -201,8 +214,7 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
             case 'rejectusername':
                 this.username = msg.name;
                 console.log(
-                    `Your username has been set to <${
-                    msg.name
+                    `Your username has been set to <${msg.name
                     }> because the name you chose is in use`
                 );
                 break;
@@ -406,15 +418,15 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
     setLocalStreams = async (isAnswerer) => {
-       // if (!isAnswerer) {
-            // this.merger.addStream(this.localVideo.nativeElement.srcObject, {
-            //     x: 0,
-            //     y: 0,
-            //     width: this.merger.width / 2,
-            //     height: this.merger.height / 2,
-            //     mute: false
-            // });
-      //  }
+        // if (!isAnswerer) {
+        // this.merger.addStream(this.localVideo.nativeElement.srcObject, {
+        //     x: 0,
+        //     y: 0,
+        //     width: this.merger.width / 2,
+        //     height: this.merger.height / 2,
+        //     mute: false
+        // });
+        //  }
         for (const track of this.merger.result.getTracks()) {
             if (isAnswerer) {
                 this.peerList.get(this.targetUsername).addTrack(track, this.merger.result);
@@ -531,7 +543,7 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
                     height: this.merger.height,
                     mute: false
                 });
-              //  this.localVideo.nativeElement.srcObject = this.merger.result;
+                //  this.localVideo.nativeElement.srcObject = this.merger.result;
                 let list = this.peerRStream.get(msg.name);
                 if (!list) {
                     list = [];

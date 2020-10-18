@@ -9,7 +9,6 @@ import { Observable, of, Subject } from 'rxjs';
 import { WindowRef } from '../core/window.service';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
-import { ScriptLoaderService } from '../core/script-loader.service';
 
 @Component({
     selector: 'app-page-user',
@@ -41,9 +40,9 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         public userService: UserService,
         public authService: AuthService,
         private route: ActivatedRoute,
-        public location: Location, private scriptService: ScriptLoaderService,
-        private winRef: WindowRef, private reactiveService: ReactiveStreamsService, private zone: NgZone,
-        private router: Router, private service: NewsService, private renderer: Renderer2, @Inject(DOCUMENT) private _document: Document) {
+        public location: Location,
+        private winRef: WindowRef, private reactiveService: ReactiveStreamsService,
+        private router: Router, private service: NewsService, private renderer: Renderer2) {
             if (!this.userService.random) {
                 this.userService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
             }
@@ -90,16 +89,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
     ngAfterViewInit(): void {
-      if (!this.scriptService.checkExists('2')) {
-        this.scriptService.injectScript(this.renderer, this._document,
-            'https://webrtc.github.io/adapter/adapter-latest.js', 'script', '2', '', 'anonymous')
-       .then(val => val);
-      }
-      if (!this.scriptService.checkExists('3')) {
-        this.scriptService.injectScript(this.renderer, this._document,
-            'https://cdn.jsdelivr.net/npm/video-stream-merger@3.6.1/dist/video-stream-merger.min.js', 'script', '3', '', 'anonymous')
-       .then(val => val);
-      }
     }
 
     ngOnDestroy(): void {
