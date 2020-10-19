@@ -1,0 +1,113 @@
+.news{
+  margin-bottom: 1px;
+  text-align: left;
+  display: flex;
+}
+.news ul.items{
+  display: table;
+  margin: 0 auto;
+  padding: 0;
+  border-bottom: 17px solid #E3E3E3;
+  width: 100%;
+}
+.news-list {
+  display: flex;
+  border-top: 17px solid #E3E3E3;
+  border-left: 17px solid #E3E3E3;
+  border-right: 17px solid #E3E3E3;
+ // max-height: 147px;
+  clear: both;
+  padding: 10px;
+}
+
+.news-list a {
+  //height: 109px;
+  //max-height: 109px;
+  display: contents;
+  position: relative;
+  color: #222;
+  margin-left: 10px;
+  text-decoration: none;
+}
+img {
+  display: block !important;
+ // width: 174px !important;
+ // height: 109px !important;
+  float: left !important;
+  margin: 0;
+}
+
+.news-list h4 {
+  display: table-cell;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  box-sizing: content-box;
+  max-width: 375px;
+  width: auto;
+}
+span.date {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
+  background-size: 12px;
+  text-indent: 15px;
+  color: #A9A9A9;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  display: inline-block;
+  width: auto;
+  max-height: 12px;
+}
+span.text{
+  font-size: 15px;
+  max-height: 81px;
+}
+
+.mat-ink-bar{
+  ::before,
+  ::after {
+    content: "";
+    height: 2px;
+    width: 33% !important;
+    position: absolute;
+    left: 0;
+    background-color: white;
+
+  }
+}
+.mat-tab-label-active{
+  background: white;
+}
+.mat-tab-nav-bar{
+  display: block;
+  margin: 0 auto;
+}
+a.users{
+  cursor: grabbing;
+}
+label{
+  font-size: 15px;
+  max-width: 375px;
+  width: auto;
+}
+.tag{
+  cursor: grabbing;
+}
+.follow{
+  border: 0;
+  width: 80px;
+  height: 22px;
+  color: white;
+  background: red;
+  border-radius: 22px;
+  font-size: medium;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+.newsz ul{
+  display: table;
+  margin: 0 auto;
+  padding: 0;
+  border-bottom: 17px solid #E3E3E3;
+}

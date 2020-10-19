@@ -1,0 +1,73 @@
+<div class="container">
+    <div class="row">
+        <!--  <div class="col-md-4 col-md-offset-4" style="flex: 0 0 100%; max-width: 100%;">-->
+        <div *ngIf="_user|async as userd" style="display: block; width: 100%">
+            <div style="display: grid;">
+              <!--  <app-remote-project-file [userProFile]="userd.mediaParts[0].name==='back-img'?userd.mediaParts[0]:userd.mediaParts[1]" class="fb-image-lg"></app-remote-project-file>-->
+              <!-- <app-remote-project-file [userProFile]="userd.mediaParts[0].name!=='back-img'?userd.mediaParts[0]:userd.mediaParts[1]" class="fb-image-profile thumbnail" style="width: 17% !important;"></app-remote-project-file>-->
+                <img *ngIf="back_url" align="left" class="fb-image-lg" [src]="domSanitizer.bypassSecurityTrustUrl(back_url)" alt="asel">
+                <img *ngIf="prof_url" align="left" class="fb-image-profile thumbnail" [src]="domSanitizer.bypassSecurityTrustUrl(prof_url)" alt="asel">
+            </div>
+            <div style="display: flex; margin-top: 0;">
+              <div *ngIf="userd.id" [style.display]="isMobile ? 'grid' : 'flex'" style="margin: 0 auto;  width: min-content;">
+                <!-- <div style="margin: 0 auto; display: flex;"> -->
+                <div [ngStyle]="listStyle" style="padding: 20px; background-color: #F0F0F0; margin-top: 17px; margin-right: 20px; max-width: 390px;">
+                    @{{userd.username}}<br><br>
+                    <div>
+                        <a *ngIf="userService.dbUser" routerLink="/camera" [state]="{userID: userService.dbUser.email, loggedID: userd.email}" style="color: #007bff;text-decoration: none;background-color: transparent;"> @{{userd.firstname}}'s  LIVE ROOM</a>
+                    </div>
+                    Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
+                    <br><br><br> 
+                    <button class="followee" #myInput
+                    (click)="contents()">İçerikler: 
+                    </button>
+                    <span style="float: right">{{userd.contentsCount}}</span><br>
+                    <label>Görüntüleme: </label>
+                    <span *ngIf="(service.newsStreamCounts$|async) as countz" style="float: right">{{countz.key=='@'+userd.id?countz.value:newsCounts.get('@'+userd.id)}}</span><br>
+                    <button (click)="proClick(userd.users)" class="followee">Takip Edilen Kişiler</button>
+                    <span style="float: right">{{userd.users.length}}</span><br>
+                    <button (click)="followTags(userd.tags)" class="followee">Takip Edilen Etiketler</button>
+                    <span style="float: right">{{userd.tags.length}}</span><br>
+                    <button (click)="proClick(userd.followers)" class="followee">Takipçiler</button>
+                    <span style="float: right">{{userd.followers.length}}</span><br>
+                    <div *ngIf="userService.dbUser&&userd.id!==userService.dbUser.id" style="text-align: center; padding-top: 10px">
+                        <button  class="butto ripple button-outline" (click)="tagClick(userd)">{{folli?'Takibi Kes':'Takip Et'}}</button>
+                    </div>
+                    <div *ngIf="userService.dbUser&&userd.id!==userService.dbUser.id" style="text-align: center; padding-top: 10px">
+                        <button  class="butto ripple button-outline" (click)="blockClick(userd)">{{userService.dbUser.blocked.includes(userd.id)?'Engeli Kaldır':'Engelle'}}</button>
+                    </div>
+                    <div *ngIf="userService.dbUser&&userService.dbUser.roles.includes('ROLE_ADMIN')&&!userd.roles.includes('ROLE_ADMIN')" style="text-align: center; padding-top: 10px">
+                        <button class="butto ripple button-outline"  (click)="roleClick(userd)">{{!userd.roles.includes('ROLE_MODERATOR')?'Moderator Yetkisi Ver':'Moderator Yetkisi Kaldır'}}</button>
+                    </div>
+                    <div *ngIf="userService.dbUser&&userService.dbUser.roles.includes('ROLE_ADMIN')&&!userd.roles.includes('ROLE_ADMIN')" style="text-align: center; padding-top: 10px">
+                        <button class="butto ripple button-outline"  (click)="deleteClick(userd)">{{userd.enabled?'Kullanıcıyı Sil':'Kullanıcıyı Aktifleştir'}}</button>
+                    </div>
+                    <!--               <br>
+                                        Nor again is there anyone who loves or pursues or desires to obtain pain of itself, because it is pain, but because occasionally circumstances occur in which toil and pain can procure him some great pleasure. To take a trivial example, which of us ever undertakes laborious physical exercise, except to obtain some advantage from it?
+                    --> 
+                </div>
+            <!-- </div> -->
+                <app-profile-center [username]="userd.id" [boolUser]="boolUser" [user]="userd" [userIds]="_userIds" [tagz]="tags" [isPub]="_isPub" [ngStyle]="compStyle"></app-profile-center>
+                <router-outlet></router-outlet>
+                <!-- <div style="margin-top: -90px">
+                     <mat-menu #appMenu="matMenu">
+                         <button mat-menu-item (click)="newsList$ = getNewsByOwner(userd.id)">En Yeniler</button>
+                         <button mat-menu-item (click)="newsList$ = getNewsByTopHundred(userd.id)">En Çok Okunanlar</button>
+                         <button mat-menu-item (click)="newsList$ = getNewsByOwnerOlder(userd.id)">En Eskiler</button>
+                     </mat-menu>
+
+                     <button style="padding-left: 10px" mat-icon-button [matMenuTriggerFor]="appMenu">
+                         <mat-icon>sort</mat-icon>
+                         <span style="font-size: large">Sıralama</span>
+                     </button>
+                     <app-news-list [newsList]="newsList$" [orderBy]="orderBy"></app-news-list>
+                 </div>-->
+            </div>
+        </div>
+        </div>
+        <!--  </div>
+                <div class="card-body">
+                <button type="button" (click)="logout()" class="btn btn-link">Logout</button>
+              </div>-->
+    </div>
+</div>

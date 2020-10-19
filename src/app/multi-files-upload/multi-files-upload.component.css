@@ -1,0 +1,111 @@
+.form-gradient textarea.md-textarea:focus:not([readonly]) {
+    border-bottom: 1px solid #fd9267;
+    box-shadow: 0 1px 0 0 #fd9267; }
+.padded{
+    padding-left: .75rem;
+    padding-right: .75rem;
+    margin-bottom: -10px !important;
+}
+table{
+    min-width: 420px;
+}
+ 
+::ng-deep .mat-dialog-container {
+     overflow-y: hidden !important;
+     padding: 12px !important;
+}
+  #modal-content-wrapper {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 13;
+    position: fixed;
+  }
+#modal-body{
+    width: 784px;
+    left: 0%;
+}
+
+#modal-header{
+    width: 784px;
+    margin-left: 0%;
+    border-bottom: 0;
+    z-index: 11;
+}
+#modal-footer{
+    width: 784px;
+    height: 75px;
+}
+.close {
+    float: right;
+    height: 40px;
+    width: 40px;
+    opacity: 0.85;
+    cursor: pointer;
+}
+
+.close:hover {
+    background-color: transparent;
+    border: none;
+  }
+
+.form-control{
+    border-radius: 10px;
+}
+/* button:disabled {
+    cursor: not-allowed !important;
+    pointer-events: all !important;
+} */
+#file-input {
+    cursor: cell;
+}
+/* #micro1, #micro2, #micro3 {
+    margin: 20px 0 -10px 35%;
+    color: #fff;
+    background-color: #1b00ff;
+    border-color: #1b00ff;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    border-radius: .25rem;
+    font-family: inherit;
+    font-weight: 400;
+    font-size: 17px;
+    height: auto;
+    width: 159px;
+    cursor: pointer;
+} */
+/* .mySubmit {
+    margin: 0 !important;
+    background-color: red !important;
+} */
+.example-full-width {
+    width: 100%;
+  }
+.columns {
+    width: 100%;
+}
+#mifiles {
+    width: 100%;
+    border: none;
+    background-color: white;
+    cursor: grabbing;
+    border-radius: 10px;
+}
+textarea {
+    color: black;
+    background-color: white;
+}
+mat-hint {
+   color: red !important;
+   font-size: 14px;
+}
+/* #closes {
+    height: 40px;
+    width: 100px;
+    background-color: ghostwhite;
+    border-radius: 10px;
+    font-size: 22px;
+    cursor: pointer;
+} */

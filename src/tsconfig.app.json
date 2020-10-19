@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../out-tsc/app",
+    "module": "esnext",
+    "paths": {
+      "path": ["node_modules/path-browserify"]
+    }
+  },
+  "angularCompilerOptions": { 
+        "enableIvy": false
+  },
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts"
+  ]
+}
