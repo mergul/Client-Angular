@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "news-central-client": {
+    "news-client": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/news-central-client",
+            "outputPath": "dist/news-client",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -63,20 +63,20 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "news-central-client:build",
+            "browserTarget": "news-client:build",
             "sslKey": "ssl/busra.nur.key",
             "sslCert": "ssl/busranur-bundle.crt"
           },
           "configurations": {
             "production": {
-              "browserTarget": "news-central-client:build:production"
+              "browserTarget": "news-client:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "news-central-client:build"
+            "browserTarget": "news-client:build"
           }
         },
         "test": {
@@ -110,7 +110,7 @@
         }
       }
     },
-    "news-central-client-e2e": {
+    "news-client-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -119,11 +119,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "news-central-client:serve"
+            "devServerTarget": "news-client:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "news-central-client:serve:production"
+              "devServerTarget": "news-client:serve:production"
             }
           }
         },
@@ -139,7 +139,7 @@
       }
     }
   },
-  "defaultProject": "news-central-client",
+  "defaultProject": "news-client",
   "cli": {
     "analytics": false
   }

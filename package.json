@@ -1,5 +1,5 @@
 {
-  "name": "news-central-client",
+  "name": "news-client",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
