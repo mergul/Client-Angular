@@ -25,6 +25,7 @@ export class SearchComponent implements OnInit, AfterContentInit {
     lastTerm: string;
     wdth: number;
     @ViewChild('myInput') myInput: ElementRef;
+    @ViewChild('mySelect') mySelect: ElementRef;
     hght: number;
     public _activeLink: string;
     public miLink: string;
@@ -65,15 +66,11 @@ export class SearchComponent implements OnInit, AfterContentInit {
     }
 
     onClick(link: string) {
-        if (this.lastTerm && this._activeLink !== link) {
-            this._activeLink = link;
-            if (link === this.links[0]) {
-                this.searchType = 0;
-                this.doSearch(this.lastTerm).subscribe(bv => this.usersSubject.next(bv));
-            } else if (link === this.links[1]) {
-                this.searchType = 2;
-                this.doSearch(this.lastTerm).subscribe(bv => this.newsSubject.next(bv));
-            }
+        this.mySelect.nativeElement.selectedIndex = this.links.indexOf(link);
+        this._activeLink = link;
+        if (this.lastTerm) {
+            this.searchType = link === this.links[0] ? 0 : 2;
+            this.doSearch(this.lastTerm).subscribe(bv => this.searchType === 0 ? this.usersSubject.next(bv) : this.newsSubject.next(bv));
         }
     }
 
