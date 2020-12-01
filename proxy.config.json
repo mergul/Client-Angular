@@ -16,7 +16,7 @@
     "secure": false
   },
   "/ws/*": {
-    "target": "https://busra.news:65080",
+    "target": "https://busra.nur:65080",
     "secure": false,
     "ws": true
   }

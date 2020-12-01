@@ -312,7 +312,7 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
         this.loggedUser = window.history.state ? window.history.state.loggedID : '';
         this.reactive.closeSources();
         this.signalingConnection = new SignalingConnection(
-            'busra.news:65080/ws',
+            'busra.nur:65080/ws',
             () => this.startButtonDisabled = false,
             this.onSignalingMessage,
             this.joinedUser,
