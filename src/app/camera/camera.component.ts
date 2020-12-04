@@ -310,7 +310,7 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
         this.joinedUser = window.history.state ? window.history.state.userID : '';
         this.loggedUser = window.history.state ? window.history.state.loggedID : '';
-        this.reactive.closeSources(this.reactive.random);
+        this.reactive.closeSources();
         this.signalingConnection = new SignalingConnection(
             'busra.nur:65080/ws',
             () => this.startButtonDisabled = false,

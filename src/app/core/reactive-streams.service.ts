@@ -62,12 +62,12 @@ export class ReactiveStreamsService {
             this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
         });
         this.newsEventSource.addEventListener('close', event => {
-            this.closeSources(this.random);
+            this.closeSources();
         });
         this.newsEventSource.onerror = err => this.zone.run(() => {
             if (this.newsEventSource.readyState === 0) {
-                //  this.newsEventSource.close();
-                this.newsBehaviorSubject.next([]);
+                this.unsubscribeResource();
+            //    this.newsBehaviorSubject.next([]);
             } else {
                 this.newsBehaviorSubject.error('EventSource error:::' + err.statusText);
                 this.tagsBehaviorSubject.error('EventSource error:::' + err.statusText);
@@ -219,20 +219,23 @@ export class ReactiveStreamsService {
     statusOfNewsSource = () => {
         return this.newsEventSource;
     }
-    closeSources(random) {
-        fetch('/sse/unsubscribe', {
-            keepalive: true,
-            method: 'PATCH',
-            body: 'TopNews' + random,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
+    closeSources() {
+        this.unsubscribeResource();
         // this.sources.forEach((value: EventSourcePolyfill) => {
         //     value.close();
         // });
         this.newsEventSource.close();
         console.log('Event Sources closed!');
+    }
+    unsubscribeResource() {
+        fetch('/sse/unsubscribe', {
+            keepalive: true,
+            method: 'PATCH',
+            body: 'TopNews' + this.random,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
     }
     // getReportsStream(processName: string, url: string) {
     //     let headers: HttpHeaders = new HttpHeaders();

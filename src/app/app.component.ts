@@ -72,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     @HostListener('window:beforeunload', ['$event'])
     doSomething() {
-        this.reactiveService.closeSources(this.reactiveService.random);
+        this.reactiveService.closeSources();
     }
     // @HostListener('document:visibilitychange', ['$event'])
     // visibilitychange() {
