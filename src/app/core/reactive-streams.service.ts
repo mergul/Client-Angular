@@ -1,19 +1,18 @@
 import { Injectable, NgZone } from '@angular/core';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
-import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { NewsPayload } from './news.model';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { RecordSSE } from './RecordSSE';
 import { BalanceRecord } from './user.model';
-import { UserService } from './user.service';
 
 @Injectable({ providedIn: 'root' })
 export class ReactiveStreamsService {
 
     private reportedEventSource: EventSourcePolyfill;
     private newsEventSource: EventSourcePolyfill;
-    private sources: EventSourcePolyfill[] = [];
+ //   private sources: EventSourcePolyfill[] = [];
     private newsBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
     private tagsBehaviorSubject = new BehaviorSubject<RecordSSE[]>([]);
     private countsBehaviorSubject = new BehaviorSubject<RecordSSE[]>([]);
@@ -43,7 +42,7 @@ export class ReactiveStreamsService {
             .append('X-Custom-Header', 'last-event-id');
 
         this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, heartbeatTimeout: 10000 });
-        this.sources.push(this.newsEventSource);
+      //  this.sources.push(this.newsEventSource);
         this.newsEventSource.addEventListener('top-news-' + processName, event => {
             const topNews = JSON.parse(event.data);
             const list = this.newsBehaviorSubject.getValue();
@@ -229,9 +228,10 @@ export class ReactiveStreamsService {
               'Content-Type': 'application/json',
             },
           });
-        this.sources.forEach((value: EventSourcePolyfill) => {
-            value.close();
-        });
+        // this.sources.forEach((value: EventSourcePolyfill) => {
+        //     value.close();
+        // });
+        this.newsEventSource.close();
         console.log('Event Sources closed!');
     }
     // getReportsStream(processName: string, url: string) {
