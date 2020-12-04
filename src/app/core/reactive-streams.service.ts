@@ -32,6 +32,7 @@ export class ReactiveStreamsService {
     publicStreamList$: Map<string, NewsPayload[]> = new Map<string, NewsPayload[]>();
     myListener: any;
     private hotUsersBehaviorSubject = new BehaviorSubject<BalanceRecord[]>([]);
+    random: number;
 
     constructor(private zone: NgZone, protected http: HttpClient
     ) {
@@ -62,7 +63,7 @@ export class ReactiveStreamsService {
             this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
         });
         this.newsEventSource.addEventListener('close', event => {
-            this.closeSources(UserService.random);
+            this.closeSources(this.random);
         });
         this.newsEventSource.onerror = err => this.zone.run(() => {
             if (this.newsEventSource.readyState === 0) {

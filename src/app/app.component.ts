@@ -50,10 +50,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 filter(e => e instanceof NavigationStart),
                 map(() => this.router.getCurrentNavigation().extras.state)
             );
-            if (!UserService.random) {
-                UserService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+            if (!this.reactiveService.random) {
+                this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
             }
-            this.newslistUrl = '/sse/chat/room/TopNews' + UserService.random + '/subscribeMessages';
+            this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
         // this.router.events
         //     .pipe(
         //         filter(e => e instanceof NavigationEnd),
@@ -72,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     @HostListener('window:beforeunload', ['$event'])
     doSomething() {
-        this.reactiveService.closeSources(UserService.random);
+        this.reactiveService.closeSources(this.reactiveService.random);
     }
     // @HostListener('document:visibilitychange', ['$event'])
     // visibilitychange() {
@@ -107,7 +107,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.zone.run(() => {
             this.winRef.nativeWindow.onload = () => {
                 if (!this.reactiveService.statusOfNewsSource()) {
-                    this.reactiveService.getNewsStream(UserService.random, this.newslistUrl);
+                    this.reactiveService.getNewsStream(this.reactiveService.random, this.newslistUrl);
                 }
 
                 if (!this.newsService.newsStreamList$) {

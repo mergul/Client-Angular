@@ -30,10 +30,10 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   constructor(public userService: UserService,
     private reactiveService: ReactiveStreamsService,
     public service: NewsService) {
-    if (!UserService.random) {
-      UserService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+    if (!this.reactiveService.random) {
+      this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
     }
-    this.newslistUrl = '/sse/chat/room/TopNews' + UserService.random + '/subscribeMessages';
+    this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
   }
 
   @Input()
@@ -92,7 +92,7 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this.reactiveService.statusOfNewsSource()) {
-      this.reactiveService.getNewsStream(UserService.random, this.newslistUrl);
+      this.reactiveService.getNewsStream(this.reactiveService.random, this.newslistUrl);
     }
     this._isPub.pipe(switchMap(value2 => {
       if (!value2) {
@@ -102,8 +102,8 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
         this._newsList = this.service.meStreamList$;
       } else {
         // if (!this.reactiveService.publicStreamList$.get(this._user.id)) {
-        //   this.reactiveService.setOtherListener('@' + this.user.id, this.userService.random, false);
-        //   this.service.setNewsUser('@' + this.user.id, this.userService.random).pipe(takeUntil(this.onDestroy)).subscribe();
+        //   this.reactiveService.setOtherListener('@' + this.user.id, this.reactiveService.random, false);
+        //   this.service.setNewsUser('@' + this.user.id, this.reactiveService.random).pipe(takeUntil(this.onDestroy)).subscribe();
         // } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(this._user.id)); }
         this._newsList = this.reactiveService.getMessage('other-person');
       }
