@@ -12,7 +12,7 @@ import { ReactiveStreamsService } from './reactive-streams.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserService implements OnDestroy {
-
+    static random: number;
     private readonly onDestroy = new Subject<void>();
     public user: FirebaseUserModel = new FirebaseUserModel();
     _loggedUser: FirebaseUserModel;
@@ -31,7 +31,6 @@ export class UserService implements OnDestroy {
     reStreamCounts$: Observable<RecordSSE>;
     _otherUser: Observable<User>;
     redirectUrl = 'login';
-    random: number;
 
     constructor(
         protected http: HttpClient,
@@ -71,8 +70,8 @@ export class UserService implements OnDestroy {
                     url = '/api/rest/users/get/' + logged.email + '/a';
                 }
                 this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer.from(logged.id.substring(0, 12))]))
-                    .map(this.hex.bind(this, 2)).join(''), this.random);
-                this.getDbUser(url + '/' + this.random).pipe(map(muser => {
+                    .map(this.hex.bind(this, 2)).join(''), UserService.random);
+                this.getDbUser(url + '/' + UserService.random).pipe(map(muser => {
                     this.setDbUser(muser);
                 })).subscribe();
             }
@@ -129,8 +128,8 @@ export class UserService implements OnDestroy {
             this.userTag.email = this.dbUser.email;
             this.userTag.tag = _activeLink;
             if (adding) {
-                this.reactiveService.setUserListListeners(_activeLink, this.random);
-                return this.http.put<boolean>('/api/rest/users/addtag/' + this.random, this.userTag, {
+                this.reactiveService.setUserListListeners(_activeLink, UserService.random);
+                return this.http.put<boolean>('/api/rest/users/addtag/' + UserService.random, this.userTag, {
                     responseType: 'json', withCredentials: true
                 }).pipe();
             } else {
@@ -148,11 +147,11 @@ export class UserService implements OnDestroy {
     public setDbUser(muser: User) {
         if (muser != null && this.loggedUser && muser.username) {
             this.newsCo.set(this.links[1], muser.tags.map(value => {
-                this.reactiveService.setUserListListeners('#' + value, this.random);
+                this.reactiveService.setUserListListeners('#' + value, UserService.random);
                 return '#' + value;
             }));
             this.newsCo.set(this.links[2], muser.users.map(value => {
-                this.reactiveService.setUserListListeners('@' + value, this.random);
+                this.reactiveService.setUserListListeners('@' + value, UserService.random);
                 return '@' + value;
             }));
             this.loggedUser.tags = muser.tags;

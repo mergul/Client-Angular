@@ -43,10 +43,10 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         public location: Location,
         private winRef: WindowRef, private reactiveService: ReactiveStreamsService,
         private router: Router, private service: NewsService, private renderer: Renderer2) {
-            if (!this.userService.random) {
-                this.userService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+            if (!UserService.random) {
+                UserService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
             }
-            this.newslistUrl = '/sse/chat/room/TopNews' + this.userService.random + '/subscribeMessages';
+            this.newslistUrl = '/sse/chat/room/TopNews' + UserService.random + '/subscribeMessages';
     }
 
     ngOnInit(): void {
@@ -79,7 +79,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
                 //           this.boolUser = this.location.path() === '/user/edit' ? of(1) : of(0);
                 if (data) {
                     if (!this.reactiveService.statusOfNewsSource()) {
-                        this.reactiveService.getNewsStream(this.userService.random, this.newslistUrl);
+                        this.reactiveService.getNewsStream(UserService.random, this.newslistUrl);
                     }
                     this.user = data;
                     this.user.provider = 'auth';

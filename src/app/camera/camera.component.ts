@@ -9,6 +9,7 @@ import { ReactiveStreamsService } from '../core/reactive-streams.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ScriptLoaderService } from '../core/script-loader.service';
 import { DOCUMENT } from '@angular/common';
+import { UserService } from '../core/user.service';
 declare var VideoStreamMerger: any;
 
 declare interface Window {
@@ -310,7 +311,7 @@ export class CameraComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
         this.joinedUser = window.history.state ? window.history.state.userID : '';
         this.loggedUser = window.history.state ? window.history.state.loggedID : '';
-        this.reactive.closeSources();
+        this.reactive.closeSources(UserService.random);
         this.signalingConnection = new SignalingConnection(
             'busra.nur:65080/ws',
             () => this.startButtonDisabled = false,

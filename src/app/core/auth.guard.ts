@@ -68,10 +68,10 @@ export class AuthGuard implements CanActivate, OnDestroy {
                             this.userService._loggedUser = this.fuser;
                             this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer
                                 .from(this.fuser.id.substring(0, 12))])).map(this.userService.hex.bind(this, 2)).join('')
-                                , this.userService.random);
+                                , UserService.random);
                             user.getIdToken().then(idToken => {
                                 this.userService.user.token = idToken;
-                                this.userService.getDbUser('/api/rest/user/' + user.uid.substring(0, 12) + '/' + this.userService.random)
+                                this.userService.getDbUser('/api/rest/user/' + user.uid.substring(0, 12) + '/' + UserService.random)
                                 .pipe(takeUntil(this.onDestroy)).subscribe(value => {
                                     this.userService.setDbUser(value);
                                     if (state.url === '/talepler' && value.roles.includes('ROLE_ADMIN')) {

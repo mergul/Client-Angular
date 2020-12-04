@@ -30,10 +30,10 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   constructor(public userService: UserService,
     private reactiveService: ReactiveStreamsService,
     public service: NewsService) {
-    if (!this.userService.random) {
-      this.userService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+    if (!UserService.random) {
+      UserService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
     }
-    this.newslistUrl = '/sse/chat/room/TopNews' + this.userService.random + '/subscribeMessages';
+    this.newslistUrl = '/sse/chat/room/TopNews' + UserService.random + '/subscribeMessages';
   }
 
   @Input()
@@ -92,7 +92,7 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (!this.reactiveService.statusOfNewsSource()) {
-      this.reactiveService.getNewsStream(this.userService.random, this.newslistUrl);
+      this.reactiveService.getNewsStream(UserService.random, this.newslistUrl);
     }
     this._isPub.pipe(switchMap(value2 => {
       if (!value2) {

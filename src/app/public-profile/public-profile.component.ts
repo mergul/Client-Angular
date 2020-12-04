@@ -54,10 +54,10 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         // this.router.routeReuseStrategy.shouldReuseRoute = function () {
         //     return false;
         // };
-        if (!this.userService.random) {
-            this.userService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+        if (!UserService.random) {
+            UserService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
           }
-          this.newslistUrl = '/sse/chat/room/TopNews' + this.userService.random + '/subscribeMessages';
+          this.newslistUrl = '/sse/chat/room/TopNews' + UserService.random + '/subscribeMessages';
     }
 
     @Input()
@@ -74,7 +74,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     }
     ngOnInit() {
         if (!this.reactiveService.statusOfNewsSource()) {
-            this.reactiveService.getNewsStream(this.userService.random, this.newslistUrl);
+            this.reactiveService.getNewsStream(UserService.random, this.newslistUrl);
           }
         this.loggedID = window.history.state.loggedID;
         this._username = window.history.state.userID;
@@ -234,7 +234,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     private findMother(): Observable<User> {
         if (this.userService._otherUser) { return this._user; } else {
             const url = '/api/rest/users/get/' + encodeURIComponent(this._username)
-            + '/' + (this.loggedID !== '' ? this.loggedID : 'a') + '/' + this.userService.random;
+            + '/' + (this.loggedID !== '' ? this.loggedID : 'a') + '/' + UserService.random;
             return this.userService.getDbUser(url).pipe(map(user => {
                     if (user.id) {
                         this.userID = user.id;
@@ -269,8 +269,8 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                         this.boolUser = of(0);
                     }
                     if (!this.reactiveService.publicStreamList$.get(user.id)) {
-                        this.reactiveService.setOtherListener('@' + user.id, this.userService.random, false);
-                        this.service.setNewsUser('@' + user.id, this.userService.random).pipe(takeUntil(this.onDestroy)).subscribe();
+                        this.reactiveService.setOtherListener('@' + user.id, UserService.random, false);
+                        this.service.setNewsUser('@' + user.id, UserService.random).pipe(takeUntil(this.onDestroy)).subscribe();
                     } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(user.id)); }
                     return user;
                 }));

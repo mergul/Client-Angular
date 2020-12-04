@@ -6,6 +6,7 @@ import { NewsPayload } from './news.model';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { RecordSSE } from './RecordSSE';
 import { BalanceRecord } from './user.model';
+import { UserService } from './user.service';
 
 @Injectable({ providedIn: 'root' })
 export class ReactiveStreamsService {
@@ -40,7 +41,7 @@ export class ReactiveStreamsService {
         headers = headers.append('accept', 'text/event-stream')
             .append('X-Custom-Header', 'last-event-id');
 
-        this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, connectionTimeout: 1800 });
+        this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, heartbeatTimeout: 10000 });
         this.sources.push(this.newsEventSource);
         this.newsEventSource.addEventListener('top-news-' + processName, event => {
             const topNews = JSON.parse(event.data);
@@ -59,6 +60,9 @@ export class ReactiveStreamsService {
         this.newsEventSource.addEventListener('user-counts', event => {
             const userCounts = JSON.parse(event.data);
             this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
+        });
+        this.newsEventSource.addEventListener('close', event => {
+            this.closeSources(UserService.random);
         });
         this.newsEventSource.onerror = err => this.zone.run(() => {
             if (this.newsEventSource.readyState === 0) {
@@ -215,8 +219,16 @@ export class ReactiveStreamsService {
     statusOfNewsSource = () => {
         return this.newsEventSource;
     }
-    closeSources() {
-        this.sources.forEach(value => {
+    closeSources(random) {
+        fetch('/sse/unsubscribe', {
+            keepalive: true,
+            method: 'PATCH',
+            body: 'TopNews' + random,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        this.sources.forEach((value: EventSourcePolyfill) => {
             value.close();
         });
         console.log('Event Sources closed!');
