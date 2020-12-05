@@ -41,7 +41,7 @@ export class ReactiveStreamsService {
         headers = headers.append('accept', 'text/event-stream')
             .append('X-Custom-Header', 'last-event-id');
 
-        this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, heartbeatTimeout: 10000 });
+        this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, heartbeatTimeout: 120000 });
       //  this.sources.push(this.newsEventSource);
         this.newsEventSource.addEventListener('top-news-' + processName, event => {
             const topNews = JSON.parse(event.data);
@@ -66,8 +66,8 @@ export class ReactiveStreamsService {
         });
         this.newsEventSource.onerror = err => this.zone.run(() => {
             if (this.newsEventSource.readyState === 0) {
+                this.newsBehaviorSubject.next([]);
                 this.unsubscribeResource();
-            //    this.newsBehaviorSubject.next([]);
             } else {
                 this.newsBehaviorSubject.error('EventSource error:::' + err.statusText);
                 this.tagsBehaviorSubject.error('EventSource error:::' + err.statusText);
