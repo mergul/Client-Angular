@@ -1,6 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 import { EventSourcePolyfill } from 'event-source-polyfill';
-
 import { Observable, BehaviorSubject } from 'rxjs';
 import { NewsPayload } from './news.model';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
@@ -10,43 +9,41 @@ import { BalanceRecord } from './user.model';
 @Injectable({ providedIn: 'root' })
 export class ReactiveStreamsService {
 
-    private reportedEventSource: EventSourcePolyfill;
     private newsEventSource: EventSourcePolyfill;
- //   private sources: EventSourcePolyfill[] = [];
     private newsBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
     private tagsBehaviorSubject = new BehaviorSubject<RecordSSE[]>([]);
     private countsBehaviorSubject = new BehaviorSubject<RecordSSE[]>([]);
     private publicBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
-    private remustBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
-    private residdBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
-    private reportedBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
-    private recountsBehaviorSubject = new BehaviorSubject<RecordSSE[]>([]);
-    rlinks: string[] = ['Ençok Şikayet', 'Müstehcen', 'Şiddet'];
     nlinks = ['En Çok Okunanlar', 'Takip Edilen Etiketler', 'Takip Edilen Kişiler'];
     private ntagBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
     private npeopleBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
     private meBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
-    private repoBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
     private balanceBehaviorSubject = new BehaviorSubject<BalanceRecord[]>([]);
     publicStreamList$: Map<string, NewsPayload[]> = new Map<string, NewsPayload[]>();
     myListener: any;
     private hotUsersBehaviorSubject = new BehaviorSubject<BalanceRecord[]>([]);
     random: number;
+    isSubscribed = true;
+    index: number;
 
-    constructor(private zone: NgZone, protected http: HttpClient
-    ) {
+    constructor(private zone: NgZone, protected http: HttpClient) {
     }
     getNewsStream(processName: number, url: string) {
         let headers: HttpHeaders = new HttpHeaders();
         headers = headers.append('accept', 'text/event-stream')
             .append('X-Custom-Header', 'last-event-id');
 
-        this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, heartbeatTimeout: 120000 });
-      //  this.sources.push(this.newsEventSource);
+        this.newsEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true, heartbeatTimeout: 6000 });
         this.newsEventSource.addEventListener('top-news-' + processName, event => {
             const topNews = JSON.parse(event.data);
             const list = this.newsBehaviorSubject.getValue();
-            this.zone.run(() => this.newsBehaviorSubject.next([...list, ...topNews.list]));
+            this.zone.run(() => {
+                if (!this.isSubscribed) {
+                    list.splice(this.index, topNews.list.length, ...topNews.list);
+                    this.newsBehaviorSubject.next([...list]);
+                    this.index += topNews.list.length;
+                } else { this.newsBehaviorSubject.next([...list, ...topNews.list]); }
+            });
         });
         this.newsEventSource.addEventListener('top-news', event => {
             const topNews = JSON.parse(event.data);
@@ -66,7 +63,8 @@ export class ReactiveStreamsService {
         });
         this.newsEventSource.onerror = err => this.zone.run(() => {
             if (this.newsEventSource.readyState === 0) {
-                this.newsBehaviorSubject.next([]);
+                this.isSubscribed = false;
+                this.index = 0;
                 this.unsubscribeResource();
             } else {
                 this.newsBehaviorSubject.error('EventSource error:::' + err.statusText);
@@ -76,13 +74,6 @@ export class ReactiveStreamsService {
         });
         this.myListener = (ev) => this.listenIt(ev);
         this.myListener.bind(this);
-    }
-    getReportedSubject(id: string): BehaviorSubject<NewsPayload[]> {
-        switch (id) {
-            case 'main': return this.reportedBehaviorSubject;
-            case '#Şiddet': return this.residdBehaviorSubject;
-            case '#Müstehcen': return this.remustBehaviorSubject;
-        }
     }
     getNewsSubject(id: string): BehaviorSubject<NewsPayload[]> {
         switch (id) {
@@ -97,13 +88,8 @@ export class ReactiveStreamsService {
         switch (sub) {
             case this.nlinks[0]: return this.newsBehaviorSubject.asObservable();
             case 'top-tags': return this.tagsBehaviorSubject.asObservable();
-            case this.rlinks[0]: return this.reportedBehaviorSubject.asObservable();
             case 'user-counts': return this.countsBehaviorSubject.asObservable();
-            case 'user-countsr': return this.recountsBehaviorSubject.asObservable();
             case 'other-person': return this.publicBehaviorSubject.asObservable();
-            case 'repo-person': return this.repoBehaviorSubject.asObservable();
-            case this.rlinks[1]: return this.remustBehaviorSubject.asObservable();
-            case this.rlinks[2]: return this.residdBehaviorSubject.asObservable();
             case this.nlinks[1]: return this.ntagBehaviorSubject.asObservable();
             case this.nlinks[2]: return this.npeopleBehaviorSubject.asObservable();
             case 'me': return this.meBehaviorSubject.asObservable();
@@ -196,8 +182,7 @@ export class ReactiveStreamsService {
         this.newsEventSource.addEventListener('top-news-follow-' + id + '-' + random, this.myListener, true);
         this.newsEventSource.addEventListener('top-news-' + id, this.myListener, true);
     }
-    setOtherListener(id: string, random: number, isRepo: boolean) {
-        if (!isRepo) {
+    setOtherListener(id: string, random: number) {
             this.newsEventSource.addEventListener('top-news-other-' + id + '-' + random, event => {
                 const topNews = JSON.parse(event.data);
                 this.zone.run(() => {
@@ -209,21 +194,12 @@ export class ReactiveStreamsService {
                 const userCounts = JSON.parse(event.data);
                 this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
             });
-        } else {
-            this.reportedEventSource.addEventListener('top-newsr-' + id, event => {
-                const topNewsr = JSON.parse(event.data);
-                this.zone.run(() => this.repoBehaviorSubject.next(topNewsr.list));
-            });
-        }
     }
     statusOfNewsSource = () => {
         return this.newsEventSource;
     }
     closeSources() {
         this.unsubscribeResource();
-        // this.sources.forEach((value: EventSourcePolyfill) => {
-        //     value.close();
-        // });
         this.newsEventSource.close();
         console.log('Event Sources closed!');
     }
@@ -237,35 +213,4 @@ export class ReactiveStreamsService {
             },
           });
     }
-    // getReportsStream(processName: string, url: string) {
-    //     let headers: HttpHeaders = new HttpHeaders();
-    //     headers = headers.append('accept', 'text/event-stream')
-    //         .append('X-Custom-Header', 'last-event-id');
-    //     this.reportedEventSource = new EventSourcePolyfill(url, { headers: headers, withCredentials: true });
-    //     this.sources.push(this.reportedEventSource);
-    //     this.reportedEventSource.addEventListener('top-newsr', event => {
-    //         const topNewsR = JSON.parse(event.data);
-    //         this.zone.run(() => this.getReportedSubject(event.lastEventId).next(topNewsR.list));
-    //     });
-    //     this.reportedEventSource.addEventListener('user-countsr', event => {
-    //         const userCountsr = JSON.parse(event.data);
-    //         this.zone.run(() => this.recountsBehaviorSubject.next(userCountsr));
-    //     });
-    //     this.reportedEventSource.onerror = err => this.zone.run(() => {
-    //         if (this.reportedEventSource.readyState === 0) {
-    //             //  this.reportedEventSource.close();
-    //         } else {
-    //             switch (processName) {
-    //                 case 'top-newsr': {
-    //                     this.reportedBehaviorSubject.error('EventSource error: ' + processName + ' ::' + err);
-    //                     break;
-    //                 }
-    //                 case 'user-countsr': {
-    //                     this.recountsBehaviorSubject.error('EventSource error: ' + processName + ' ::' + err);
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }
 }

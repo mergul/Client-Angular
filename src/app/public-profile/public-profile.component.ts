@@ -269,7 +269,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                         this.boolUser = of(0);
                     }
                     if (!this.reactiveService.publicStreamList$.get(user.id)) {
-                        this.reactiveService.setOtherListener('@' + user.id, this.reactiveService.random, false);
+                        this.reactiveService.setOtherListener('@' + user.id, this.reactiveService.random);
                         this.service.setNewsUser('@' + user.id, this.reactiveService.random).pipe(takeUntil(this.onDestroy)).subscribe();
                     } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(user.id)); }
                     return user;
