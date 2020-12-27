@@ -45,9 +45,10 @@ export class TokenInterceptor implements HttpInterceptor {
                     });
                     return next.handle(request).pipe(finalize(() => {
                         //   setTimeout(() => {
-                        if (request.url === '/balance/rest/admin/newzcounts' || request.url === '/balance/rest/admin/admincommands') {
-                            setTimeout(() => this.ui.hide(), 5000);
-                        } else if (this.ui.isLoading) {
+                        // if (request.url === '/balance/rest/admin/newzcounts' || request.url === '/balance/rest/admin/admincommands') {
+                        //     setTimeout(() => this.ui.hide(), 5000);
+                        // } else 
+                        if (this.ui.isLoading) {
                             this.ui.hide();
                         }
                         //   }, 0);

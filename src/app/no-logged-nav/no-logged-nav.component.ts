@@ -50,18 +50,18 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   }
   navClick(link: string) {
     const ind=this.newsService.links.indexOf(link);
+    const curr=this.newsService.links.indexOf(this.newsService.activeLink);
     this.buttons.forEach((el, index) => {
       if (ind===index) {
         this.renderer.addClass(el.nativeElement, 'active');
-      } else if (index===this.newsService.links.indexOf(this.newsService.activeLink)) {
+      } else if (index===curr) {
         this.renderer.removeClass(el.nativeElement, 'active');
       }
     });
-    this.newsService.activeLink = link;
-    this.newsService.callToggle.next(-ind);
     if (this.router.url!== '/home') {
-      setTimeout(() => this.router.navigateByUrl('/home'), 100);
-    }
+      this.newsService.activeLink = link;
+      this.router.navigateByUrl('/home');
+    } else this.newsService.callToggle.next(curr-ind);
   }
   ngOnDestroy(): void {
   }
