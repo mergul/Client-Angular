@@ -21,7 +21,7 @@
                     </div>
                     <div class="bx-controls bx-has-controls-direction">
                         <div class="bx-controls-direction">
-                            <a class="bx-prev"  (click)="prev()">Prev</a><a class="bx-next"
+                            <a href="#" class="bx-prev"  (click)="prev()">Prev</a><a href="#" class="bx-next"
                                  (click)="next()">Next</a>
                         </div>
                     </div>
@@ -29,14 +29,14 @@
                 <div id="sliderrr-pager" [style.height.px]="thumbHeight">
                     <ul class="sliderrr-page" #slider [ngStyle]="carouselPagerStyle">
                         <li *ngFor="let thumbFile of news.mediaReviews; index as i" [style.width.px]="thumbWidth">
-                            <a (click)="currentDiv(i)" [style.height.px]="thumbHeight" [style.line-height.px]="thumbHeight">
+                            <a href="#" (click)="currentDiv(i)" [style.height.px]="thumbHeight" [style.line-height.px]="thumbHeight">
                                 <app-files-list [thumbName]="'thumb-kapak-' + thumbFile.file_name"></app-files-list>
                             </a>
                         </li>
                     </ul>
                     <div class="bx-controls bx-has-controls-direction">
                         <div class="bx-controls-direction">
-                            <a class="slider-bx-prev"  (click)="prev()">Prev</a><a class="slider-bx-next"
+                            <a href="#" class="slider-bx-prev"  (click)="prev()">Prev</a><a href="#" class="slider-bx-next"
                                  (click)="next()">Next</a>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
             <h2>
                 <span class="text" *ngIf="news.topic.charAt(0)!=='#'">{{news.topic.split('#')[0]}}</span>
                 <span class="text" *ngFor="let tag of news.tags; let i = index">
-                    <a class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
+                    <a href="#" class="tag" (click)="onTagClick(tag);$event.stopPropagation();$event.preventDefault()"
                         style="font-weight: 600;color: #666666; cursor: pointer;"> {{tag}} </a>
                     {{news.topic.split('#')[i + 1].replace(news.tags[i].substring(1), '')}}
                 </span>
@@ -69,7 +69,7 @@
                     </div> -->
             <div id="mihtml" style="padding-top: 20px"></div>
             <div id="newsTags" style="margin-bottom: 20px">
-                <label *ngFor="let tag of news.tags"><a> {{tag}} ; </a></label>
+                <label *ngFor="let tag of news.tags"><a href="#"> {{tag}} ; </a></label>
             </div>
         </div>
         <div class="chat">
@@ -84,9 +84,9 @@
         <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 15px;">
             <mat-form-field class="my-options">
                 <mat-label>Select your language</mat-label>
-                <mat-select role="combobox" [(value)]="currentLanguage">
+                <mat-select role="listbox" [(value)]="currentLanguage">
                     <mat-option role="option" *ngFor="let language of languages" [value]="language"
-                        (click)="onSelectLanguage(language)">
+                        (click)="onSelectLanguage(language)" [aria-label]="language">
                         {{language}}
                     </mat-option>
                 </mat-select>
