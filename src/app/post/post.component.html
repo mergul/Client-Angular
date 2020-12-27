@@ -1,4 +1,4 @@
-<mat-card class="example-card" [routerLink]="[ news.newsId ]" [state]="{loggedID: this.userService.loggedUser?this.userService.loggedUser.id:''}">
+<mat-card class="example-card" [routerLink]="[ news.newsId ]" [state]="{loggedID: getLogged()}">
     <mat-card-header style="display: flex;">
       <div mat-card-avatar class="example-header-image" [style.background-image]="_url"></div>
       <div>
@@ -38,7 +38,7 @@
       <button class="butto ripple button-outline">LIKE</button>
       <button class="butto ripple button-outline">SHARE</button>
       <button class="butto ripple button-outline" (click)="onClick('/allusers/'+ news.newsOwner, news.newsOwnerId)"
-      [disabled]="this.userService.loggedUser && news.newsOwnerId === this.userService.loggedUser.id" style="float: right; border: none;">
+      [disabled]="isDisabled(news.newsOwnerId)" style="float: right; border: none;">
           @{{news.newsOwner}} :: {{news.count}} :: {{newsCounts.get(news.newsId)}}</button>
     </mat-card-actions>
   </mat-card>

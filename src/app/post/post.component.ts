@@ -19,8 +19,8 @@ export class PostComponent implements OnInit {
   fontSize = 12;
   height = 109;
 
-  constructor(protected userService: UserService, protected newsService: NewsService
-    ,private router: Router, protected reactiveService: ReactiveStreamsService, private winRef: WindowRef) { }
+  constructor(private userService: UserService, private newsService: NewsService
+    ,private router: Router, private reactiveService: ReactiveStreamsService, private winRef: WindowRef) { }
 
   ngOnInit(): void {
     if (this.winRef.nativeWindow.innerWidth < 1080) {
@@ -54,5 +54,11 @@ export class PostComponent implements OnInit {
   }
   get newsCounts(): Map<string, string> {
     return this.newsService.newsCounts;
+  }
+  getLogged(){
+    return this.userService.loggedUser?this.userService.loggedUser.id:'';
+  }
+  isDisabled(newsOwnerId: string){
+    return this.userService.loggedUser && newsOwnerId === this.userService.loggedUser.id;
   }
 }
