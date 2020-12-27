@@ -52,6 +52,7 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
   set userIds(value: string[]) {
     this._userIds = value;
     if (value.length > 0) { this.users = this.userService.getUsers(this.userIds); }
+    else { this.users = of([])}
   }
 
   @Input()

@@ -95,7 +95,7 @@ export class NewsService {
     }
     extractNewsPayload(news: News): any {
         return { 'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags, 'clean': news.clean,
-        'newsOwnerId': news.ownerId, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name, 'count': +news.count, 'date': news.date};
+        'newsOwnerId': news.ownerId, 'ownerUrl': news.ownerUrl, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name, 'count': +news.count, 'date': news.date};
     }
 
     getNewsByOwnerId(id: string): Observable<Array<News>> {

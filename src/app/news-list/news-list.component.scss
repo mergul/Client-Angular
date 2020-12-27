@@ -7,17 +7,20 @@
   display: table;
   margin: 0 auto;
   padding: 0;
-  border-bottom: 17px solid #E3E3E3;
+ // border-bottom: 17px solid #E3E3E3;
   width: 100%;
 }
 .news-list {
   display: flex;
-  border-top: 17px solid #E3E3E3;
-  border-left: 17px solid #E3E3E3;
-  border-right: 17px solid #E3E3E3;
+//  border-top: 17px solid #E3E3E3;
+ // border-left: 17px solid #E3E3E3;
+ // border-right: 17px solid #E3E3E3;
  // max-height: 147px;
   clear: both;
   padding: 10px;
+  margin: 10px 0 20px;
+  background-color: white;
+  box-shadow: 10px 0px 5px 0px rgba(0, 0, 0, 0.2), 10px 0px 10px 0px rgba(0, 0, 0, 0.14), 10px 0px 14px 0px rgba(0, 0, 0, 0.12);
 }
 
 .news-list a {
@@ -28,41 +31,42 @@
   color: #222;
   margin-left: 10px;
   text-decoration: none;
+  width: 100%;
 }
-img {
-  display: block !important;
- // width: 174px !important;
- // height: 109px !important;
-  float: left !important;
-  margin: 0;
-}
+// img {
+//   display: block !important;
+//  // width: 174px !important;
+//  // height: 109px !important;
+//   float: left !important;
+//   margin: 0;
+// }
 
-.news-list h4 {
-  display: table-cell;
-  padding: 0;
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 400;
-  box-sizing: content-box;
-  max-width: 375px;
-  width: auto;
-}
-span.date {
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
-  background-size: 12px;
-  text-indent: 15px;
-  color: #A9A9A9;
-  font-size: 12px;
-  font-weight: 400;
-  margin-bottom: 6px;
-  display: inline-block;
-  width: auto;
-  max-height: 12px;
-}
-span.text{
-  font-size: 15px;
-  max-height: 81px;
-}
+// .news-list h4 {
+//   display: table-cell;
+//   padding: 0;
+//   margin: 0;
+//   font-size: 0.8rem;
+//   font-weight: 400;
+//   box-sizing: content-box;
+//   max-width: 375px;
+//   width: auto;
+// }
+// span.date {
+//   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
+//   background-size: 12px;
+//   text-indent: 15px;
+//   color: #A9A9A9;
+//   font-size: 12px;
+//   font-weight: 400;
+//   margin-bottom: 6px;
+//   display: inline-block;
+//   width: auto;
+//   max-height: 12px;
+// }
+// span.text{
+//   font-size: 15px;
+//   max-height: 81px;
+// }
 
 .mat-ink-bar{
   ::before,
@@ -105,9 +109,9 @@ label{
   cursor: pointer;
   margin-bottom: 5px;
 }
-.newsz ul{
-  display: table;
-  margin: 0 auto;
-  padding: 0;
-  border-bottom: 17px solid #E3E3E3;
-}
+// .newsz ul{
+//   display: table;
+//   margin: 0 auto;
+//   padding: 0;
+//   border-bottom: 17px solid #E3E3E3;
+// }

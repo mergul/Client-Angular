@@ -168,8 +168,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                             this.service.user.token = value['ra'];
                             value.getIdToken().then(idToken => {
                                 this.service.user.token = idToken;
+                                this.service.loggedUser = this.service.user;
                             });
-                            this.service.loggedUser = this.service.user;
                           // this.speechService.say({lang: 'en', text: 'Hello' + value.displayName + 'Have a nice day?'});
                         }
                     }).catch(() => {

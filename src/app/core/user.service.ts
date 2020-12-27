@@ -21,7 +21,7 @@ export class UserService implements OnDestroy {
     dbUser: User;
     newsCo: Map<string, Array<string>> = new Map<string, Array<string>>();
     links = ['En Çok Okunanlar', 'Takip Edilen Etiketler', 'Takip Edilen Kişiler'];
-    private _prof_url: string;
+    private _prof_url = '/assets/profile-img.jpeg';
     private _back_url: string;
     private _desc = of('Neque porro quisquam est, qui dolorem ipsum quia dolor sit'
         + ' amet, consectetur, adipisci velit, sed quia non numquam eius modi'
@@ -61,15 +61,14 @@ export class UserService implements OnDestroy {
             let url;
             this.email = logged.email ? logged.email : this.email;
             if (!this.dbUser && (!this.loggedUser || this.loggedUser.id.length !== 24)) {
-                if (logged.provider === 'auth') {
-                    url = '/api/rest/user/' + logged.id.substring(0, 12);
-                } else if (this.loggedUser.id) {
-                    url = '/api/rest/users/get/' + logged.id.substring(0, 12) + '/b';
+                this._loggedUser.id = Array.prototype.slice.call(([...Buffer.from(logged.id.substring(0, 12))]))
+                .map(this.hex.bind(this, 2)).join('');
+                this.reactiveService.setListeners('@' + this._loggedUser.id, this.reactiveService.random);
+                if (this._loggedUser.id) {
+                    url = '/api/rest/start/user/' + this._loggedUser.id;
                 } else {
                     url = '/api/rest/users/get/' + logged.email + '/a';
                 }
-                this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer.from(logged.id.substring(0, 12))]))
-                    .map(this.hex.bind(this, 2)).join(''), this.reactiveService.random);
                 this.getDbUser(url + '/' + this.reactiveService.random).pipe(map(muser => {
                     this.setDbUser(muser);
                 })).subscribe();

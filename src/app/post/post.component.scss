@@ -1,5 +1,49 @@
-.example-card { max-width: 400px; }
 .example-header-image {
  // background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
   background-size: cover;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+span.date {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAApklEQVQokZ2SvQ2EMAxGqYJgBXY5WAiu45aKBExBQQHMAsVRwRfpIwoh/BZPimy/yE7sSSm9N9gBATJQg4HUjIkjMQItKEACQpIw1rJmIwomfiftqVwHfFNMQWUVzg65Yq0W1RzxDTFmrRYnznMlBuB/RzRZxeGqVRe7VjPH47goWatFn0+dn0gq19vfYS/AhzMHPBe8eLcA5iJ8QQNG0jB2uHKPWADmubQu+wYFMgAAAABJRU5ErkJggg==) no-repeat center left;
+  background-size: 12px;
+  text-indent: 15px;
+  color: #A9A9A9;
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  display: inline-block;
+  width: auto;
+  max-height: 12px;
+}
+span.text{
+  font-size: 15px;
+  max-height: 81px;
+}
+.news-list h4 {
+  display: table-cell;
+  padding: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+  box-sizing: content-box;
+  max-width: 375px;
+  width: auto;
+}
+.menu{
+  border: 0;
+  background-color: transparent;
+  width: 36px;
+  height: 36px;
+}
+.menu:hover{
+  border-radius: 50%;
+  background-color: #f3f3f3;
+}
+a{
+  cursor: grabbing;
+}
+.example-card{
+  cursor: pointer;
 }

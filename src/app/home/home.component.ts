@@ -1,11 +1,6 @@
 import { Observable, Subject, Subscription, fromEvent } from 'rxjs';
 import { takeUntil, takeWhile } from 'rxjs/operators';
-import {
-    Component,
-    OnInit,
-    OnDestroy,
-    AfterViewInit, HostListener, Renderer2, ViewChild, ElementRef, Input
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, Renderer2, ViewChild, ElementRef, Input } from '@angular/core';
 import { Location } from '@angular/common';
 import { NewsService } from '../core/news.service';
 import { UserService } from '../core/user.service';
@@ -33,11 +28,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private itemWidth = 617;
     private currentSlide = 0;
     @ViewChild('carousel', { read: ElementRef, static: false }) carousel;
+
     @Input() timing = '250ms ease-in';
     carouselWrapperStyle = {};
     carouselWrapStyle = {};
     carouselPagerStyle: {};
-    subscription_newslist: Subscription;
+  // subscription_newslist: Subscription;
     newsCounts$: Map<string, string> = new Map<string, string>();
     mobileQuery: MediaQueryList;
     links = ['En Çok Okunanlar', 'Takip Edilen Etiketler', 'Takip Edilen Kişiler'];
@@ -66,10 +62,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     ) {
         if (this.newsService.callToggle.observers.length === 0 ) {
             this.newsService.callToggle.subscribe(( data ) => {
-                if (this.currentSlide === 0 && data !== 0) {
-                    setTimeout(() => {
-                        winRef.nativeWindow.location.reload();
-                    }, 55);
+                if (data <= 0) {
+                    this.navSlide = data + this.currentSlide;
+                    this.onNavClick(this.newsService.activeLink);
+                    // setTimeout(() => {
+                    //     winRef.nativeWindow.location.reload();
+                    // }, 55);
                 } else {
                     this.navSlide = data;
                     this.currentSlide = data;
@@ -155,7 +153,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnDestroy(): void {
-        if (this.subscription_newslist) { this.subscription_newslist.unsubscribe(); }
+       // if (this.subscription_newslist) { this.subscription_newslist.unsubscribe(); }
+        // if (this.player) {
+        //     this.player.finish();
+        // }
         this.destroy.next();
         this.destroy.complete();
     }
@@ -235,8 +236,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.currentSlide = (this.currentSlide + 1) % this.links.length;
         const offset = this.currentSlide * this.itemWidth;
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
-        this.player = myAnimation.create(this.carousel.nativeElement);
-        this.player.play();
+        setTimeout(() => {
+            this.player = myAnimation.create(this.carousel.nativeElement.isConnected?this.carousel.nativeElement:this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
+            this.player.play();
+        });
+        // this.player.onDone(() => {
+        //     this.player.destroy();
+        //     this.player = null;
+        // });
         this.newsService.activeLink = this.links[this.currentSlide];
     }
 
@@ -250,13 +257,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.currentSlide === 0) {
             return;
         }
-
         this.currentSlide = this.currentSlide - 1;
         const offset = this.currentSlide * this.itemWidth;
-
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
-        this.player = myAnimation.create(this.carousel.nativeElement);
-        this.player.play();
+        setTimeout(() => {
+            this.player = myAnimation.create(this.carousel.nativeElement.isConnected?this.carousel.nativeElement:this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
+            this.player.play();
+        });
         this.newsService.activeLink = this.links[this.currentSlide];
     }
     currentDiv(n: number) {

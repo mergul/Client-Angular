@@ -6,11 +6,12 @@ export class NewsPayload {
     private _topics: string[];
     private _clean: boolean;
     private _newsOwnerId: string;
+    private _ownerUrl: string;
     private _topic: string;
     private _thumb: string;
     private _date: number;
     private _count: number;
-    constructor(newsId: string, newsOwner: string, tags: string[], topics: string[], clean: boolean, newsOwnerId: string,
+    constructor(newsId: string, newsOwner: string, tags: string[], topics: string[], clean: boolean, newsOwnerId: string, ownerUrl: string,
                 topic: string, thumb: string, count: number, date: number) {
         this._newsId = newsId;
         this._newsOwner = newsOwner;
@@ -19,6 +20,7 @@ export class NewsPayload {
         this._clean = clean;
         this._date = date;
         this._newsOwnerId = newsOwnerId;
+        this._ownerUrl = ownerUrl;
         this._thumb = thumb;
         this._topic = topic;
         this._count = count;
@@ -66,7 +68,9 @@ export class NewsPayload {
     get newsOwnerId(): string {
         return this._newsOwnerId;
     }
-
+    get ownerUrl(): string {
+        return this._ownerUrl;
+    }
     get topic(): string {
         return this._topic;
     }
@@ -83,6 +87,7 @@ export interface News {
     id: string;
     ownerId: string;
     owner: string;
+    ownerUrl: string;
     topic: string;
    // thumbnails: Array<ThumbModel>;
     summary: string;

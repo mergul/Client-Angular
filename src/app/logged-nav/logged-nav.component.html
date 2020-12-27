@@ -6,43 +6,42 @@
       Büşra Nur
     </div>
   </button> -->
-  <!-- <br *ngIf="newsService.newsStreamCounts$ | async"> -->
-  <!-- <app-no-logged-nav [logged]="loggedinUser|async" [style.marginRight.%]="mobileQuery.matches ? 0 : 15">
+<!-- <br *ngIf="newsService.newsStreamCounts$ | async"> -->
+<!-- <app-no-logged-nav [logged]="loggedinUser|async" [style.marginRight.%]="mobileQuery.matches ? 0 : 15">
   </app-no-logged-nav> -->
-  <div *ngIf="logged" class="right-side" [style.marginRight.%]="checkMedia ? 0 : 15"
-    [ngSwitch]="checkMedia">
-    <button id="search" [style.width.px]="checkMedia ? 66 : 66" mat-icon-button (click)="btnClick('/search')"
-      class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
-      <mat-icon>search</mat-icon>
-    </button>
-    <button id="upload" *ngSwitchCase="false" matTooltip="add new contents" class="mat-icon-button"
-      (click)="btnClick('/upload')">
-      <mat-icon>add_shopping_cart</mat-icon>
-    </button>
-    <button id="upload" [style.width.px]="checkMedia ? 66 : 66" *ngSwitchCase="true" mat-icon-button
-      (click)="btnClick('/upload')" class="mat-icon-button" matTooltip="add new contents" aria-label="Center Align">
-      <mat-icon>cloud_upload</mat-icon>
-    </button>
-    <button id="settings" [style.width.px]="checkMedia ? 66 : 66"
-      *ngIf="!(role&&(role.includes('ROLE_ADMIN')||role.includes('ROLE_MODERATOR')))" mat-icon-button
-      (click)="btnClick('/admin')" class="mat-icon-button" matTooltip="manage reports" aria-label="Center Align">
-      <mat-icon>settings</mat-icon>
-    </button>
+<div *ngIf="logged" class="right-side" [style.marginRight.%]="checkMedia ? 0 : 0" [ngSwitch]="checkMedia">
+  <button id="search" [style.width.px]="checkMedia ? 44 : 44" mat-icon-button (click)="btnClick('/search')"
+    class="mat-icon-button" matTooltip="search new contents" aria-label="Center Align">
+    <mat-icon>search</mat-icon>
+  </button>
+  <button id="upload" *ngSwitchCase="false" matTooltip="add new contents" class="mat-icon-button"
+    (click)="btnClick('/upload')">
+    <mat-icon>add_shopping_cart</mat-icon>
+  </button>
+  <button id="upload" [style.width.px]="checkMedia ? 44 : 44" *ngSwitchCase="true" mat-icon-button
+    (click)="btnClick('/upload')" class="mat-icon-button" matTooltip="add new contents" aria-label="Center Align">
+    <mat-icon>cloud_upload</mat-icon>
+  </button>
+  <button id="settings" [style.width.px]="checkMedia ? 44 : 44"
+    *ngIf="!(role&&(role.includes('ROLE_ADMIN')||role.includes('ROLE_MODERATOR')))" mat-icon-button
+    (click)="btnClick('/admin')" class="mat-icon-button" matTooltip="manage reports" aria-label="Center Align">
+    <mat-icon>settings</mat-icon>
+  </button>
 
-    <mat-menu #appMenu="matMenu" xPosition="before">
-      <button mat-menu-item (click)="logout()">Logout</button>
-      <button mat-menu-item (click)="btnClick('/user/edit')">Settings</button>
-      <button mat-menu-item (click)="btnClick('/user')">Account</button>
-      <button mat-menu-item>Help</button>
-    </mat-menu>
+  <mat-menu #appMenu="matMenu" xPosition="before">
+    <button mat-menu-item (click)="logout()">Logout</button>
+    <button mat-menu-item (click)="btnClick('/user/edit')">Settings</button>
+    <button mat-menu-item (click)="btnClick('/user')">Account</button>
+    <button mat-menu-item>Help</button>
+  </mat-menu>
 
-    <button mat-icon-button [matMenuTriggerFor]="appMenu" matTooltip="Info about the action" class="fes"
-     aria-label="Center Align">
-<!-- <app-remote-project-file *ngIf="limage" [userProFile]="limage"  style="height: 66px; width: 66px; border-radius: 33px"></app-remote-project-file>-->
-      <img *ngIf="image" [src]="image" width="66px" height="66px" style="border-radius:33px" alt="Asel">
-      <span *ngIf="service.loggedUser"
-        class="notification">{{service.loggedUser.name?service.loggedUser.name:service.loggedUser.email}}</span>
-    </button>
+  <button mat-icon-button [matMenuTriggerFor]="appMenu" matTooltip="Info about the action" class="fes"
+    aria-label="Center Align">
+    <!-- <app-remote-project-file *ngIf="limage" [userProFile]="limage"  style="height: 66px; width: 66px; border-radius: 33px"></app-remote-project-file>-->
+    <img *ngIf="image" [src]="image" width="55px" height="55px" style="border-radius:50%;line-height: 66px;" alt="Asel">
+    <span *ngIf="service.loggedUser"
+      class="notification">{{service.loggedUser.name?service.loggedUser.name:service.loggedUser.email}}</span>
+  </button>
 
-  </div>
+</div>
 <!-- </mat-toolbar> -->

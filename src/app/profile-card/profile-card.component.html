@@ -11,7 +11,7 @@
           @{{_user.email}}<br><br>
 
           <div *ngIf="userService.loggedUser!=null && this.user.id !== userService.loggedUser.id" style="text-align: center; padding-top: 20px">
-            <button  class="follow" (click)="manageFollow()">{{!folli?'Takip Et':'Takibi Kes'}}</button>
+            <button #followButton class="butto ripple button-outline" (click)="manageFollow()">{{!folli?'Takip Et':'Takibi Kes'}}</button>
           </div>
         </div>
       </div>

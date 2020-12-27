@@ -1,24 +1,12 @@
-.mat-ink-bar{
-  ::before,
-  ::after {
-    content: "";
-    height: 2px;
-    width: 33% !important;
-    background-color: white;
-    position: absolute;
-    left: 0;
-  }
-}
-
 span.mat-button-wrapper {
   ::before,
   ::after {
-    height: 66px;
+    height: 55px;
   }
 }
 .mat-icon-button, .mat-icon{
-  width: 66px;
-  height: 66px;
+  width: 44px;
+  height: 44px;
   line-height: 66px !important;
   font-size: inherit;
   border: none;
@@ -38,13 +26,13 @@ span.mat-button-wrapper {
 }
 div.right-side{
   display: flex;
-  justify-content: space-around;
-  float: right;
+  justify-content: center;
+ // float: right;
 }
 .fes{
   max-width: 150px;
   border-radius: 25%;
-  min-width: 66px !important;
+  min-width: 55px !important;
   user-select: none;
   cursor: pointer;
   outline: none;
@@ -60,4 +48,5 @@ div.right-side{
   box-sizing: border-box;
   position: relative;
   align-items: center;
+  line-height: 44px;
 }

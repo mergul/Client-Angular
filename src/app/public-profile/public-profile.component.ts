@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit, AfterViewInit, ElementRef, ViewChild, Renderer2 } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable, of, Subscription, Subject } from 'rxjs';
 import { NewsService } from '../core/news.service';
 import { map, takeUntil } from 'rxjs/operators';

@@ -20,6 +20,8 @@ import * as Hammer from 'hammerjs';
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
+import { PostComponent } from '../post/post.component';
+import { MatMenuModule } from '@angular/material/menu';
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
     'swipe': { direction: Hammer.DIRECTION_ALL }
@@ -31,12 +33,12 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [DialogDetailsContainerComponent, NewsDetailsComponent,
-    MediaSourceComponent, MediaSocialComponent, NewsManageComponent, FilesListComponent],
+    MediaSourceComponent, MediaSocialComponent, NewsManageComponent, FilesListComponent, PostComponent],
   imports: [
     CommonModule, RouterModule.forChild(routes),
     FormsModule, MatDialogModule,
     MatSelectModule, MatInputModule,
-    MatFormFieldModule,
+    MatFormFieldModule, MatMenuModule,
     MatSnackBarModule, // StackedModalModule
     // VgControlsModule,
     // VgBufferingModule,
@@ -52,6 +54,6 @@ const routes: Routes = [
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [DialogDetailsContainerComponent, NewsDetailsComponent,
     MediaSourceComponent, MediaSocialComponent, FilesListComponent,
-    NewsManageComponent, CommonModule, FormsModule]
+    NewsManageComponent, PostComponent, CommonModule, FormsModule]
 })
 export class NewsDetailsModule { }

@@ -1,62 +1,45 @@
 .login{
   border: 0;
-  width: 170px;
-  height: 44px;
+  width: 70px;
+  height: 55px;
   color: black;
   background: white;
   border-radius: 22px;
   margin-right: 15px;
   font-size: large;
+  line-height: 55px !important;
 }
 
 .mat-toolbar.mat-primary {
   background: purple;
   color: #fff;
 }
-.mat-ink-bar{
-  ::before,
-  ::after {
-    content: "";
-    height: 2px;
-    width: 33% !important;
-    background-color: white;
-    position: absolute;
-    left: 0;
-  }
-}
-.mat-tab-label-active{
-  background: white;
-}
-.mat-tab-nav-bar{
-  width: 100%;
-  display: table;
-  margin: 0 auto;
-  text-align: -webkit-center;
-  background-color: #f3f3f3;
-}
+
 span.mat-button-wrapper {
   ::before,
   ::after {
-    height: 66px;
+    height: 55px;
   }
 }
 .mat-icon-button, .mat-icon{
-  width: 66px;
-  height: 66px;
+  width: 33%;
+  height: 55px;
   line-height: 66px !important;
   font-size: inherit;
   border: none;
   cursor: pointer;
+  border-radius: 0 !important;
 }
 .register{
   border: 0;
-  width: 170px;
-  height: 44px;
+  width: 70px;
+  height: 55px;
   color: white;
   background: #454545;
   border-radius: 22px;
   margin-right: 15px;
   font-size: large;
+  line-height: 55px !important;
 }
 @media only screen and (max-width: 1079px) {
   span.notification {
@@ -69,7 +52,7 @@ span.mat-button-wrapper {
   }
 }
 .mat-toolbar-single-row{
-  height: 80px;
+  height: 66px;
   padding: 0;
   justify-content: space-evenly;
 }
@@ -78,10 +61,17 @@ div.right-side{
   display: flex;
   justify-content: space-around;
 }
-
-.image{
-  height: 66px;
+.image {
+  height: 55px;
   line-height: 66px;
-  width: 66px;
+  width: 55px;
   background-image:url('data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cGF0aCBkPSJNMjUsN2wyOCwzNmw0MC0xOGwtMzYsMjVsMTksNDRsLTI3LTM3bC00MSwxN2wzNi0yNnoiIGZpbGw9IiNjZmMiLz4KICA8ZWxsaXBzZSBjeD0iNTAiIGN5PSI1MCIgcng9IjMyIiByeT0iMzAiIHN0cm9rZT0iI2ZjMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxMSIvPgogIDxwYXRoIGQ9Ik02MywybC03LDQzbDQyLDE3bC00NS02bC0xNiw0Mmw3LC00NWwtNDItMTZsNDUsNnoiIGZpbGw9IiMzY2MiLz4KPC9zdmc+Cg==');
+}
+.active {
+  border-bottom: 5px solid ghostwhite !important;
+  opacity: 0.8;
+  background-color: #9e009e;
+}
+.mat-icon-button:hover{
+  opacity: 0.6;
 }

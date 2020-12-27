@@ -40,11 +40,15 @@ export class FilesListComponent implements OnInit {
 
     set thumbName(thumbName: string) {
         const ja = thumbName.lastIndexOf('.');
-        this._thumbName = thumbName.slice(0, ja) + '.jpeg';
+       // this._thumbName = thumbName.slice(0, ja) + '.jpeg';
         this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
         if (!this._imgUrl) {
-            if (this._thumbName.includes('medium-')) {
+            if (thumbName.startsWith('medium-')) {
                 if (this.itemWidth > 788) { this.itemWidth = 788; }
+                this.width = this.itemWidth;
+                this.height = 500 * (this.itemWidth / 788);
+            } else if (thumbName.startsWith('amedium-')) {
+                if (this.itemWidth > 595) { this.itemWidth = 595; }
                 this.width = this.itemWidth;
                 this.height = 500 * (this.itemWidth / 788);
             } else {
@@ -56,7 +60,7 @@ export class FilesListComponent implements OnInit {
                     this.height = 109 * (4 / 5);
                 }
             }
-
+            this._thumbName = thumbName.startsWith('amedium-')?thumbName.slice(1):thumbName;
             // this.getUrlReview(this._thumbName).then(value => this.imgUrl = value);
           // this.imgUrl = 'https://storage.googleapis.com/sentral-news-media/' + thumbName;
           this._imgUrl = this.sanitizer.bypassSecurityTrustUrl('assets/' + this._thumbName);

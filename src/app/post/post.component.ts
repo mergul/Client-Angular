@@ -1,5 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import { NewsPayload } from '../core/news.model';
+import { NewsService } from '../core/news.service';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
+import { UserService } from '../core/user.service';
+import { WindowRef } from '../core/window.service';
 
 @Component({
   selector: 'app-post',
@@ -8,27 +13,46 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class PostComponent implements OnInit {
   _url: any;
-  _srcUrl: SafeUrl;
+  _news: NewsPayload;
+  othersList$: NewsPayload[];
+  thumbHeight = 109;
+  fontSize = 12;
+  height = 109;
 
-  constructor(public sanitizer: DomSanitizer) { }
+  constructor(protected userService: UserService, protected newsService: NewsService
+    ,private router: Router, protected reactiveService: ReactiveStreamsService, private winRef: WindowRef) { }
 
   ngOnInit(): void {
-
+    if (this.winRef.nativeWindow.innerWidth < 1080) {
+      this.height = this.thumbHeight * (4 / 5);
+      this.thumbHeight = this.height - 19;
+      this.fontSize = 9;
+    } else {
+      this.thumbHeight = this.thumbHeight - 19;
+    }
   }
   @Input()
-  get url() {
-      return this._url;
+  get news() {
+    return this._news;
   }
 
-  set url(url: string) {
-      this._url = 'url('+ url +')';;
-  }
-  @Input()
-  get srcUrl(): SafeUrl {
-      return this._srcUrl;
+  set news(news: NewsPayload) {
+    this._news = news;
+    this._url = 'url(' + news.ownerUrl + ')';
   }
 
-  set srcUrl(url: SafeUrl) {
-      this._srcUrl = url;
+  onTagClick(tag: string) {
+    if (!this.newsService.list$) {
+      this.newsService.list$ = this.reactiveService.getNewsSubject('main').value;
+    }
+    this.othersList$ = this.newsService.list$.filter(value1 => value1.topics.includes(tag));
+    this.reactiveService.getNewsSubject('main').next(this.othersList$);
+    this.newsService.activeLink = tag;
+  }
+  onClick(url,newsOwnerId) {
+    this.router.navigateByUrl(url, {state: {userID: '@' + newsOwnerId, loggedID: this.userService.loggedUser?this.userService.loggedUser.id:''}});
+  }
+  get newsCounts(): Map<string, string> {
+    return this.newsService.newsCounts;
   }
 }

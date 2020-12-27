@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterContentInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterContentInit, OnDestroy } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
 import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
@@ -13,7 +13,7 @@ import { WindowRef } from '../core/window.service';
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.scss'],
 })
-export class SearchComponent implements OnInit, AfterContentInit {
+export class SearchComponent implements OnInit, AfterContentInit, OnDestroy {
     newsSubject: BehaviorSubject<NewsPayload[]> = new BehaviorSubject<NewsPayload[]>([]);
     usersSubject: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
     newsResults: Observable<Array<any>>;
@@ -34,6 +34,8 @@ export class SearchComponent implements OnInit, AfterContentInit {
     constructor(private searchService: SearchService, private winRef: WindowRef, private fb: FormBuilder,
         private newsService: NewsService) {
             this.miLink = this.newsService.activeLink ? this.newsService.activeLink : this.newsService.links[0];
+    }
+    ngOnDestroy(): void {
     }
     ngAfterContentInit(): void {
         setTimeout(() => {

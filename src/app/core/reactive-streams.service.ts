@@ -148,7 +148,7 @@ export class ReactiveStreamsService {
     }
     listenIt = (event: any) => {
         if (event.lastEventId === 'me' || event.lastEventId === 'tag') {
-            this.addToSubject(this.getNewsSubject(event.lastEventId === 'tag' ? 'tags' : event.lastEventId), event);
+            this.addToSubject(this.getNewsSubject(event.lastEventId === 'tag' ? 'tags' : 'people'), event);
         }
     }
     addToSubject = (subj: BehaviorSubject<NewsPayload[]>, event: any) => {

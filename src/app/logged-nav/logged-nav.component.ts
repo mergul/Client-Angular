@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Subject} from 'rxjs';
 import {UserService} from '../core/user.service';
 import {Router} from '@angular/router';
@@ -42,7 +42,11 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
     this.checkMedia = this.winRef.nativeWindow.innerWidth < 600;
   }
   btnClick(url: string) {
-    this.router.navigateByUrl(url, {state: {loggedID: this.service.dbUser.id}});
+    this.router.navigateByUrl(url, {state: {loggedID: this.service._loggedUser.id}});
+  }
+  navClick(link: string) {
+    this.newsService.activeLink = link;
+    this.newsService.callToggle.next(-this.newsService.links.indexOf(this.newsService.activeLink));
   }
   logout() {
     if (this.router.url === '/home') {

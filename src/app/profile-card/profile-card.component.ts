@@ -1,9 +1,7 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { User } from '../core/user.model';
 import { UserService } from '../core/user.service';
-import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
-import { BackendServiceService } from '../core/backend-service.service';
 import { Subscription, Subject } from 'rxjs';
 import { WindowRef } from '../core/window.service';
 import { takeUntil } from 'rxjs/operators';
@@ -23,11 +21,11 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
     folli = false;
     subscription_newslist: Subscription;
     listStyle = {};
+    @ViewChild('followButton', {static: false}) followButton: ElementRef;
 
     constructor(public userService: UserService,
-        private router: Router,
-        public domSanitizer: DomSanitizer,
-        private backend: BackendServiceService, private winRef: WindowRef) {
+        public domSanitizer: DomSanitizer, private renderer: Renderer2,
+        private winRef: WindowRef) {
     }
 
     @Input()
@@ -97,6 +95,7 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
                 this.folli = value;
                 this.userService.dbUser.users.push(this._user.id);
                 this.userService.newsCo.get(this.userService.links[2]).push('@' + this._user.id);
+                this.renderer.setProperty(this.followButton.nativeElement, 'innerHTML', 'Takip Kes');
             });
             // this.userService.dbUser.users.forEach(usr => fet.push(encodeURIComponent('@' + usr)));
             // fet.push(encodeURIComponent('@' + this._user.id));
@@ -108,6 +107,7 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
                 const ind = this.userService.dbUser.users.indexOf(this._user.id);
                 this.userService.dbUser.users.splice(ind, 1);
                 this.userService.newsCo.get(this.userService.links[2]).splice(ind, 1);
+                this.renderer.setProperty(this.followButton.nativeElement, 'innerHTML', 'Takip Et');
             });
             // this.userService.dbUser.users.forEach(usr => {
             //     if (usr !== this._user.id) { fet.push(encodeURIComponent('@' + usr)); }
