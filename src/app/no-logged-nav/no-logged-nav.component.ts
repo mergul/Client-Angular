@@ -59,6 +59,9 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
     });
     this.newsService.activeLink = link;
     this.newsService.callToggle.next(-ind);
+    if (this.router.url!== '/home') {
+      setTimeout(() => this.router.navigateByUrl('/home'), 100);
+    }
   }
   ngOnDestroy(): void {
   }
