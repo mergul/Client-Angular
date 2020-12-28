@@ -6,7 +6,7 @@ import {
     OnDestroy,
     AfterViewInit, HostListener, NgZone, Renderer2, Inject
 } from '@angular/core';
-import { NavigationStart, Router, NavigationEnd } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { Location, DOCUMENT } from '@angular/common';
 import { NewsService } from './core/news.service';
 import { AuthService } from './core/auth.service';
@@ -54,13 +54,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
             }
             this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
-        // this.router.events
-        //     .pipe(
-        //         filter(e => e instanceof NavigationEnd),
-        //         map((event: NavigationEnd) => gtag('config', 'UA-167472179-1', {
-        //             page_path: event.urlAfterRedirects,
-        //           }) )
-        //     );
+        this.router.events
+            .pipe(
+                filter(e => e instanceof NavigationEnd),
+                map((event: NavigationEnd) => event.url
+               // gtag('config', 'UA-167472179-1', { page_path: event.urlAfterRedirects }) 
+                  )
+            ).subscribe(fer=>this.newsService.prevUrl=fer);
+        
     }
 
     ngOnInit() {

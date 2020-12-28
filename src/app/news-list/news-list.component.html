@@ -1,6 +1,6 @@
 <div class="news">
     <ul class="items">
-        <li *ngFor="let news of newsList$ | async;trackBy: byId" class="news-list">
+        <li #newsSum *ngFor="let news of newsList$ | async;trackBy: byId" class="news-list shadow">
             <!-- <a [routerLink]="[ news.newsId ]" [state]="{loggedID: this.userService.loggedUser?this.userService.loggedUser.id:''}"> -->
               <app-post [news]="news" style="width: 100%;"></app-post>
                 <!-- <app-files-list [thumbName]="'thumb-kapak-' + (news.thumb ? news.thumb : 'bae.jpg')"></app-files-list>

@@ -16,6 +16,7 @@ export class NewsService {
     reportedNewsCounts$: Map<string, string> = new Map<string, string>();
     newzes$: Map<string, News> = new Map<string, News>();
     private _activeLink: string;
+    prevLink: number;
     controller = new AbortController();
     signal = this.controller.signal;
     newsPayload: any;
@@ -28,6 +29,10 @@ export class NewsService {
     newsStreamCounts$: Observable<RecordSSE>;
     meStreamList$: Observable<NewsPayload[]>;
     list$: NewsPayload[];
+    preList = [];
+    _isConnected = true;
+    prevUrl: string;
+    preModalUrl: string;
 
     constructor(protected http: HttpClient) {
     }
@@ -80,9 +85,9 @@ export class NewsService {
                 method: 'PATCH',
                 body: JSON.stringify(this.extractNewsPayload(this.newzes$.get(id))),
                 headers: {
-                  'Content-Type': 'application/json',
+                    'Content-Type': 'application/json',
                 },
-              });
+            });
             return of(this.newzes$.get(id));
             // return this.http.get<boolean>('/api/rest/news/setNewsCounts/' + id, {
             //     responseType: 'json', withCredentials: true
@@ -94,8 +99,10 @@ export class NewsService {
         }
     }
     extractNewsPayload(news: News): any {
-        return { 'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags, 'clean': news.clean,
-        'newsOwnerId': news.ownerId, 'ownerUrl': news.ownerUrl, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name, 'count': +news.count, 'date': news.date};
+        return {
+            'newsId': news.id, 'newsOwner': news.owner, 'tags': news.tags, 'topics': news.tags, 'clean': news.clean,
+            'newsOwnerId': news.ownerId, 'ownerUrl': news.ownerUrl, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name, 'count': +news.count, 'date': news.date
+        };
     }
 
     getNewsByOwnerId(id: string): Observable<Array<News>> {
@@ -111,7 +118,10 @@ export class NewsService {
         if (value && !this.links.includes(value) && (!this.mlink || this.links.includes(this._activeLink))) {
             this.mlink = this._activeLink;
         }
-        this._activeLink = value;
+        if (this._activeLink !== value) {
+            this.prevLink = this.links.indexOf(this._activeLink);
+            this._activeLink = value;
+        }
     }
     get newsCounts(): Map<string, string> {
         return this.newsCounts$;
@@ -119,6 +129,15 @@ export class NewsService {
     set newsCounts(newsCounts: Map<string, string>) {
         this.newsCounts$ = newsCounts;
     }
+
+    get isConnected(): boolean {
+        return this._isConnected;
+    }
+
+    set isConnected(v: boolean) {
+        this._isConnected = v;
+    }
+
 
     get reportedNewsCounts(): Map<string, string> {
         return this.reportedNewsCounts$;
@@ -176,8 +195,11 @@ export class NewsService {
         }).pipe();
     }
     setComment(comment: string, userId: string, newsId: string) {
-        return this.http.post<boolean>('/api/rest/news/comments', { 'newsId': newsId, 'userId': userId,
-          'comment': comment, 'date': new Date() }, { responseType: 'json', withCredentials: true
+        return this.http.post<boolean>('/api/rest/news/comments', {
+            'newsId': newsId, 'userId': userId,
+            'comment': comment, 'date': new Date()
+        }, {
+            responseType: 'json', withCredentials: true
         }).pipe();
     }
 }

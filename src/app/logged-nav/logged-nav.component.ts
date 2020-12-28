@@ -42,6 +42,7 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
     this.checkMedia = this.winRef.nativeWindow.innerWidth < 600;
   }
   btnClick(url: string) {
+    this.newsService.preModalUrl = this.router.url;
     this.router.navigateByUrl(url, {state: {loggedID: this.service._loggedUser.id}});
   }
   navClick(link: string) {

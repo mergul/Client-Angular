@@ -6,8 +6,9 @@ import { RegisterComponent } from '../register/register.component';
 import { Subject } from 'rxjs';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { WindowRef } from '../core/window.service';
 import { ReqComponent } from '../req/req.component';
+import { NewsService } from '../core/news.service';
+import { WindowRef } from '../core/window.service';
 
 export const entryComponentsMap = {
     'upload': MultiFilesUploadComponent,
@@ -24,7 +25,8 @@ export class GenericModalComponent implements OnDestroy {
     destroy = new Subject<any>();
     currentDialog: MatDialogRef<any> = null;
 
-    constructor(private dialog: MatDialog, private location: Location, private router: Router, private winRef: WindowRef) {
+    constructor(private dialog: MatDialog, private location: Location, private router: Router, private winRef: WindowRef,
+        private newsService: NewsService) {
         const dialogConfig = new MatDialogConfig();
         dialogConfig.disableClose = true;
         const wid = this.winRef.nativeWindow.innerWidth;
@@ -36,8 +38,16 @@ export class GenericModalComponent implements OnDestroy {
         this.currentDialog = this.dialog.open(this.getClazz(this.location.path().slice(1)), dialogConfig);
         this.currentDialog.afterClosed().subscribe(result => {
             if (result && result !== '') {
+                if (result==='/home') {
+                    this.newsService.isConnected=false;
+                }
                 this.router.navigateByUrl(result);
-            } else { this.location.back(); }
+            } else { 
+                if (this.newsService.preModalUrl==='/home') {
+                    this.newsService.isConnected=false;
+                }
+                this.location.back(); 
+            }
           });
 
     }
