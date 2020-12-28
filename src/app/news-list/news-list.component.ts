@@ -41,10 +41,10 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
         public userService: UserService, private reactiveService: ReactiveStreamsService, private winRef: WindowRef) {
     }
     ngAfterViewInit(): void {
-        if (!this.newsService.isConnected&&this.location.isCurrentPathEqualTo('/home')&&this.activeLink===this.currLink) {
-            const ind=this.newsService.links.indexOf(this.activeLink);
-            this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item=>{
-                if (item.offsetLeft == ind*617) item.classList.add('shadow');
+        if (!this.newsService.isConnected && this.location.isCurrentPathEqualTo('/home') && this.activeLink === this.currLink) {
+            const ind = this.newsService.links.indexOf(this.activeLink);
+            this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item => {
+                if (item.offsetLeft == ind * 617) item.classList.add('shadow');
                 else item.classList.remove('shadow');
             })
             // this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item=>{
@@ -143,27 +143,27 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.newsService.callToggle.subscribe((data) => {
                     const index = this.newsService.links.indexOf(this.newsService.activeLink);
                     this.newsService.preList.forEach((items, ind) => {
-                        if (ind === index + data) {
-                            if(items[0].nativeElement.isConnected){
-                            items.forEach(item =>
-                                this.renderer.removeClass(item.nativeElement, 'shadow')
-                            );
+                        if (ind === index) {
+                            if (items[0].nativeElement.isConnected) {
+                                items.forEach(item =>
+                                    this.renderer.addClass(item.nativeElement, 'shadow')
+                                );
                             } else {
-                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item=>{
-                                   if (item.offsetLeft == ind*617) item.classList.remove('shadow')
+                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item => {
+                                    if (item.offsetLeft == ind * 617) item.classList.add('shadow')
                                 })
                             }
-                        } else if (ind === index) {
-                            if(items[0].nativeElement.isConnected){
-                            items.forEach(item =>
-                                this.renderer.addClass(item.nativeElement, 'shadow')
-                            );
                         } else {
-                            this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item=>{
-                                if (item.offsetLeft == ind*617) item.classList.add('shadow')
-                            })
-                        }
-                        }
+                            if (items[0].nativeElement.isConnected) {
+                                items.forEach(item =>
+                                    this.renderer.removeClass(item.nativeElement, 'shadow')
+                                );
+                            } else {
+                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item => {
+                                    if (item.offsetLeft == ind * 617) item.classList.remove('shadow')
+                                })
+                            }
+                        }  
                     });
                 });
             }
