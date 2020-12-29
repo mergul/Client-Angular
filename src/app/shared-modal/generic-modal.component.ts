@@ -25,8 +25,7 @@ export class GenericModalComponent implements OnDestroy {
     destroy = new Subject<any>();
     currentDialog: MatDialogRef<any> = null;
 
-    constructor(private dialog: MatDialog, private location: Location, private router: Router, private winRef: WindowRef,
-        private newsService: NewsService) {
+    constructor(private dialog: MatDialog, private location: Location, private router: Router, private winRef: WindowRef,) {
         const dialogConfig = new MatDialogConfig();
         dialogConfig.disableClose = true;
         const wid = this.winRef.nativeWindow.innerWidth;
@@ -38,14 +37,14 @@ export class GenericModalComponent implements OnDestroy {
         this.currentDialog = this.dialog.open(this.getClazz(this.location.path().slice(1)), dialogConfig);
         this.currentDialog.afterClosed().subscribe(result => {
             if (result && result !== '') {
-                if (result==='/home') {
-                    this.newsService.isConnected=false;
-                }
+                // if (result==='/home') {
+                //     this.newsService.isConnected=false;
+                // }
                 this.router.navigateByUrl(result);
             } else { 
-                if (this.newsService.preModalUrl==='/home') {
-                    this.newsService.isConnected=false;
-                }
+                // if (this.newsService.preModalUrl==='/home') {
+                //     this.newsService.isConnected=false;
+                // }
                 this.location.back(); 
             }
           });

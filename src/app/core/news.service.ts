@@ -32,7 +32,7 @@ export class NewsService {
     list$: NewsPayload[];
     preList = [];
     _isConnected = true;
-    prevUrl: string;
+    // prevUrl: string;
     preModalUrl: string;
     endPlayer: Subject<boolean>=new Subject();
 

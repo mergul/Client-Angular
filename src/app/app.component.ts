@@ -54,13 +54,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
             }
             this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
-        this.router.events
-            .pipe(
-                filter(e => e instanceof NavigationEnd),
-                map((event: NavigationEnd) => event.url
-               // gtag('config', 'UA-167472179-1', { page_path: event.urlAfterRedirects }) 
-                  )
-            ).subscribe(fer=>this.newsService.prevUrl=fer);
+        // this.router.events
+        //     .pipe(
+        //         filter(e => e instanceof NavigationEnd),
+        //         map((event: NavigationEnd) => event.url
+        //        // gtag('config', 'UA-167472179-1', { page_path: event.urlAfterRedirects }) 
+        //           )
+        //     ).subscribe(fer=>this.newsService.prevUrl=fer);
         
     }
 
