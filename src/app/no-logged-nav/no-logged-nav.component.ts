@@ -25,6 +25,11 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
 
   constructor(private router: Router, private winRef: WindowRef,
     public newsService: NewsService, private renderer: Renderer2) {
+      this.newsService.callTag.subscribe(tag=>{
+        this.buttons.forEach(el => {
+            this.renderer.removeClass(el.nativeElement, 'active');      
+        });
+      });
   }
   @Input()
   get loggedinUser(): Observable<boolean> {
@@ -55,7 +60,7 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
     } else
     this.router.navigateByUrl(url);
   }
-  navClick(link: string) {
+  navChange(link: string) {
     const ind = this.newsService.links.indexOf(link);
     const curr = this.newsService.links.indexOf(this.newsService.activeLink);
     this.buttons.forEach((el, index) => {
@@ -65,11 +70,15 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
         this.renderer.removeClass(el.nativeElement, 'active');
       }
     });
+    return curr-ind;
+  }
+  navClick(link: string) {
+    const ind = this.navChange(link);
     if (this.router.url !== '/home') {
       this.newsService.activeLink = link;
       this.newsService.isConnected = false;
       this.router.navigateByUrl('/home');
-    } else this.newsService.callToggle.next(curr - ind);
+    } else this.newsService.callToggle.next(ind);
   }
   ngOnDestroy(): void {
   }

@@ -241,6 +241,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.player = myAnimation.create(this.carousel.nativeElement.isConnected ? this.carousel.nativeElement : this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
         this.player.onDone(() => {
            console.log('player is done next animation --> '+this.player.totalTime);
+           this.newsService.endPlayer.next(true);
         });
         this.player.play();
         this.newsService.activeLink = this.links[this.currentSlide];
@@ -262,6 +263,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.player = myAnimation.create(this.carousel.nativeElement.isConnected ? this.carousel.nativeElement : this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
         this.player.onDone(() => {
             console.log('player is done prev animation --> '+this.player.totalTime);
+            this.newsService.endPlayer.next(true);
          });
         this.player.play();
         this.newsService.activeLink = this.links[this.currentSlide];

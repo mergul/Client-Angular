@@ -48,6 +48,7 @@ export class PostComponent implements OnInit {
     this.othersList$ = this.newsService.list$.filter(value1 => value1.topics.includes(tag));
     this.reactiveService.getNewsSubject('main').next(this.othersList$);
     this.newsService.activeLink = tag;
+    this.newsService.callTag.next(tag);
   }
   onClick(url,newsOwnerId) {
     this.router.navigateByUrl(url, {state: {userID: '@' + newsOwnerId, loggedID: this.userService.loggedUser?this.userService.loggedUser.id:''}});

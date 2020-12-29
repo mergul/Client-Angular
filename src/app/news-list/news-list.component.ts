@@ -3,10 +3,8 @@ import { NewsService } from '../core/news.service';
 import { Observable, fromEvent, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { NewsPayload } from '../core/news.model';
 import { Location } from '@angular/common';
-import { map, takeUntil, debounceTime, distinctUntilChanged, switchMap, throttleTime } from 'rxjs/operators';
-import { UserService } from '../core/user.service';
+import { map, takeUntil, distinctUntilChanged, throttleTime } from 'rxjs/operators';
 import { WindowRef } from '../core/window.service';
-import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
     selector: 'app-news-list',
@@ -38,7 +36,7 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChildren("newsSum", { read: ElementRef }) newsSum: QueryList<ElementRef>;
 
     constructor(private zone: NgZone, private newsService: NewsService, public location: Location, private renderer: Renderer2,
-        public userService: UserService, private reactiveService: ReactiveStreamsService, private winRef: WindowRef) {
+        private winRef: WindowRef) {
     }
     ngAfterViewInit(): void {
         if (!this.newsService.isConnected && this.location.isCurrentPathEqualTo('/home') && this.activeLink === this.currLink) {
@@ -47,15 +45,9 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (item.offsetLeft == ind * 617) item.classList.add('shadow');
                 else item.classList.remove('shadow');
             })
-            // this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item=>{
-            //     if (item.offsetLeft == this.newsService.prevLink*617) item.classList.remove('shadow');
-            // })
         }
         this.newsSum.changes.subscribe(comps => {
-            // comps.forEach((item, index) => {
-            //     this.renderer.addClass(item.nativeElement, 'shadow')
-            // });
-            this.newsService.preList.push(comps.toArray());
+            if (this.currentOffset===0&&this.newsService.links.includes(this.activeLink)) { this.newsService.preList.push(comps.toArray()); }
         });
     }
 
@@ -87,7 +79,6 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
     get newsList(): Observable<NewsPayload[]> {
         return this.newsList$;
     }
-
     set newsList(value: Observable<NewsPayload[]>) {
         if (value) {
             this._newsList = value;
@@ -95,9 +86,6 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.getStories();
         }
     }
-    // checkSame = (a: NewsPayload[], b: NewsPayload[]) => {
-    //    return a.every(val => b.some(ca => ca.newsId === val.newsId));
-    // }
     getStories = () => {
         this._newsList.pipe(takeUntil(this.destroy$), map(x => {
             if (x.length > 5 && !this.unsubscriber$.closed) {
@@ -107,11 +95,8 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
                     this.currentPage = 1;
                     this.newsBehaviorSubject.next(x);
                     console.log('stopped to listen --> ' + this.prevOffset);
-                } else { // if (!this.checkSame(x.slice(0, 5 * this.currentPage), this.newsBehaviorSubject.getValue()))
+                } else {
                     this.newsBehaviorSubject.next(x.slice(0, 5 * this.currentPage));
-                    // if (this.unsubscriber$.observers.length === 0) {
-                    //     this.subsToScroll();
-                    // }
                 }
             } else if (x.length > 0) { this.newsBehaviorSubject.next(x); }
             return this.newsList$;
@@ -124,9 +109,6 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
     getYPosition(): number {
         this.currentOffset = document.querySelector('.example-container').scrollTop;
         this.isUp = this.prevOffset > this.currentOffset;
-        // console.log('is Up --> ' + this.isUp + ' ::prev-offset --> ' + this.prevOffset + ' ::page --> ' + this.currentPage
-        // + ' ::curr-offset --> ' + this.currentOffset + ' ::Max-Height --> ' +
-        // this.winRef.nativeWindow.document.documentElement.offsetHeight);
         return this.isUp ? 0 : this.currentOffset;
     }
     ngOnInit() {
@@ -138,9 +120,9 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
             this.thumbHeight = this.thumbHeight - 19;
         }
-        if (this.location.isCurrentPathEqualTo('/home') && this.newsService.callToggle.observers.length < 2) {
+        if (this.location.isCurrentPathEqualTo('/home') && this.newsService.endPlayer.observers.length === 0) {
             if (this.currLink === this.activeLink) {
-                this.newsService.callToggle.subscribe((data) => {
+                this.newsService.endPlayer.subscribe(() => {
                     const index = this.newsService.links.indexOf(this.newsService.activeLink);
                     this.newsService.preList.forEach((items, ind) => {
                         if (ind === index) {
@@ -149,19 +131,21 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
                                     this.renderer.addClass(item.nativeElement, 'shadow')
                                 );
                             } else {
-                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item => {
+                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach((item, indx) => {
                                     if (item.offsetLeft == ind * 617) item.classList.add('shadow')
                                 })
-                            }
+                           }
                         } else {
                             if (items[0].nativeElement.isConnected) {
                                 items.forEach(item =>
                                     this.renderer.removeClass(item.nativeElement, 'shadow')
                                 );
                             } else {
-                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach(item => {
-                                    if (item.offsetLeft == ind * 617) item.classList.remove('shadow')
-                                })
+                                this.winRef.nativeWindow.document.querySelectorAll('.news-list').forEach((item, indx) => {
+                                    if (item.offsetLeft == ind * 617) {
+                                        item.classList.remove('shadow');
+                                    }
+                                });
                             }
                         }  
                     });
@@ -171,7 +155,7 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.subs = this.subsToScroll();
     }
     subsToScroll() {
-        return this.scrollObs().subscribe((e: Event) => {
+        return this.scrollObs().subscribe(() => {
             if (this.activeLink === this.currLink) {
                 if (this.getYPosition() > (((document.querySelector('.example-container') as HTMLElement).offsetHeight - 100)
                     * (this.currentPage - 1))) {
@@ -186,23 +170,7 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
         return this.newsService.newsCounts;
     }
 
-    onTagClick(tag: string) {
-        if (!this.newsService.list$) {
-            this.newsService.list$ = this.reactiveService.getNewsSubject('main').value;
-        }
-        this.othersList$ = this.newsService.list$.filter(value1 => value1.topics.includes(tag));
-        this.reactiveService.getNewsSubject('main').next(this.othersList$);
-
-        // this.newsService.newsList$ = this.newsService.newsStreamList$
-        //     .pipe(takeUntil(this.destroy$), map(value => value.filter(value1 => value1.topics.includes(tag)))
-        //     , map(dfs => {
-        //         this.newsBehaviorSubject.next(dfs);
-        //         return dfs;
-        //     }));
-
-        this.newsService.activeLink = tag;
-    }
-    byId(index, item: NewsPayload) {
+    byId(item: NewsPayload) {
         if (!item) {
             return null;
         }

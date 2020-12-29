@@ -45,10 +45,10 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
     this.newsService.preModalUrl = this.router.url;
     this.router.navigateByUrl(url, {state: {loggedID: this.service._loggedUser.id}});
   }
-  navClick(link: string) {
-    this.newsService.activeLink = link;
-    this.newsService.callToggle.next(-this.newsService.links.indexOf(this.newsService.activeLink));
-  }
+  // navClick(link: string) {
+  //   this.newsService.activeLink = link;
+  //   this.newsService.callToggle.next(-this.newsService.links.indexOf(this.newsService.activeLink));
+  // }
   logout() {
     if (this.router.url === '/home') {
       this.newsService.callToggle.next(this.newsService.links.indexOf(this.newsService.activeLink));

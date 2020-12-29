@@ -8,6 +8,7 @@ import { RecordSSE } from './RecordSSE';
 export class NewsService {
 
     callToggle: Subject<number> = new Subject();
+    callTag: Subject<string> = new Subject();
     newsApiRoot = '/api/rest/news/list';
     newsRoot = '/api/rest/news/get/';
     adlinks = ['Ençok Şikayet', 'Müstehcen', 'Şiddet'];
@@ -33,6 +34,7 @@ export class NewsService {
     _isConnected = true;
     prevUrl: string;
     preModalUrl: string;
+    endPlayer: Subject<boolean>=new Subject();
 
     constructor(protected http: HttpClient) {
     }
