@@ -62,7 +62,7 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   }
   navChange(link: string) {
     const ind = this.newsService.links.indexOf(link);
-    const curr = this.newsService.links.indexOf(this.newsService.activeLink);
+    const curr = this.newsService.links.indexOf(this.newsService.activeLink?this.newsService.activeLink:this.newsService.links[0]);
     this.buttons.forEach((el, index) => {
       if (ind === index) {
         this.renderer.addClass(el.nativeElement, 'active');
