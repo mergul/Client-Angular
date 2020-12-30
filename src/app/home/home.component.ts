@@ -199,6 +199,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.othersList$ = this.newsService.list$.filter(value1 => value1.topics.includes(tag));
         this.reactiveService.getNewsSubject('main').next(this.othersList$);
         this.newsService.activeLink = tag;
+        this.newsService.callTag.next(tag);
     }
 
     registerToTag(_activeLink: string) {
