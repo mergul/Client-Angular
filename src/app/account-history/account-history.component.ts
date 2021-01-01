@@ -9,6 +9,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { User } from '../core/user.model';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 
 @Component({
@@ -27,9 +28,9 @@ export class AccountHistoryComponent implements OnInit, OnDestroy, AfterViewInit
   displayedColumns: string[] = [ 'pageviews', 'payment', 'totalViews', 'payedViews', 'totalBalance', 'date'];
   @ViewChild(MatSort, {static: false}) sort: MatSort;
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  
   constructor(private userService: UserService) {
-    this.userService.getAccountHistory(this.userService.dbUser.id)
-    .pipe(takeUntil(this.onDestroy)).subscribe(res => {
+    this.userService._historyBalance.pipe(takeUntil(this.onDestroy)).subscribe(res => {
       this.dataSource = new MatTableDataSource(res);
       setTimeout(() => {
         this.dataSource.sort = this.sort;

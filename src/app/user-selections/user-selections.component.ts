@@ -1,10 +1,11 @@
 import {Component, OnInit, ViewChild, OnDestroy, Input} from '@angular/core';
 import {UserService} from '../core/user.service';
 import {map, takeUntil} from 'rxjs/operators';
-import {Observable, Subject} from 'rxjs';
+import { Subject} from 'rxjs';
 import {BalanceRecord} from '../core/user.model';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {MatListOption, MatSelectionList, MatSelectionListChange} from '@angular/material/list';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
   selector: 'app-user-selections',
@@ -15,7 +16,6 @@ export class UserSelectionsComponent implements OnInit, OnDestroy {
 
   private readonly onDestroy = new Subject<void>();
   private _booled: boolean;
-  userList: Observable<Array<BalanceRecord>>;
   selectedList: Array<BalanceRecord>;
   idList = [];
   _selected: MatListOption[];
@@ -23,14 +23,13 @@ export class UserSelectionsComponent implements OnInit, OnDestroy {
 
   @ViewChild('users', {static: false}) private users: MatSelectionList;
 
-  constructor( private service: UserService, private fb: FormBuilder) {
+  constructor( public service: UserService, private reactiveService: ReactiveStreamsService, private fb: FormBuilder) {
     this.clientForm = this.fb.group( {
       myOtherControl: new FormControl([])
     });
   }
 
   ngOnInit() {
-    this.userList = this.service.hotBalanceRecords().pipe(map(value => value));
   }
   @Input()
   get booled(): boolean {
@@ -54,8 +53,8 @@ export class UserSelectionsComponent implements OnInit, OnDestroy {
       this.idList.push(value.key);
     });
     this.service.payToAll(this.idList).pipe(takeUntil(this.onDestroy)).subscribe(value => {
-      this.userList = this.userList.pipe(
-          map(value1 => value1.filter(previousValue => !this.idList.includes(previousValue.key))));
+      this.service._hotBalance.pipe(
+          map(value1 => value1.filter(previousValue => !this.idList.includes(previousValue.key))), map(val=>this.reactiveService.getBalanceSubject('hotBalance').next(val)));
     });
   }
 

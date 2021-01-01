@@ -3,11 +3,12 @@ import {Resolve, ActivatedRouteSnapshot, Router} from '@angular/router';
 import {UserService} from '../core/user.service';
 import {FirebaseUserModel} from '../core/user.model';
 import { AuthService } from '../core/auth.service';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserResolver implements Resolve<FirebaseUserModel> {
 
-    constructor(public userService: UserService, private router: Router, private authService: AuthService) {
+    constructor(public userService: UserService, private router: Router, private authService: AuthService, private reactiveService: ReactiveStreamsService) {
     }
 
     resolve(route: ActivatedRouteSnapshot): Promise<FirebaseUserModel> {

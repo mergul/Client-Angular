@@ -48,8 +48,8 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
       marginLeft: `${this.checkMedia ? 0 : 0}%`,
       // marginRight: this.checkMedia ? '0px' : '0px',
       //     float: 'right',
-      maxWidth: `${this.checkMedia ? 0 : 30}%`,
-      minWidth: `${this.checkMedia ? 0 : 30}%`
+      maxWidth: `${this.checkMedia ? 15 : 30}%`,
+      minWidth: `${this.checkMedia ? 15 : 30}%`
     };
   }
   btnClick(url: string) {

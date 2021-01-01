@@ -123,6 +123,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                             }
                             return record;
                         }));
+                    this.service._hotBalance = this.reactiveService.getMessage('hotRecords');
+                    this.service._historyBalance = this.reactiveService.getMessage('user-history');
                 }
                // if (!this.newsService.topTags) {
                     this.newsService.topTags = this.reactiveService.getMessage('top-tags')

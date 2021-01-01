@@ -84,6 +84,12 @@ export class ReactiveStreamsService {
             case 'other': return this.publicBehaviorSubject;
         }
     }
+    getBalanceSubject(id: string) { 
+        switch (id) {
+            case 'hotRecords': return this.hotUsersBehaviorSubject;
+            case 'user-history': return this.balanceBehaviorSubject;
+        }
+    }
     getMessage(sub): Observable<any> {
         switch (sub) {
             case this.nlinks[0]: return this.newsBehaviorSubject.asObservable();
@@ -119,14 +125,29 @@ export class ReactiveStreamsService {
             this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
         });
         this.newsEventSource.addEventListener('user-history-' + id, event => {
+            console.log('user history id --> '+event.lastEventId+' :: user history key --> '+event.type)
             const balances = JSON.parse(event.data);
             const list = this.balanceBehaviorSubject.getValue();
-            this.zone.run(() => this.balanceBehaviorSubject.next([...list, ...balances]));
+            if (list.length>0) {
+                list.push(balances);
+                console.log('history id is --> ' + balances.key+' :: total is --> '+balances.totalBalance);
+            } else list.push(...balances);
+            this.zone.run(() => this.balanceBehaviorSubject.next(list));
         });
         this.newsEventSource.addEventListener('hotRecords-' + id, event => {
+            console.log('hotRecords id --> '+event.lastEventId+' :: hotRecords key --> '+event.type)
             const balances = JSON.parse(event.data);
             const list = this.hotUsersBehaviorSubject.getValue();
-            this.zone.run(() => this.hotUsersBehaviorSubject.next([...list, ...balances]));
+            if (list.length>0) {
+                let index = -1;
+                list.some(function (elem, i) {
+                    return elem.key === balances.key && ~(index = i);
+                });
+                console.log('hotRecords index is --> ' + index+' :: total is --> '+balances.totalBalance);
+                if (index!==-1) list.splice(index, 1, balances);
+                list.forEach(fr => console.log('hotRecords key is --> ' + fr.key+' :: total is --> '+fr.totalBalance));
+            } else list.push(...balances);
+            this.zone.run(() => this.hotUsersBehaviorSubject.next(list));
         });
     }
     setFirstListeners(id: string, random: number) {

@@ -53,7 +53,6 @@ export class AuthGuard implements CanActivate, OnDestroy {
                         this.fuser.email = user.providerData[0].email;
                         this.fuser.name = user.displayName;
                         this.fuser.id = user.uid;
-                   //     this.userService.user.token = user['ma'];
                         if (state.url !== '/admin' && state.url !== '/talepler' && state.url !== '/money') {
                             this.userService.loggedUser = this.fuser;
                             if (state.url === '/loginin') {

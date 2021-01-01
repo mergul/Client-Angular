@@ -29,6 +29,8 @@ export class UserService implements OnDestroy {
     reStreamList$: Observable<NewsPayload[]>;
     reStreamCounts$: Observable<RecordSSE>;
     _otherUser: Observable<User>;
+    _hotBalance: Observable<BalanceRecord[]>;
+    _historyBalance: Observable<BalanceRecord[]>;
     redirectUrl = 'login';
 
     constructor(
@@ -225,24 +227,10 @@ export class UserService implements OnDestroy {
         }).pipe();
     }
 
-    hotBalanceRecords(): Observable<Array<BalanceRecord>> {
-        // return this.http.get<Array<BalanceRecord>>('/api/rest/admin/hotBalanceRecords', {
-        //     responseType: 'json', withCredentials: true
-        // }).pipe();
-        return this.reactiveService.getMessage('hotRecords');
-    }
-
     payToAll(value: string[]) {
         return this.http.post<boolean>('/api/rest/admin/handlePayments', value, {
             responseType: 'json', withCredentials: true
         }).pipe();
-    }
-
-    getAccountHistory(id: string): Observable<BalanceRecord[]> {
-        // return this.http.get<BalanceRecord[]>('/api/rest/balance/history/@' + id, {
-        //     responseType: 'json', withCredentials: true
-        // }).pipe();
-        return this.reactiveService.getMessage('user-history');
     }
 
     ngOnDestroy(): void {

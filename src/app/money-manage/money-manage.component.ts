@@ -44,7 +44,9 @@ export class MoneyManageComponent implements OnInit, OnDestroy {
       alert('Hatalı İşlem!');
     } else {
       this.newsService.partitionMoney(value).pipe(takeUntil(this.onDestroy)).subscribe(() => {
-          console.log('Money Partition request finished and returned!!!');
+          this._snackBar.open('Money Partition request finished and returned!!!', 'Check results!', {
+            duration: 3000,
+          });
       });
       this._snackBar.open('Your request sent successfully!', 'Check results!', {
         duration: 3000,

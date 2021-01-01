@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     _activeLink: string;
     navSlide = 0;
     hght: number;
-    newsList$: NewsPayload[];
+   // newsList$: NewsPayload[];
     othersList$: NewsPayload[];
 
 

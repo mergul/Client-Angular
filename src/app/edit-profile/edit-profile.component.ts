@@ -7,6 +7,7 @@ import {Subject} from 'rxjs';
 import {AuthService} from '../core/auth.service';
 import {IbanValidatorDirective} from '../iban-validator.directive';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
     selector: 'app-edit-profile',
@@ -26,7 +27,7 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(private formBuilder: FormBuilder,
                 private userService: UserService,
-                private authService: AuthService) {
+                private authService: AuthService, private reactiveService: ReactiveStreamsService) {
         this.createForm();
     }
 
@@ -40,7 +41,7 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.userService.getAccountHistory(this.userService.dbUser.id).pipe(takeUntil(this.onDestroy)).subscribe(value => {
+        this.reactiveService.getMessage('user-history').pipe(takeUntil(this.onDestroy)).subscribe(value => {
             if (value && value.length > 0) {
                 this.userService._totalBalance = +value[value.length - 1].totalBalance.toFixed(2);
             }

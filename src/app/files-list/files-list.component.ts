@@ -41,17 +41,19 @@ export class FilesListComponent implements OnInit {
     set thumbName(thumbName: string) {
         const ja = thumbName.lastIndexOf('.');
        // this._thumbName = thumbName.slice(0, ja) + '.jpeg';
-        this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
         if (!this._imgUrl) {
             if (thumbName.startsWith('medium-')) {
+                this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
                 if (this.itemWidth > 788) { this.itemWidth = 788; }
                 this.width = this.itemWidth;
                 this.height = 500 * (this.itemWidth / 788);
             } else if (thumbName.startsWith('amedium-')) {
+                this.itemWidth = this.winRef.nativeWindow.innerWidth -20;
                 if (this.itemWidth > 595) { this.itemWidth = 595; }
                 this.width = this.itemWidth;
                 this.height = 500 * (this.itemWidth / 788);
             } else {
+                this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
                 if (this.itemWidth > 1040) {
                     this.width = 174;
                     this.height = 109;
