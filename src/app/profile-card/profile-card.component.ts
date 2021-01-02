@@ -27,12 +27,10 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
         public domSanitizer: DomSanitizer, private renderer: Renderer2,
         private winRef: WindowRef) {
     }
-
     @Input()
     get user(): User {
         return this._user;
     }
-
     set user(user1: User) {
         this._user = user1;
         this.folli = this.userService.loggedUser != null && this.userService.loggedUser.people.includes(this.user.id);

@@ -164,14 +164,22 @@ export class ReactiveStreamsService {
         //     this.zone.run(() => this.getNewsSubject(event.lastEventId).next([...list, ...topNews.list]));
         // });
     }
+    addToSubjectSingle = (subj: BehaviorSubject<NewsPayload[]>, event: any) => {
+        const topNews = JSON.parse(event.data);
+        const list = subj.getValue();
+        this.zone.run(() => subj.next([...list, ...topNews.list]));
+    }
     listenIt = (isMe, isOther, event: any) => {
         if (isMe) {
-            this.addToSubject(this.getNewsSubject('me'), event);
+            this.addToSubjectSingle(this.getNewsSubject('me'), event);
         } else if (isOther) {
-            this.addToSubject(this.getNewsSubject('other'), event);
-        } else if (event.lastEventId === 'me'||event.lastEventId === 'people') {
+            this.addToSubjectSingle(this.getNewsSubject('other'), event);
+            this.publicStreamList$.set(event.type.split('-')[2].substring(1), this.publicBehaviorSubject.getValue());
+        } else if (event.lastEventId === 'people'||event.lastEventId === 'tags') {
+            this.addToSubjectSingle(this.getNewsSubject(event.lastEventId), event);
+        } else if (event.lastEventId === 'me') {
             this.addToSubject(this.getNewsSubject('people'), event);
-        } else if (event.lastEventId === 'tag'||event.lastEventId === 'tags') {
+        } else if (event.lastEventId === 'tag') {
             this.addToSubject(this.getNewsSubject('tags'), event);
         }
     }

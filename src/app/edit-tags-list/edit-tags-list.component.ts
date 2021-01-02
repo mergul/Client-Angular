@@ -1,9 +1,7 @@
-import {Component, Input, OnInit, OnDestroy} from '@angular/core';
+import {Component, Input, OnInit, OnDestroy, Renderer2, ViewChild, ElementRef} from '@angular/core';
 import {Observable, Subject} from 'rxjs';
-import {User} from '../core/user.model';
 import {UserService} from '../core/user.service';
 import { takeUntil } from 'rxjs/operators';
-import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
   selector: 'app-edit-tags-list',
@@ -16,8 +14,10 @@ export class EditTagsListComponent implements OnInit, OnDestroy {
   private _isPub: Observable<boolean>;
   _tags: Observable<Array<string>>;
   private _booled: boolean;
+  @ViewChild('followButton', {static: false}) followButton: ElementRef;
+  pubs=false;
 
-  constructor(private service: UserService, private reactiveService: ReactiveStreamsService) { }
+  constructor(private service: UserService, private renderer: Renderer2) { }
 
   @Input()
   get tags(): Observable<Array<string>> {
@@ -45,21 +45,29 @@ export class EditTagsListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.isPub.pipe().subscribe(val=>{
+      this.pubs=val;
+    });
   }
   ngOnDestroy(): void {
     this.onDestroy.next();
     this.onDestroy.complete();
   }
+  checkTag(tag: string) {
+     return !this.service.dbUser.tags.includes(tag);
+  }
   removeTag(tag: string) {
-    this.service.dbUser.tags.splice(this.service.dbUser.tags.indexOf(tag), 1);
-    this.service.newsCo.get(this.service.links[1]).splice(this.service.dbUser.tags.indexOf(tag), 1);
-   // this.reactiveService.resetUserListListeners('#' + tag);
-    this.service.manageFollowingTag('#' + tag, false).pipe(takeUntil(this.onDestroy)).subscribe();
+    this.service.manageFollowingTag('#' + tag, false).pipe(takeUntil(this.onDestroy)).subscribe(value => {
+      this.service.dbUser.tags.splice(this.service.dbUser.tags.indexOf(tag), 1);
+      this.service.newsCo.get(this.service.links[1]).splice(this.service.dbUser.tags.indexOf(tag), 1);
+      this.renderer.setProperty(this.followButton.nativeElement, 'innerHTML', 'Takip Et');
+    });
   }
   addTag(tag: string) {
-    this.service.dbUser.tags.push(tag);
-    this.service.newsCo.get(this.service.links[1]).push(tag);
-    // this.reactiveService.setUserListListeners('#' + tag);
-    this.service.manageFollowingTag('#' + tag, true).pipe(takeUntil(this.onDestroy)).subscribe();
+    this.service.manageFollowingTag('#' + tag, true).pipe(takeUntil(this.onDestroy)).subscribe(value => {
+      this.service.dbUser.tags.push(tag);
+      this.service.newsCo.get(this.service.links[1]).push(tag);
+      this.renderer.setProperty(this.followButton.nativeElement, 'innerHTML', 'Takip Kes');
+    });
   }
 }
