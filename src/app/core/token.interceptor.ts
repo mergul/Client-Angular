@@ -20,9 +20,9 @@ export class TokenInterceptor implements HttpInterceptor {
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const user = this.userService.user;
-        if (!methods.includes(request.method) && !request.url.includes('/user/') && !request.url.includes('/balance/')) {
+        if (!methods.includes(request.method) && !request.url.includes('rest/user/') && !request.url.includes('/balance/')) {
             return next.handle(request);
-        } else if (request.url.includes('/user/') || request.url.includes('/balance/')) {
+        } else if (request.url.includes('rest/user/') || request.url.includes('/balance/')) {
            // return this.auth.getCurrentIdToken().pipe(
            //     switchMap((token: string) => {
                     const headers = request.headers;

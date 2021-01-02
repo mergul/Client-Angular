@@ -110,7 +110,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (!this.reactiveService.statusOfNewsSource()) {
                     this.reactiveService.getNewsStream(this.reactiveService.random, this.newslistUrl);
                 }
-
                 if (!this.newsService.newsStreamList$) {
                     this.newsService.newsStreamList$ = this.reactiveService.getMessage(this.links[0]);
                     this.newsService.tagsStreamList$ = this.reactiveService.getMessage(this.links[1]);

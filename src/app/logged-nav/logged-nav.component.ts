@@ -52,17 +52,19 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
   logout() {
     if (this.router.url === '/home') {
       this.newsService.callToggle.next(this.newsService.links.indexOf(this.newsService.activeLink));
+      this.newsService.callTag.next(this.newsService.links[0]);
     }
     setTimeout(() => {
       this.authService.doLogout()
       .then(() => {
         this.service.loggedUser = null;
         this.service.user = null;
+        this.reactiveService.resetNavListListeners('@' + this.service.dbUser.id)
         for (const tag of this.service.dbUser.tags) {
            this.reactiveService.resetUserListListeners('#' + tag);
         }
         for (const tag of this.service.dbUser.users) {
-          this.reactiveService.resetUserListListeners('@' + tag);
+          this.reactiveService.resetUserListListeners('@' + tag, true);
        }
         this.service.dbUser = null;
         this.service.newsCo.clear();

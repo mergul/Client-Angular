@@ -64,9 +64,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             //    if (data <= 0) {
                     console.log('move to --> '+data+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink);
                     this.navSlide = data;
-                    this.currentSlide = this.links[this.currentSlide] === this.newsService.activeLink?this.currentSlide:this.links.indexOf(this.newsService.activeLink);
+                    const index=this.links.indexOf(this.newsService.activeLink);
+                    this.currentSlide = index===-1||this.links[this.currentSlide] === this.newsService.activeLink?this.currentSlide:index;
                     console.log('move to --> '+data+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink);
-                    this.onNavClick(this.newsService.activeLink);
+                    this.onNavClick(this.loggedUser?this.newsService.activeLink:this.links[-data], index===-1?this.navSlide:index);
                     // setTimeout(() => {
                     //     winRef.nativeWindow.location.reload();
                     // }, 55);
@@ -164,8 +165,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.destroy.complete();
     }
 
-    onNavClick(link: string) {
-        if (link === this.links[0] || this.service.loggedUser) {
+    onNavClick(link: string, index=0) {
+        if (index===-1&&this.currentSlide===0) {
+            this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+            this.newsService.activeLink=this.links[this.currentSlide];
+        }
+        else if (link === this.links[0] || this.service.loggedUser) {
             let milink = this.links.indexOf(this.newsService.activeLink);
             this.newsService.activeLink = link;
             if (milink === -1) {
@@ -176,6 +181,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
             this.service.redirectUrl = '/home';
             this.newsService.activeLink = link;
+           if(index!==0) this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
             this.router.navigate(['/loginin']);
         }
     }
@@ -229,7 +235,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             } else if (this.activeLink === this.links[2]) {
                 this.onNavClick(this.activeLink);
                 this.onNavClick(this.activeLink);
-            }
+            } else if (!this.loggedUser) this.newsService.callTag.next(this.activeLink)
         }
     }
     next() {

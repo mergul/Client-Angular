@@ -37,7 +37,7 @@
     <mat-card-actions>
       <button class="butto ripple button-outline">LIKE</button>
       <button class="butto ripple button-outline">SHARE</button>
-      <button class="butto ripple button-outline" (click)="onClick('/allusers/'+ news.newsOwner, news.newsOwnerId)"
+      <button class="butto ripple button-outline" (click)="onClick('/allusers/'+ news.newsOwner, news.newsOwnerId);$event.stopPropagation();$event.preventDefault()"
       [disabled]="isDisabled(news.newsOwnerId)" style="float: right; border: none;">
           @{{news.newsOwner}} :: {{news.count}} :: {{newsCounts.get(news.newsId)}}</button>
     </mat-card-actions>

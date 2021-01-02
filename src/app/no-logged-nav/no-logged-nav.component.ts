@@ -26,9 +26,7 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private winRef: WindowRef,
     public newsService: NewsService, private renderer: Renderer2) {
       this.newsService.callTag.subscribe(tag=>{
-        this.buttons.forEach(el => {
-            this.renderer.removeClass(el.nativeElement, 'active');      
-        });
+        this.navChange(tag);
       });
   }
   @Input()
@@ -66,7 +64,7 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
     this.buttons.forEach((el, index) => {
       if (ind === index) {
         this.renderer.addClass(el.nativeElement, 'active');
-      } else if (index === curr) {
+      } else {
         this.renderer.removeClass(el.nativeElement, 'active');
       }
     });
