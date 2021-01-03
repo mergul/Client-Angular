@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs/internal/observable/of';
 import { Observable, Subject } from 'rxjs';
-import { RecordSSE } from './RecordSSE';
+import { RecordSSE } from './record.sse';
 import { NewsPayload } from './news.model';
 import { ReactiveStreamsService } from './reactive-streams.service';
 

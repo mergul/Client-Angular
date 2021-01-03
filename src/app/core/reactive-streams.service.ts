@@ -3,7 +3,7 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { NewsPayload } from './news.model';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
-import { RecordSSE } from './RecordSSE';
+import { RecordSSE } from './record.sse';
 import { BalanceRecord } from './user.model';
 
 @Injectable({ providedIn: 'root' })

@@ -13,12 +13,7 @@ export class AuthGuard implements CanActivate, OnDestroy {
     fuser: FirebaseUserModel = new FirebaseUserModel();
     private readonly onDestroy = new Subject<void>();
 
-    constructor(
-        public userService: UserService,
-        private router: Router,
-        private authService: AuthService,
-        private reactiveService: ReactiveStreamsService
-    ) {
+    constructor(public userService: UserService, private router: Router, private authService: AuthService, private reactiveService: ReactiveStreamsService) {
     }
     ngOnDestroy(): void {
         this.onDestroy.next();
@@ -44,8 +39,6 @@ export class AuthGuard implements CanActivate, OnDestroy {
             } else {
                 this.authService.getCurrentUser()
                     .then(user => {
-                        // let pa = "/user/" + user.email.replace(/\s/g, '');
-                        // this.userService.getDbUser(user.isAnonymous ? user.uid : user.email).subscribe(value => {
                         if (user.providerData.length === 0) {
                             return resolve(true);
                         }
@@ -80,12 +73,10 @@ export class AuthGuard implements CanActivate, OnDestroy {
                                         return resolve(true);
                                     } else {
                                         this.router.navigate(['/home']);
-                                        //   return resolve(false);
                                     }
                                 });
                             });
                         }
-                        // });
                     }, () => {
                         if (state.url === '/upload') {
                             this.userService.redirectUrl = '/upload';
@@ -94,7 +85,6 @@ export class AuthGuard implements CanActivate, OnDestroy {
                         || (state.url !== '/register' && state.url !== '/login' && state.url !== '/loginin'
                         && this.userService.redirectUrl === '/home')) {
                             this.router.navigate(['/home']);
-                            // return resolve(false);
                         }
                         return resolve(true);
                     });

@@ -7,7 +7,7 @@ import { UserService } from '../core/user.service';
 import { FirebaseUserModel } from '../core/user.model';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
 import { WindowRef } from '../core/window.service';
-import { RecordSSE } from '../core/RecordSSE';
+import { RecordSSE } from '../core/record.sse';
 import { HammerGestureConfig } from '@angular/platform-browser';
 import { AnimationPlayer, AnimationBuilder, AnimationFactory, animate, style } from '@angular/animations';
 import { Router } from '@angular/router';

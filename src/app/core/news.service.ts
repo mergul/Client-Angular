@@ -2,11 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, Subject } from 'rxjs';
 import { News, NewsPayload } from './news.model';
-import { RecordSSE } from './RecordSSE';
+import { RecordSSE } from './record.sse';
 
 @Injectable({ providedIn: 'root' })
 export class NewsService {
-
     callToggle: Subject<number> = new Subject();
     callTag: Subject<string> = new Subject();
     newsApiRoot = '/api/rest/news/list';

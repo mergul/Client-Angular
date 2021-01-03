@@ -7,10 +7,8 @@ import {News, NewsFeed} from './news.model';
     providedIn: 'root'
 })
 export class BackendServiceService {
-
     constructor(private httpClient: HttpClient) {
     }
-
     postImage(formData: FormData): Observable<News> {
         return this.httpClient.post<News>('/api/image/save', formData, {
             responseType: 'json',

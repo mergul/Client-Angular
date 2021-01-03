@@ -9,7 +9,7 @@ import { UserService } from './core/user.service';
 import { FirebaseUserModel } from './core/user.model';
 import { ReactiveStreamsService } from './core/reactive-streams.service';
 import { WindowRef } from './core/window.service';
-import { RecordSSE } from './core/RecordSSE';
+import { RecordSSE } from './core/record.sse';
 import { ScriptLoaderService } from './core/script-loader.service';
 
 @Component({

@@ -3,7 +3,6 @@ import { Router, NavigationEnd } from '@angular/router';
 import {Subscription, Subject} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-// --- use a declare to allow the compiler find the ga function
 declare let ga: Function;
 
 // notes you may need to do this as well: npm install --save-dev @types/google.analytics
@@ -11,13 +10,10 @@ declare let ga: Function;
   providedIn: 'root'
 })
 
-
 export class GoogleAnalyticsService implements OnDestroy {
   private subscription: Subscription;
   private readonly onDestroy = new Subject<void>();
   constructor(private router: Router) {  }
-
-
   public subscribe() {
     if (!this.subscription) {
       // subscribe to any router navigation and once it ends, write out the google script notices

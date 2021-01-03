@@ -19,7 +19,6 @@ export class AuthService {
                     .then(user => {
                         resolve(user);
                     }, err => {
-                    //    console.log(err);
                         reject(err);
                     });
             } else {
@@ -28,7 +27,6 @@ export class AuthService {
                     .then(res => {
                         resolve(res);
                     }, err => {
-                   //     console.log(err);
                         reject(err);
                     });
             }
@@ -43,7 +41,6 @@ export class AuthService {
                 .then(res => {
                     resolve(res);
                 }, err => {
-                 //   console.log(err);
                     reject(err);
                 });
         });
@@ -59,7 +56,6 @@ export class AuthService {
                     .then(user => {
                         resolve(user);
                     }, err => {
-                       // console.log(err);
                         reject(err);
                     });
             } else {
@@ -68,7 +64,6 @@ export class AuthService {
                     .then(res => {
                         resolve(res);
                     }, err => {
-                      //  console.log(err);
                         reject(err);
                     });
             }
@@ -82,7 +77,6 @@ export class AuthService {
                         resolve(res.user);
                     }, err => reject(err)
                 ).catch(function(error) {
-                // Handle Errors here.
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 if (errorCode === 'auth/weak-password') {
