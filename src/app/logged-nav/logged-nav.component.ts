@@ -25,7 +25,6 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
   get logged(): boolean {
     return this._logged;
   }
-
   set logged(value: boolean) {
     this._logged = value;
   }
@@ -37,7 +36,6 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
       return this.service.dbUser.roles[0];
     }
   }
-
   ngOnInit() {
     this.checkMedia = this.winRef.nativeWindow.innerWidth < 600;
   }
@@ -45,10 +43,6 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
     this.newsService.preModalUrl = this.router.url;
     this.router.navigateByUrl(url, {state: {loggedID: this.service._loggedUser.id}});
   }
-  // navClick(link: string) {
-  //   this.newsService.activeLink = link;
-  //   this.newsService.callToggle.next(-this.newsService.links.indexOf(this.newsService.activeLink));
-  // }
   logout() {
     if (this.router.url === '/home') {
       this.newsService.callToggle.next(this.newsService.links.indexOf(this.newsService.activeLink));
@@ -74,7 +68,6 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
       });
     }, 50);
   }
-
   ngOnDestroy(): void {
     this.onDestroy.next();
   }

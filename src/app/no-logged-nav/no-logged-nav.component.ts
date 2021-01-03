@@ -14,9 +14,6 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   _loggedinUser = of(true);
   toolbarStyle: {
     marginLeft: string;
-    //marginRight: string; 
-    //  paddingLeft: string;
-    //  float: string;
     maxWidth: string;
     minWidth: string
   };
@@ -33,19 +30,13 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   get loggedinUser(): Observable<boolean> {
     return this._loggedinUser;
   }
-
   set loggedinUser(value: Observable<boolean>) {
     this._loggedinUser = value;
-
   }
-
   ngOnInit() {
     this.checkMedia = this.winRef.nativeWindow.innerWidth < 600;
     this.toolbarStyle = {
-      //  paddingLeft: `${this.checkMedia ? 0 : 8}%`,
       marginLeft: `${this.checkMedia ? 0 : 0}%`,
-      // marginRight: this.checkMedia ? '0px' : '0px',
-      //     float: 'right',
       maxWidth: `${this.checkMedia ? 15 : 30}%`,
       minWidth: `${this.checkMedia ? 15 : 30}%`
     };
@@ -85,7 +76,6 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   get activeLink(): string {
     return this.newsService.activeLink;
   }
-
   set activeLink(value: string) {
     this.newsService.activeLink = value;
   }

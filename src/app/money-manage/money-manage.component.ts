@@ -6,7 +6,6 @@ import { takeUntil } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, of } from 'rxjs';
 
-
 @Component({
   selector: 'app-money-manage',
   templateUrl: './money-manage.component.html',
@@ -33,7 +32,6 @@ export class MoneyManageComponent implements OnInit, OnDestroy {
 
   set boolUser(value: Observable<number>) {
     this._boolUser = value;
-  //  this.boolChange.emit(value);
   }
   ngOnDestroy(): void {
     this.onDestroy.next();

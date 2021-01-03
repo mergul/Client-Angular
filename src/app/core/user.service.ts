@@ -9,7 +9,6 @@ import { RecordSSE } from './RecordSSE';
 import { NewsPayload } from './news.model';
 import { ReactiveStreamsService } from './reactive-streams.service';
 
-
 @Injectable({ providedIn: 'root' })
 export class UserService implements OnDestroy {
     private readonly onDestroy = new Subject<void>();
@@ -33,10 +32,7 @@ export class UserService implements OnDestroy {
     _historyBalance: Observable<BalanceRecord[]>;
     redirectUrl = 'login';
 
-    constructor(
-        protected http: HttpClient,
-        private router: Router,
-        private reactiveService: ReactiveStreamsService
+    constructor(protected http: HttpClient, private router: Router, private reactiveService: ReactiveStreamsService
     ) {
     }
     getDbUser(url: string): Observable<User> {
@@ -49,7 +45,6 @@ export class UserService implements OnDestroy {
             }).pipe();
         }
     }
-
     get loggedUser(): FirebaseUserModel {
         return this._loggedUser;
     }
@@ -78,50 +73,40 @@ export class UserService implements OnDestroy {
             this.newsCo.set(this.links[0], ['main']);
         }
     }
-
     postUserImage(formData: FormData): Observable<boolean> {
         return this.http.patch<boolean>('/api/rest/user/media/save', formData, {
             responseType: 'json',
             withCredentials: true
         });
     }
-
     getUsers(usersList: string[]): Observable<Array<User>> {
         return this.http.get<Array<User>>('/api/rest/users/getAll/' + usersList, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
-
     get prof_url(): string {
         return this._prof_url;
     }
-
     set prof_url(value: string) {
         this._prof_url = value;
     }
-
     get back_url(): string {
         return this._back_url;
     }
-
     set back_url(value: string) {
         this._back_url = value;
     }
-
     get desc(): Observable<string> {
         return this._desc;
     }
-
     set desc(value: Observable<string>) {
         this._desc = value;
     }
-
     newSummary(id: string, summary: string) {
         return this.http.put<boolean>('/api/rest/description', { 'id': id, 'summary': summary }, {
             responseType: 'json', withCredentials: true
         }).pipe();
     }
-
     manageFollowingTag(_activeLink: string, adding: boolean) {
         if (this.dbUser) {
             this.userTag.id = this.dbUser.id;

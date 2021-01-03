@@ -32,13 +32,11 @@ export class NewsService {
     list$: NewsPayload[];
     preList = [];
     _isConnected = true;
-    // prevUrl: string;
     preModalUrl: string;
     endPlayer: Subject<boolean>=new Subject();
 
     constructor(protected http: HttpClient) {
     }
-
     setNewsList(tags: Array<string>, byOwners: boolean) {
         if (byOwners) {
             this.newsList$ = this.peopleStreamList$;
@@ -52,7 +50,6 @@ export class NewsService {
             this.newsList$ = this.tagsStreamList$;
         }
     }
-
     getTopNewsList(etiket: string): Observable<Array<NewsPayload>> {
         return this.http.get<Array<NewsPayload>>('/sse/topnewslist/' + encodeURIComponent(etiket), {
             responseType: 'json', withCredentials: true
@@ -75,13 +72,6 @@ export class NewsService {
     }
     getNewsById(id: string): Observable<News> {
         if (this.newzes$.has(id)) {
-            // fetch('/api/rest/news/setNewsCounts/' + id, {
-            //     keepalive: true,
-            //     method: 'GET',
-            //     headers: {
-            //       'Content-Type': 'application/json',
-            //     },
-            //   });
             fetch('/sse/setNewsCounts', {
                 keepalive: true,
                 method: 'PATCH',
@@ -91,9 +81,6 @@ export class NewsService {
                 },
             });
             return of(this.newzes$.get(id));
-            // return this.http.get<boolean>('/api/rest/news/setNewsCounts/' + id, {
-            //     responseType: 'json', withCredentials: true
-            // }).pipe(switchMap(() => of(news)));
         } else {
             return this.http.get<News>('/api/rest/news/get/' + id, {
                 responseType: 'json', withCredentials: true
@@ -106,7 +93,6 @@ export class NewsService {
             'newsOwnerId': news.ownerId, 'ownerUrl': news.ownerUrl, 'topic': news.topic, 'thumb': news.mediaReviews[0].file_name, 'count': +news.count, 'date': news.date
         };
     }
-
     getNewsByOwnerId(id: string): Observable<Array<News>> {
         return this.http.get<Array<News>>('/api/rest/news/getNewsByOwnerId/' + id, {
             responseType: 'json', withCredentials: true
@@ -115,7 +101,6 @@ export class NewsService {
     get activeLink(): string {
         return this._activeLink;
     }
-
     set activeLink(value: string) {
         if (value && !this.links.includes(value) && (!this.mlink || this.links.includes(this._activeLink))) {
             this.mlink = this._activeLink;
@@ -131,16 +116,12 @@ export class NewsService {
     set newsCounts(newsCounts: Map<string, string>) {
         this.newsCounts$ = newsCounts;
     }
-
     get isConnected(): boolean {
         return this._isConnected;
     }
-
     set isConnected(v: boolean) {
         this._isConnected = v;
     }
-
-
     get reportedNewsCounts(): Map<string, string> {
         return this.reportedNewsCounts$;
     }
@@ -162,7 +143,6 @@ export class NewsService {
             responseType: 'json', withCredentials: true
         });
     }
-
     sendReport(newsPayload1: NewsPayload, admin: boolean) {
         const jp = admin ? 'admin' : 'user';
         return this.http.post<boolean>('/api/rest/news/sendreport/' + jp, newsPayload1, {
@@ -175,7 +155,6 @@ export class NewsService {
             responseType: 'json', withCredentials: true
         });
     }
-
     clearNews(id: string) {
         return this.http.patch<boolean>('/api/rest/news/clearNews', id, {
             responseType: 'json', withCredentials: true
