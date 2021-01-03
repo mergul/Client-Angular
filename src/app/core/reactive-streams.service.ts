@@ -20,14 +20,25 @@ export class ReactiveStreamsService {
     private meBehaviorSubject = new BehaviorSubject<NewsPayload[]>([]);
     private balanceBehaviorSubject = new BehaviorSubject<BalanceRecord[]>([]);
     publicStreamList$: Map<string, NewsPayload[]> = new Map<string, NewsPayload[]>();
-    myListener: any;
     private hotUsersBehaviorSubject = new BehaviorSubject<BalanceRecord[]>([]);
     random: number;
     isSubscribed = true;
     index: number;
     topList: Map<string, Array<string>> = new Map<string, Array<string>>();
+    mexListener: (ev: any, ism: any, iso: any) => void;
+    hexListener: (ev: any, ism: any, iso: any) => void;
+    myxListener: (ev: any, ism: any, iso: any) => void;
+    meListener: any;
+    heListener: any;
+    myListener: any;
 
     constructor(private zone: NgZone, protected http: HttpClient) {
+        this.mexListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
+        this.meListener=this.mexListener.bind(this, true, false);
+        this.hexListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
+        this.heListener=this.hexListener.bind(this, false, true);
+        this.myxListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
+        this.myListener=this.myxListener.bind(this, false, false);
     }
     getNewsStream(processName: number, url: string) {
         let headers: HttpHeaders = new HttpHeaders();
@@ -73,7 +84,6 @@ export class ReactiveStreamsService {
                 this.countsBehaviorSubject.error('EventSource error:::' + err.statusText);
             }
         });
-        this.myListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
     }
     getNewsSubject(id: string): BehaviorSubject<NewsPayload[]> {
         switch (id) {
@@ -104,9 +114,9 @@ export class ReactiveStreamsService {
         }
     }
     setListeners(id: string, random: number) {
+        console.log('setListeners! --> top-news-'+id);
         this.setFirstListeners(id, random);
-        this.newsEventSource.addEventListener('top-news-' + id, this.myListener.bind(this, true, false), true);
-
+        this.newsEventSource.addEventListener('top-news-' + id, this.meListener, true);
         this.newsEventSource.addEventListener('user-counts-' + id, event => {
             const userCounts = JSON.parse(event.data);
             this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
@@ -138,20 +148,23 @@ export class ReactiveStreamsService {
         });
     }
     setFirstListeners(id: string, random: number) {
+        console.log('setFirstListeners! top-news-people- top-news-tags- --> top-news-'+id + '-' + random);
         if (this.topList.has('top-news-' + id)) {
             if (this.topList.get('top-news-' + id).includes('other')) {
+                console.log('at setFirstListeners! do resetOtherListListeners --> top-news-'+id);
                 this.resetOtherListListeners(id);
                 this.topList.set('top-news-' + id, this.topList.get('top-news-' + id).filter(fer => fer !== 'other'));
             }
-            else {
+            else if (this.topList.get('top-news-' + id).includes('follow')) {
+                console.log('at setFirstListeners! do resetUserListListeners --> top-news-'+id);
                 this.resetUserListListeners(id);
                 this.topList.set('top-news-' + id, this.topList.get('top-news-' + id).filter(fer => fer !== 'follow'));
             }
         }
         this.topList.set('top-news-' + id, ['me']);
-        this.newsEventSource.addEventListener('top-news-' + id + '-' + random, this.myListener.bind(this, true, false), true);
-        this.newsEventSource.addEventListener('top-news-people-' + id + '-' + random, this.myListener.bind(this, false, false), true);
-        this.newsEventSource.addEventListener('top-news-tags-' + id + '-' + random, this.myListener.bind(this, false, false), true);
+        this.newsEventSource.addEventListener('top-news-' + id + '-' + random, this.meListener, true);
+        this.newsEventSource.addEventListener('top-news-people-' + id + '-' + random, this.myListener, true);
+        this.newsEventSource.addEventListener('top-news-tags-' + id + '-' + random, this.myListener, true);
 
         // this.newsEventSource.addEventListener('top-news-tags-' + id + '-' + random, event => {
         //     const topNews = JSON.parse(event.data);
@@ -167,15 +180,19 @@ export class ReactiveStreamsService {
     addToSubjectSingle = (subj: BehaviorSubject<NewsPayload[]>, event: any) => {
         const topNews = JSON.parse(event.data);
         const list = subj.getValue();
+        console.log('addToSubjectSingle --> '+event.type+' :: list size --> '+list.length+' :: event lastEventId --> '+event.lastEventId);
         this.zone.run(() => subj.next([...list, ...topNews.list]));
     }
     listenIt = (isMe, isOther, event: any) => {
         if (isMe) {
+            console.log('listenIt --> '+event.type+' :: event lastEventId --> '+event.lastEventId+' :: isMe --> '+isMe+' :: isOther --> '+isOther);
             this.addToSubjectSingle(this.getNewsSubject('me'), event);
         } else if (isOther) {
+            console.log('listenIt --> '+event.type+' :: event lastEventId --> '+event.lastEventId+' :: isMe --> '+isMe+' :: isOther --> '+isOther);
             this.addToSubjectSingle(this.getNewsSubject('other'), event);
             this.publicStreamList$.set(event.type.split('-')[2].substring(1), this.publicBehaviorSubject.getValue());
         } else if (event.lastEventId === 'people'||event.lastEventId === 'tags') {
+            console.log('listenIt --> '+event.type+' :: event lastEventId --> '+event.lastEventId+' :: isMe --> '+isMe+' :: isOther --> '+isOther);
             this.addToSubjectSingle(this.getNewsSubject(event.lastEventId), event);
         } else if (event.lastEventId === 'me') {
             this.addToSubject(this.getNewsSubject('people'), event);
@@ -206,16 +223,22 @@ export class ReactiveStreamsService {
         });
     }
     resetUserListListeners(id: string, isMe = false) {
+        console.log('resetUserListListeners! --> '+id);
         this.newsEventSource.removeEventListener('top-news-' + id, this.myListener, true);
         this.newsEventSource.removeEventListener('top-news-' + id + '-' + this.random, this.myListener, true);
         if (id.charAt(0) === '@') {
             const pj = this.npeopleBehaviorSubject.getValue().filter(nh => nh.newsOwnerId !== id.substring(1));
             this.npeopleBehaviorSubject.next(pj);
-            if (isMe) this.meBehaviorSubject.next([]);
+            if (isMe) {
+                this.meBehaviorSubject.next([]);
+                this.topList.set('top-news-' + id, this.topList.get('top-news-' + id).filter(fer => fer !== 'me'));
+            }
             this.topList.set('top-news-' + id, this.topList.get('top-news-' + id).filter(fer => fer !== 'follow'));
+            console.log('after resetUserListListeners npeopleBehaviorSubject length --> '+this.npeopleBehaviorSubject.getValue().length);
         } else {
             const tj = this.ntagBehaviorSubject.getValue().filter(nh => !nh.tags.includes(id));
             this.ntagBehaviorSubject.next(tj);
+            console.log(' after resetUserListListeners ntagBehaviorSubject length --> '+this.ntagBehaviorSubject.getValue().length);
         }
     }
     setUserListListeners(id: string, random: number) {
@@ -223,24 +246,37 @@ export class ReactiveStreamsService {
             if (this.topList.get('top-news-' + id)) this.topList.get('top-news-' + id).push('follow');
             else this.topList.set('top-news-' + id, ['follow']);
         }
-        this.newsEventSource.addEventListener('top-news-' + id + '-' + random, this.myListener.bind(this, false, false), true);
-        this.newsEventSource.addEventListener('top-news-' + id, this.myListener.bind(this, false, false), true);
+        this.newsEventSource.addEventListener('top-news-' + id + '-' + random, this.myListener, true);
+        this.newsEventSource.addEventListener('top-news-' + id, this.myListener, true);
     }
     resetOtherListListeners(id: string, isMe = false) {
-        this.newsEventSource.removeEventListener('top-news-' + id, this.myListener, true);
-        this.newsEventSource.removeEventListener('top-news-' + id + '-' + this.random, this.myListener, true);
+        console.log('resetOtherListListeners! --> '+id);
+        this.newsEventSource.removeEventListener('top-news-' + id, this.heListener, true);
+        this.newsEventSource.removeEventListener('top-news-' + id + '-' + this.random, this.heListener, true);
+        if (isMe) {
+            this.newsEventSource.removeEventListener('top-news-' + id, this.meListener, true);
+            this.newsEventSource.removeEventListener('top-news-' + id + '-' + this.random, this.meListener, true);
+            this.meBehaviorSubject.next([]);
+            this.topList.set('top-news-' + id, this.topList.get('top-news-' + id).filter(fer => fer !== 'me'));
+        } else {
+            this.publicBehaviorSubject.next([]);
+            this.topList.set('top-news-' + id, this.topList.get('top-news-' + id).filter(fer => fer !== 'other'));
+        }
     }
     resetNavListListeners(id: string) {
-        this.newsEventSource.removeEventListener('top-news-tags-' + id, this.myListener, true);
+        console.log('resetNavListListeners! --> '+id);
+        this.resetOtherListListeners(id, true);
         this.newsEventSource.removeEventListener('top-news-tags-' + id + '-' + this.random, this.myListener, true);
-        this.newsEventSource.removeEventListener('top-news-people-' + id, this.myListener, true);
         this.newsEventSource.removeEventListener('top-news-people-' + id + '-' + this.random, this.myListener, true);
+        this.npeopleBehaviorSubject.next([]);
+        this.ntagBehaviorSubject.next([]);
+        this.unsubscribeResource();
     }
     setOtherListener(id: string, random: number) {
         if (!this.topList.has('top-news-' + id)) {
             this.topList.set('top-news-' + id, ['other']);
-            this.newsEventSource.addEventListener('top-news-' + id + '-' + random, this.myListener.bind(this, false, true), true);
-            this.newsEventSource.addEventListener('top-news-' + id, this.myListener.bind(this, false, true), true);
+            this.newsEventSource.addEventListener('top-news-' + id + '-' + random, this.heListener, true);
+            this.newsEventSource.addEventListener('top-news-' + id, this.heListener, true);
             this.newsEventSource.addEventListener('user-counts-' + id, event => {
                 const userCounts = JSON.parse(event.data);
                 this.zone.run(() => this.countsBehaviorSubject.next(userCounts));
@@ -259,6 +295,7 @@ export class ReactiveStreamsService {
         console.log('Event Sources closed!');
     }
     unsubscribeResource() {
+        console.log('unsubscribeResource! --> '+this.random);
         fetch('/sse/unsubscribe', {
             keepalive: true,
             method: 'PATCH',

@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     _activeLink: string;
     navSlide = 0;
     hght: number;
-   // newsList$: NewsPayload[];
+    // newsList$: NewsPayload[];
     othersList$: NewsPayload[];
 
 
@@ -61,17 +61,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     ) {
         if (this.newsService.callToggle.observers.length === 0) {
             this.newsService.callToggle.subscribe((data) => {
-            //    if (data <= 0) {
-                    console.log('move to --> '+data+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink);
-                    this.navSlide = data;
-                    const index=this.links.indexOf(this.newsService.activeLink);
-                    this.currentSlide = index===-1||this.links[this.currentSlide] === this.newsService.activeLink?this.currentSlide:index;
-                    console.log('move to --> '+data+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink);
-                    this.onNavClick(this.loggedUser?this.newsService.activeLink:this.links[-data], index===-1?this.navSlide:index);
-                    // setTimeout(() => {
-                    //     winRef.nativeWindow.location.reload();
-                    // }, 55);
-            //    }
+                //    if (data <= 0) {
+                console.log('move to --> ' + data + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser);
+                this.navSlide = data;
+                const index = this.links.indexOf(this.newsService.activeLink);
+                this.currentSlide = index === -1 || this.links[this.currentSlide] === this.newsService.activeLink ? this.currentSlide : index;
+                console.log('move to --> ' + data + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: index --> ' + index);
+                this.onNavClick(this.loggedUser ? this.newsService.activeLink : this.links[-data], index);
+                // setTimeout(() => {
+                //     winRef.nativeWindow.location.reload();
+                // }, 55);
+                //    }
                 //  else {
                 //     this.navSlide = data;
                 //     this.currentSlide = data;
@@ -165,25 +165,82 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.destroy.complete();
     }
 
-    onNavClick(link: string, index=0) {
-        if (index===-1&&this.currentSlide===0) {
-            this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
-            this.newsService.activeLink=this.links[this.currentSlide];
-        }
-        else if (link === this.links[0] || this.service.loggedUser) {
-            let milink = this.links.indexOf(this.newsService.activeLink);
-            this.newsService.activeLink = link;
-            if (milink === -1) {
-                this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
-                milink += 1;
+    onNavClick(link: string, index = 0) {
+        if (index === -1) {
+            if (!this.loggedUser) {
+                if (this.navSlide === 0) {
+                    this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+                    this.newsService.activeLink = this.links[this.currentSlide];
+                    this.newsService.callTag.next(this.activeLink);
+                    console.log('first move to --> ' + link + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser + ' :: index --> ' + index + ' :: nav slide --> ' + this.navSlide);
+                } else {
+                    console.log('second move to --> ' + link + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser + ' :: index --> ' + index + ' :: nav slide --> ' + this.navSlide);
+                    this.service.redirectUrl = '/home';
+                    this.newsService.activeLink = link;
+                    this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+                    this.router.navigate(['/loginin']);
+                }
+            } else {
+                if (this.navSlide === 0) {
+                    this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+                    this.newsService.activeLink = this.links[this.currentSlide];
+                    this.newsService.callTag.next(this.activeLink);
+                    console.log('third move to --> ' + link + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser + ' :: index --> ' + index + ' :: nav slide --> ' + this.navSlide);
+                } else {
+                    console.log('fourth move to --> ' + link + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser + ' :: index --> ' + index + ' :: nav slide --> ' + this.navSlide);
+                    let milink = this.links.indexOf(this.newsService.activeLink);
+                    this.newsService.activeLink = link;
+                    if (milink === -1) {
+                        this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+                        milink += 1;
+                        if (this.navSlide === 0) this.newsService.activeLink = this.links[0];
+                    }
+                    this.slideIn(this.navSlide !== 0 ? this.navSlide : milink - this.links.indexOf(link));
+                } 
             }
-            this.slideIn(this.navSlide !== 0 ? this.navSlide : milink - this.links.indexOf(link));
         } else {
-            this.service.redirectUrl = '/home';
-            this.newsService.activeLink = link;
-           if(index!==0) this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
-            this.router.navigate(['/loginin']);
+            if (!this.loggedUser) {
+                console.log('fifth move to --> ' + link + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser + ' :: index --> ' + index + ' :: nav slide --> ' + this.navSlide);
+                this.service.redirectUrl = '/home';
+                this.newsService.activeLink = link;
+                if(this.newsService.list$)this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+                this.router.navigate(['/loginin']);
+            } else {
+                console.log('sixth move to --> ' + link + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser + ' :: index --> ' + index + ' :: nav slide --> ' + this.navSlide);
+                let milink = this.links.indexOf(this.newsService.activeLink);
+                this.newsService.activeLink = link;
+                if (milink === -1) {
+                    this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+                    milink += 1;
+                    if (this.navSlide === 0) this.newsService.activeLink = this.links[0];
+                }
+                this.slideIn(this.navSlide !== 0 ? this.navSlide : milink - this.links.indexOf(link));
+            }
         }
+
+        // if (!this.loggedUser&&index===-1&&this.navSlide===0) {
+        //     this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+        //     this.newsService.activeLink=this.links[this.currentSlide];
+        //     this.newsService.callTag.next(this.activeLink);
+        //     console.log('move to --> '+link+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink+' :: is user undefined--> '+!this.loggedUser+' :: index --> '+index);
+        // }
+        // else if (link === this.links[0] || this.service.loggedUser) {
+        //     console.log('move to --> '+link+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink+' :: is user undefined--> '+!this.loggedUser+' :: index --> '+index+' :: nav slide --> '+this.navSlide);
+        //     let milink = this.links.indexOf(this.newsService.activeLink);
+        //     this.newsService.activeLink = link;
+        //     if (milink === -1) {
+        //         this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+        //         milink += 1;
+        //         if (this.navSlide===0) this.newsService.activeLink = this.links[0];
+        //     }
+        //     this.slideIn(this.navSlide !== 0 ? this.navSlide : milink - this.links.indexOf(link));
+        // } else {
+        //     console.log('move to --> '+link+' :: currentSlide --> '+this.currentSlide+' :: active --> '+this.newsService.activeLink+' :: is user undefined--> '+!this.loggedUser+' :: index --> '+index);
+        //     this.service.redirectUrl = '/home';
+        //     this.newsService.activeLink = link;
+        //    if(index!==0) this.reactiveService.getNewsSubject('main').next(this.newsService.list$);
+        //     this.router.navigate(['/loginin']);
+        // }
     }
     slideIn = (diff) => {
         while (diff !== 0) {
@@ -247,8 +304,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement.isConnected ? this.carousel.nativeElement : this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
         this.player.onDone(() => {
-           console.log('player is done next animation --> '+this.player.totalTime);
-           this.newsService.endPlayer.next(true);
+            console.log('player is done next animation --> ' + this.player.totalTime);
+            this.newsService.endPlayer.next(true);
         });
         this.player.play();
         this.newsService.activeLink = this.links[this.currentSlide];
@@ -269,9 +326,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement.isConnected ? this.carousel.nativeElement : this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
         this.player.onDone(() => {
-            console.log('player is done prev animation --> '+this.player.totalTime);
+            console.log('player is done prev animation --> ' + this.player.totalTime);
             this.newsService.endPlayer.next(true);
-         });
+        });
         this.player.play();
         this.newsService.activeLink = this.links[this.currentSlide];
     }
