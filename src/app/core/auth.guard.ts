@@ -89,7 +89,6 @@ export class AuthGuard implements CanActivate, OnDestroy {
                         return resolve(true);
                     });
             }
-
         });
     }
 }
