@@ -10,14 +10,12 @@ export interface AppWindow extends Window {
 }
 
 const { webkitSpeechRecognition, mozSpeechRecognition, SpeechRecognition, msSpeechRecognition }: AppWindow = (window as any) as AppWindow;
-
 export interface RecognitionResult {
     transcript?: string;
     info?: string;
     confidence?: number;
     error?: SpeechError;
 }
-
 export enum SpeechError {
     NO_SPEECH,
     NO_MICROPHONE,
@@ -27,16 +25,13 @@ export enum SpeechError {
 
 @Injectable({ providedIn: 'root' })
 export class SpeechService {
-
     _supportRecognition: boolean;
     _speech: SpeechRecognition;
     private speechSubject = new BehaviorSubject<RecognitionResult>({transcript: 'Start Speaker!'});
-
     ignoreOnEnd: boolean;
     startTimestamp: any;
     utterance: SpeechSynthesisUtterance;
     private _mitext = '';
-
     constructor(private zone: NgZone, protected http: HttpClient) {
     }
     public init(): void {
@@ -54,7 +49,6 @@ export class SpeechService {
             this._supportRecognition = false;
         }
         this.utterance = new SpeechSynthesisUtterance();
-
         console.log(`Speech supported: ${this._supportRecognition}`);
     }
     startSpeech(timestamp: any) {
@@ -115,7 +109,6 @@ export class SpeechService {
                     finalTranscript += event.results[i][0].transcript;
                 } else {
                     interimTranscript += event.results[i][0].transcript;
-                    console.log('interim transcript', event, interimTranscript);
                 }
             }
             this.zone.run(() => {
@@ -128,7 +121,6 @@ export class SpeechService {
                     transcript: interimTranscript
                 });
             });
-
         };
     }
     stop() {
@@ -149,7 +141,6 @@ export class SpeechService {
     say = (options) => {
         this.utterance.lang = options.lang;
         this.utterance.text = options.text;
-
         window.speechSynthesis.speak(this.utterance);
     }
 }

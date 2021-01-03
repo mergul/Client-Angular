@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NewsDetailsComponent } from './news-details.component';
-import { MediaSourceComponent } from '../media-source/media-source.component';
+// import { MediaSourceComponent } from '../media-source/media-source.component';
 import { MediaSocialComponent } from '../media-social/media-social.component';
 import { NewsManageComponent } from '../news-manage/news-manage.component';
 // import {StackedModalModule} from '../stacked-modal/stacked-modal.module';
@@ -33,7 +33,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [DialogDetailsContainerComponent, NewsDetailsComponent,
-    MediaSourceComponent, MediaSocialComponent, NewsManageComponent, FilesListComponent, PostComponent],
+    MediaSocialComponent, NewsManageComponent, FilesListComponent, PostComponent],
   imports: [
     CommonModule, RouterModule.forChild(routes),
     FormsModule, MatDialogModule,
@@ -53,7 +53,7 @@ const routes: Routes = [
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [DialogDetailsContainerComponent, NewsDetailsComponent,
-    MediaSourceComponent, MediaSocialComponent, FilesListComponent,
+    MediaSocialComponent, FilesListComponent,
     NewsManageComponent, PostComponent, CommonModule, FormsModule]
 })
 export class NewsDetailsModule { }

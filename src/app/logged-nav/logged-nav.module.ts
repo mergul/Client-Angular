@@ -16,12 +16,6 @@ const routes: Routes = [
   import('../multi-files-upload/multi-files-upload.module').then(m => m.MultiFilesUploadModule)},
   {path: 'camera', loadChildren: () =>
   import('../camera/camera.module').then(m => m.CameraModule)},
-  // {path: 'admin', loadChildren: () =>
-  // import('../admin/admin.module').then(m => m.AdminModule)},
-  // {path: 'talepler', loadChildren: () =>
-  // import('../user-selections/user-selections.module').then(m => m.UserSelectionsModule)},
-  // {path: 'money', loadChildren: () =>
-  // import('../money-manage/money-manage.module').then(m => m.MoneyManageModule)},
 ];
 
 @NgModule({

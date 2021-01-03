@@ -9,8 +9,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 })
 export class FilesThumbnailsComponent implements OnInit {
   private _thumbs: Array<string>;
-  private _cycle: number;
-  constructor(private service: MultiFilesService, protected sani: DomSanitizer) { }
+  constructor(private service: MultiFilesService, protected sanitizer: DomSanitizer) { }
 
   ngOnInit() {
   }

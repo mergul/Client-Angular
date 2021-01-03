@@ -40,7 +40,6 @@ export class FilesListComponent implements OnInit {
 
     set thumbName(thumbName: string) {
         const ja = thumbName.lastIndexOf('.');
-       // this._thumbName = thumbName.slice(0, ja) + '.jpeg';
         if (!this._imgUrl) {
             if (thumbName.startsWith('medium-')) {
                 this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
@@ -63,8 +62,6 @@ export class FilesListComponent implements OnInit {
                 }
             }
             this._thumbName = thumbName.startsWith('amedium-')?thumbName.slice(1):thumbName;
-            // this.getUrlReview(this._thumbName).then(value => this.imgUrl = value);
-          // this.imgUrl = 'https://storage.googleapis.com/sentral-news-media/' + thumbName;
           this._imgUrl = this.sanitizer.bypassSecurityTrustUrl('assets/' + this._thumbName);
         }
     }

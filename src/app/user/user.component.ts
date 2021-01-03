@@ -63,11 +63,9 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
             rght = `${3 * (myWis) / 350}px`;
         }
         this.listStyle = {
-            // width: `${(myWis) / 3.5}px`,
             minWidth: this.isMobile ? `auto` : `390px`,
             marginRight: rght,
             marginLeft: lft
-           // display: `${(myWis > 780) ? 'block' : 'none'}`
         };
         this.compStyle = {
             width: `${mwidth}px`,
@@ -76,7 +74,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         if (!this.userService.dbUser || this.userService.dbUser.id.length !== 24) {
             this.route.data.pipe(takeUntil(this.onDestroy)).subscribe(routeData => {
                 const data = routeData['data'];
-                //           this.boolUser = this.location.path() === '/user/edit' ? of(1) : of(0);
                 if (data) {
                     if (!this.reactiveService.statusOfNewsSource()) {
                         this.reactiveService.getNewsStream(this.reactiveService.random, this.newslistUrl);
@@ -124,9 +121,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         this.boolUser = of(1);
         return this.router.navigateByUrl(url);
     }
-    // moneyClick() {
-    //     return this.router.navigateByUrl('/money');
-    // }
     proClick(people: string[]) {
         this.renderer.removeClass(this.myInput.nativeElement, 'active') ;
         this._userIds = people;
@@ -153,7 +147,6 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     deleteClick() {
         if (window.confirm('Are sure you want to delete this item ?')) {
             console.log('Implement delete functionality here');
-            // this.userService.deleteUser(this.loggedUser).subscribe();
         }
     }
     accountHistory() {

@@ -1,6 +1,6 @@
 <div *ngIf="booled" class="container">
   <div class="row">
-    <div class="">
+    <div>
       <form *ngIf="_user" [formGroup]="profileForm">
         <div class="form-group">
           <label>Name</label>
@@ -34,7 +34,6 @@
         <div class='error' *ngIf="profileForm.controls.password2.touched">
           <div class="alert-danger errormessageadduser" *ngIf="profileForm.hasError('mismatchedPasswords')">Passwords do not match</div>
         </div>
-
         <button id="kaydet" [disabled]="profileForm.pristine||(profileForm.hasError('mismatchedPasswords')||!profileForm.controls.email.valid||!profileForm.controls.iban.valid)" type="submit" (click)="trySave(profileForm.value)" class="butto ripple button-outline">Kaydet
         </button>
       </form>

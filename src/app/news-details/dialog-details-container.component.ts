@@ -16,10 +16,7 @@ export class DialogDetailsContainerComponent implements OnDestroy {
   destroy = new Subject<any>();
   currentDialog: MatDialogRef<NewsDetailsComponent> = null;
 
-  constructor(
-    private modalService: MatDialog,
-    private location: Location,
-    private route: ActivatedRoute, private winRef: WindowRef,
+  constructor( private modalService: MatDialog, private location: Location, private route: ActivatedRoute, private winRef: WindowRef,
     private router: Router, private service: NewsService
   ) {
     this.route.paramMap.pipe(takeUntil(this.destroy),
@@ -43,7 +40,6 @@ export class DialogDetailsContainerComponent implements OnDestroy {
           });
     });
   }
-
   ngOnDestroy() {
     this.destroy.next();
     this.destroy.complete();

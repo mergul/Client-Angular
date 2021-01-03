@@ -1,8 +1,4 @@
 <div class="newst" #dataContainer [style.minHeight]="hght+'px'">
-    <!-- <nav mat-tab-nav-bar>
-        <a mat-tab-link *ngFor="let link of links" (click)="onNavClick(link)" [active]="activeLink == link"
-            style="min-width: 33.3333%;"> {{link}} </a>
-    </nav> -->
     <div *ngIf="activeLink!=null&&(activeLink.charAt(0)=='@'|| activeLink.charAt(0)=='#')"
         style="/*text-align: center;*/margin-left: 29%; padding-top: 17px;">
         <button (click)="registerToTag(activeLink)" matTooltip="Takip Etmek İçin Tıkla" style="border: 0;width: auto;height: 40px;color: white; background: red;
@@ -16,7 +12,6 @@
             <a *ngFor="let tag of newsService.topTags | async"
                 (click)="onTagClick(tag.key);$event.stopPropagation();$event.preventDefault()"
                 style="width: 200px; cursor: pointer;"> {{tag.key}}</a>
-
         </div>
         <div class="sliderrr-wrapper" [ngStyle]="carouselStyle">
             <div class="bx-wrapper" [ngStyle]="miCarouselStyle">
@@ -35,6 +30,5 @@
             <app-ads></app-ads>
         </div>
     </div>
-
 </div>
 <router-outlet></router-outlet>

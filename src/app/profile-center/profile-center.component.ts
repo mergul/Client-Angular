@@ -4,7 +4,7 @@ import { NewsService } from '../core/news.service';
 import { Observable, of, Subject } from 'rxjs';
 import { User } from '../core/user.model';
 import { NewsPayload } from '../core/news.model';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
 
 @Component({
@@ -14,7 +14,6 @@ import { ReactiveStreamsService } from '../core/reactive-streams.service';
   styleUrls: ['./profile-center.component.scss']
 })
 export class ProfileCenterComponent implements OnInit, OnDestroy {
-  private readonly onDestroy = new Subject<void>();
   private _isPub: Observable<boolean>;
   _user: User;
   public _newsList: Observable<NewsPayload[]>;
@@ -102,11 +101,7 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
         }
         this._newsList = this.service.meStreamList$;
       } else {
-        // if (!this.reactiveService.publicStreamList$.get(this._user.id)) {
-        //   this.reactiveService.setOtherListener('@' + this.user.id, this.reactiveService.random, false);
-        //   this.service.setNewsUser('@' + this.user.id, this.reactiveService.random).pipe(takeUntil(this.onDestroy)).subscribe();
-        // } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(this._user.id)); }
-        this._newsList = this.reactiveService.getMessage('other-person');
+          this._newsList = this.reactiveService.getMessage('other-person');
       }
       return this._newsList;
     })).subscribe();
@@ -134,8 +129,6 @@ export class ProfileCenterComponent implements OnInit, OnDestroy {
     this.service.setNewsList(['@' + username], true);
   }
   ngOnDestroy(): void {
-    this.onDestroy.next();
-    this.onDestroy.complete();
   }
   receiveMessage($event) {
     this.boolUser = $event;

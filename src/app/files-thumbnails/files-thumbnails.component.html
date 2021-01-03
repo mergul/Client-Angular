@@ -1,39 +1,8 @@
 <div *ngFor="let url of thumbs; let i = index;" class="preview">
-  <img *ngIf="url" [src]="sani.bypassSecurityTrustUrl(url)" class="" width="174"
-       height="109">
-  <div style="width: 174px; text-align: center;background-color: ghostwhite;
-">
+  <img *ngIf="url" [src]="sanitizer.bypassSecurityTrustUrl(url)" class="" width="174" height="109">
+  <div style="width: 174px; text-align: center;background-color: ghostwhite;">
     <button mat-icon-button (click)="removeItem(i)" class="btn btn-sm btn-danger">
       <img src="../assets/xicon.png" width="30px">
     </button>
   </div>
 </div>
-<!--<table>
-<tbody>
-<tr>
-  <td><img *ngIf="thumbs[0]" [src]="thumbs[0]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[1]" [src]="thumbs[1]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[2]" [src]="thumbs[2]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[3]" [src]="thumbs[3]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[4]" [src]="thumbs[4]" class="rounded mb-3" width="120"
-           height="67"></td>
-</tr>
-<tr>
-  <td><img *ngIf="thumbs[5]" [src]="thumbs[5]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[6]" [src]="thumbs[6]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[7]" [src]="thumbs[7]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[8]" [src]="thumbs[8]" class="rounded mb-3" width="120"
-           height="67"></td>
-  <td><img *ngIf="thumbs[9]" [src]="thumbs[9]" class="rounded mb-3" width="120"
-           height="67"></td>
-</tr>
-</tbody>
-</table>
--->

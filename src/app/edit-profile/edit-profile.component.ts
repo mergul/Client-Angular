@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import { Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserService} from '../core/user.service';
 import {matchingPasswords} from '../register/validators';
@@ -14,9 +14,7 @@ import { ReactiveStreamsService } from '../core/reactive-streams.service';
     templateUrl: './edit-profile.component.html',
     styleUrls: ['./edit-profile.component.scss']
 })
-export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
-   // showModal: Observable<boolean> = of(false);
-    listenerFn: () => void;
+export class EditProfileComponent implements OnInit, OnDestroy {
     public profileForm: FormGroup;
     errorMessage = '';
     successMessage = '';
@@ -24,22 +22,25 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
     user$: FirebaseUserModel = new FirebaseUserModel();
     private _booled: boolean;
     private readonly onDestroy = new Subject<void>();
-
     constructor(private formBuilder: FormBuilder,
                 private userService: UserService,
                 private authService: AuthService, private reactiveService: ReactiveStreamsService) {
         this.createForm();
     }
-
     @Input()
     get user(): User {
         return this._user ? this._user : this.userService.dbUser;
     }
-
     set user(value: User) {
         this._user = value;
     }
-
+    @Input()
+    get booled(): boolean {
+        return this._booled;
+    }
+    set booled(value: boolean) {
+        this._booled = value;
+    }
     ngOnInit() {
         this.reactiveService.getMessage('user-history').pipe(takeUntil(this.onDestroy)).subscribe(value => {
             if (value && value.length > 0) {
@@ -47,7 +48,6 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         });
     }
-
     createForm() {
         this.profileForm = this.formBuilder.group({
             name: ['', Validators.required],
@@ -83,39 +83,12 @@ export class EditProfileComponent implements OnInit, AfterViewInit, OnDestroy {
             }
         }
     }
-
-    ngAfterViewInit() {
-        // this.showModal = of(true);
-    }
-
-    onClose() {
-      //  this.showModal = of(false);
-        // Allow fade out animation to play before navigating back
-        // setTimeout(
-        //     () => this.location.back(), // this.router.navigate(['/']),
-        //     100
-        // );
-    }
-
     onDialogClick(event: UIEvent) {
         event.stopPropagation();
         event.cancelBubble = true;
     }
-
     ngOnDestroy() {
-        if (this.listenerFn) {
-            this.listenerFn();
-        }
         this.onDestroy.next();
         this.onDestroy.complete();
-    }
-
-    @Input()
-    get booled(): boolean {
-        return this._booled;
-    }
-
-    set booled(value: boolean) {
-        this._booled = value;
     }
 }

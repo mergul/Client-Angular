@@ -87,7 +87,6 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
     }
 
     manageFollow() {
-       // const fet = ['people'];
         if (!this.folli) {
             this.userService.manageFollowingTag('@' + this._user.id, true).pipe(takeUntil(this.onDestroy)).subscribe(value => {
                 this.folli = value;
@@ -95,10 +94,6 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
                 this.userService.newsCo.get(this.userService.links[2]).push('@' + this._user.id);
                 this.renderer.setProperty(this.followButton.nativeElement, 'innerHTML', 'Takip Kes');
             });
-            // this.userService.dbUser.users.forEach(usr => fet.push(encodeURIComponent('@' + usr)));
-            // fet.push(encodeURIComponent('@' + this._user.id));
-            // fet.push(encodeURIComponent('@' + this.userService.dbUser.id));
-
         } else {
             this.userService.manageFollowingTag('@' + this._user.id, false).pipe(takeUntil(this.onDestroy)).subscribe(value => {
                 this.folli = !value;
@@ -107,12 +102,6 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
                 this.userService.newsCo.get(this.userService.links[2]).splice(ind, 1);
                 this.renderer.setProperty(this.followButton.nativeElement, 'innerHTML', 'Takip Et');
             });
-            // this.userService.dbUser.users.forEach(usr => {
-            //     if (usr !== this._user.id) { fet.push(encodeURIComponent('@' + usr)); }
-            // });
-           // fet.push(encodeURIComponent('@' + this.userService.dbUser.id));
-
         }
-       // this.subscription_newslist = this.userService.setInterests(fet).pipe(takeUntil(this.onDestroy)).subscribe();
     }
 }

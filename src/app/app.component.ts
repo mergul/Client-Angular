@@ -1,4 +1,4 @@
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, NgZone, Renderer2, Inject} from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
@@ -18,8 +18,6 @@ import { ScriptLoaderService } from './core/script-loader.service';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
-    private readonly onDestroy = new Subject<void>();
-    isFontsLoaded = false;
     newsCounts$: Map<string, string> = new Map<string, string>();
     links = ['En Çok Okunanlar', 'Takip Edilen Etiketler', 'Takip Edilen Kişiler'];
     user: FirebaseUserModel;
@@ -65,7 +63,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         return of(this.service.loggedUser != null);
     }
     ngOnDestroy(): void {
-        this.onDestroy.next();
     }
     btnClick(url: string) {
         this.router.navigateByUrl(url);

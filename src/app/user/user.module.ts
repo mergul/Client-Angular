@@ -15,7 +15,6 @@ const routes: Routes = [
   }
 ];
 
-
 @NgModule({
   declarations: [
     UserComponent, IbanValidatorDirective

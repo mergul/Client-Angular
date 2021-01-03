@@ -12,7 +12,6 @@ span.mat-button-wrapper {
   border: none;
   cursor: pointer;
 }
-
 @media only screen and (max-width: 1079px) {
   span.notification {
     visibility: hidden;
@@ -27,7 +26,6 @@ span.mat-button-wrapper {
 div.right-side{
   display: flex;
   justify-content: center;
- // float: right;
 }
 .fes{
   max-width: 150px;

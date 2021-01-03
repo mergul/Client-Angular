@@ -1,17 +1,12 @@
 <div *ngIf="(boolUser|async) === 1" style="display: grid;">
-  <!--<img align="left" class="fb-image-lg" src="http://lorempixel.com/850/280/nightlife/5/" alt="Profile image example"/>-->
   <label class="hoverable2 fb-image-lg thumbnail" for="fileInput1">
-    <!--          <app-remote-project-file *ngIf="bimage"  [userProFile]="bimage" class="fb-image-lg"></app-remote-project-file>-->
     <img *ngIf="back_url" align="left" class="fb-image-lg" [src]="back_url" alt="asel">
     <div class="hover-text2">Choose file</div>
     <div class="background"></div>
   </label>
   <br/>
   <input id="fileInput2" type='file' (change)="onSelectFile($event, 0)">
-  <!--        <button *ngIf="url" (click)="delete()" >delete</button>-->
-  <!--<img align="left" class="fb-image-profile thumbnail" [src]="_user.image" alt="Card image cap">-->
   <label class="hoverable1 fb-image-lg thumbnail" for="fileInput2">
-    <!--          <app-remote-project-file *ngIf="pimage" [userProFile]="pimage" class="fb-image-profile thumbnail" style="margin: 0"></app-remote-project-file>-->
     <img *ngIf="prof_url" align="left" class="fb-image-profile thumbnail" alt="asel"
          [src]="prof_url">
     <div class="hover-text1">Choose file</div>
@@ -19,11 +14,8 @@
   </label> 
   <br/>
   <input id="fileInput1" type='file' (change)="onSelectFile($event, 1)">
-  <!--        <button *ngIf="url" (click)="delete()" >delete</button>-->
 </div>
 <div *ngIf="(boolUser|async) !== 1" style="display: grid;">
-  <!--                <app-remote-project-file [userProFile]="userd.mediaParts[0].name==='back-img'?userd.mediaParts[0]:userd.mediaParts[1]" class="fb-image-lg"></app-remote-project-file>-->
-  <!--                <app-remote-project-file [userProFile]="userd.mediaParts[0].name!=='back-img'?userd.mediaParts[0]:userd.mediaParts[1]" class="fb-image-profile thumbnail" style="width: 17% !important;"></app-remote-project-file>-->
   <img *ngIf="back_url" align="left" class="fb-image-lg" [src]="back_url"/>
   <img *ngIf="prof_url" align="left" class="sfb-image-profile thumbnail" [src]="prof_url"/>
 </div>

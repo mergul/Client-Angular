@@ -7,7 +7,6 @@ import { Subject } from 'rxjs';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReqComponent } from '../req/req.component';
-import { NewsService } from '../core/news.service';
 import { WindowRef } from '../core/window.service';
 
 export const entryComponentsMap = {
@@ -37,14 +36,8 @@ export class GenericModalComponent implements OnDestroy {
         this.currentDialog = this.dialog.open(this.getClazz(this.location.path().slice(1)), dialogConfig);
         this.currentDialog.afterClosed().subscribe(result => {
             if (result && result !== '') {
-                // if (result==='/home') {
-                //     this.newsService.isConnected=false;
-                // }
                 this.router.navigateByUrl(result);
             } else { 
-                // if (this.newsService.preModalUrl==='/home') {
-                //     this.newsService.isConnected=false;
-                // }
                 this.location.back(); 
             }
           });
@@ -53,8 +46,6 @@ export class GenericModalComponent implements OnDestroy {
     public getClazz(name) {
         const factories = Array.of('upload', 'login', 'register', 'loginin');
         const factoryClass = <Type<any>>entryComponentsMap[factories.find((x: string) => x === name)];
-        //  const factory = this.resolver.resolveComponentFactory(entryComponentsMap.comp1);
-        //  const compRef = this.vcRef.createComponent(factory);
         return factoryClass;
     }
 

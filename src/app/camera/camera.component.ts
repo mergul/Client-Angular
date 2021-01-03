@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, Renderer2, ViewChild, OnDestroy, HostLis
 import { BehaviorSubject, from, Observable, Subject, zip } from 'rxjs';
 import { FormControl, Validators } from '@angular/forms';
 import { MatSelectChange } from '@angular/material/select';
-import { SignalingConnection } from '../core/SignalingConnection';
+import { SignalingConnection } from '../core/signaling.connection';
 import { SpeechService, RecognitionResult } from '../core/speech-service';
 import { map, takeUntil } from 'rxjs/operators';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';

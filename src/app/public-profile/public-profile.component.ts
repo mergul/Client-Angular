@@ -51,24 +51,18 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         private route: ActivatedRoute, private authService: AuthService,
         private location: Location, private winRef: WindowRef, private renderer: Renderer2,
         public service: NewsService, public domSanitizer: DomSanitizer) {
-        // this.router.routeReuseStrategy.shouldReuseRoute = function () {
-        //     return false;
-        // };
         if (!this.reactiveService.random) {
             this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
           }
           this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
     }
-
     @Input()
     get username(): string {
         return this._username;
     }
-
     set username(value: string) {
         this._username = value;
     }
-
     get newsCounts(): Map<string, string> {
         return this.service.newsCounts;
     }
@@ -91,11 +85,9 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
             rght = `${3 * (myWis) / 350}px`;
         }
         this.listStyle = {
-            // width: `${(myWis) / 3.5}px`,
             minWidth: this.isMobile ? `auto` : `390px`,
             marginRight: rght,
             marginLeft: lft
-            // display: `${(myWis > 1080) ? 'block' : 'none'}`
         };
         this.compStyle = {
             width: `${mwidth}px`,
@@ -120,7 +112,6 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     }
 
     tagClick(user: User) {
-        //  const fet = ['people'];
         if (!this.folli) {
             this.userService.manageFollowingTag('@' + user.id, true).pipe(takeUntil(this.onDestroy)).subscribe(value => {
                 this.folli = value;
@@ -129,9 +120,6 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                 this.userService.newsCo.get(this.userService.links[2]).push('@' + user.id);
                 this._user = of(user);
             });
-            // this.userService.dbUser.users.forEach(usr => fet.push(encodeURIComponent('@' + usr)));
-            // fet.push(encodeURIComponent('@' + user.id));
-            // fet.push(encodeURIComponent('@' + this.userService.dbUser.id));
         } else {
             this.userService.manageFollowingTag('@' + user.id, false).pipe(takeUntil(this.onDestroy)).subscribe(value => {
                 this.folli = !value;
@@ -141,12 +129,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                 this.userService.newsCo.get(this.userService.links[2]).splice(ind, 1);
                 this._user = of(user);
             });
-            // this.userService.dbUser.users.forEach(usr => {
-            //     if (usr !== user.id) { fet.push(encodeURIComponent('@' + usr)); }
-            // });
-            // fet.push(encodeURIComponent('@' + this.userService.dbUser.id));
         }
-        // this.subscription_newslist = this.userService.setInterests(fet).pipe(takeUntil(this.onDestroy)).subscribe();
     }
 
     getNewsByOwner(userId: string): Observable<Array<News>> {
@@ -174,7 +157,6 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                         }
                     }
                 }).catch(reason => {
-                    //  console.log('Bu mu dur', reason);
                     this.loggedID = '';
                     if (!this.userService._otherUser) {
                         this._user = this.userService._otherUser = this.findMother();
@@ -261,8 +243,6 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
                         }
                         this.folli = this.userService.loggedUser != null && this.userService.loggedUser.people.includes(user.id);
                         this.boolUser = of(0);
-                        //  this.getUsersByCounts(this.userID);
-                        //   this.newsList$ = this.service.getNewsByOwnerId(this.userID);
                     } else {
                         this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + 'profile-img.jpeg';
                         this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + 'back-img.jpeg';

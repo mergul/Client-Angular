@@ -1,69 +1,42 @@
-  h3 {
-    max-width: 200px;
-    text-align: center;
-    font-size: 1.75rem;
-    margin-bottom: .5rem;
-    font-weight: 500;
-    line-height: 1.2;
-    margin-top: 0;
-  }
-  .top-tags {
-    font-weight: 600;
-    color: #666666;
-    padding-right: 0px;
-    line-height: 1.5;
-    // max-width: 374.5px;
-    padding-left: 125px;
-    padding-top: 17px;
-  }
-
-  .mat-toolbar-single-row{
-    height: 80px;
-  }
-  
-  .newsm{
-    margin-bottom: 1px;
-    text-align: left;
-    display: flex;
-    width: 100%;
-  }
-  .mat-tab-label-active{
-    background: white;
-  }
-  .mat-tab-nav-bar{
-    width: 100%;
-    display: table;
-    margin: 0 auto;
-    text-align: -webkit-center;
-    background-color: #f3f3f3;
-  }
-
-  .mat-icon-button, .mat-icon{
-    width: 55px;
-    height: 55px;
-    line-height: 60px !important;
-    font-size: inherit;
-  }
-  
+h3 {
+  max-width: 200px;
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: .5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 0;
+}
+.top-tags {
+  font-weight: 600;
+  color: #666666;
+  padding-right: 0px;
+  line-height: 1.5;
+  padding-left: 125px;
+  padding-top: 17px;
+}
+.newsm{
+  margin-bottom: 1px;
+  text-align: left;
+  display: flex;
+  width: 100%;
+}
 .bx-wrapper .bx-pager .bx-pager-item,
 .bx-wrapper .bx-controls-auto .bx-controls-auto-item {
   display: inline-block;
   *zoom: -1;
   *display: inline;
 }
-
 .sliderrr-wrapper {
   overflow: hidden !important;
   visibility: visible;
 }
-
 .bx-wrapper {
   position: relative;
   margin: 0 auto 0;
   padding: 0;
   *zoom: -1;
 }
-
 .sliderrr a img {
   width: 360px;
   position: relative;
@@ -81,7 +54,6 @@
   -o-transform: translatez(0);
   transform: translatez(0);
 }
-
 .carousel-inner {
   display: flex;
   padding: 0px 0 0px 0;
@@ -93,29 +65,4 @@
   width: 100%;
   height: 100%;
   margin-top: 10px;
-}
-::ng-deep .mat-ink-bar {
-  background: purple !important;
-  height: 5px !important;
-}
-
-::ng-deep .mat-tab-label,::ng-deep .mat-tab-link {
-  color: #030303 !important;
-  opacity: 0.7 !important;
-  font-family: auto;
-  padding: 0 12px !important;
-}
-::ng-deep .mat-tab-label:active,::ng-deep  .mat-tab-link:active {
-  opacity: 0.9 !important;
-}
-::ng-deep .mat-tab-label:focus,::ng-deep .mat-tab-link:focus {
-  opacity: 0.8 !important;
-}
-
-::ng-deep .mat-tab-link {
-  border-left: 1px solid #e6e6e6;
-  white-space: normal !important;
-}
-::ng-deep .mat-tab-link:hover {
-  background-color: #fce8f4 !important;
 }

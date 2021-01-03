@@ -1,6 +1,5 @@
 import {Component, OnInit, Inject, AfterViewInit, OnDestroy, Renderer2, ViewChild, ElementRef, HostListener} from '@angular/core';
 import {FormBuilder, FormGroup, FormArray, FormControl} from '@angular/forms';
-
 import {MultiFilesService} from './multi-files.service';
 import {BackendServiceService} from '../core/backend-service.service';
 import {Observable, Subject, from} from 'rxjs';
@@ -180,16 +179,9 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             if ( this.isTopicActivated) {
                 this.renderer.setProperty(this.startTopButton.nativeElement, 'innerHTML', 'Stop Microphone');
                 this.renderer.removeClass(this.startTopButton.nativeElement, 'button-outline');
-                // this.renderer.setStyle(this.startTopButton.nativeElement, 'backgroundColor', '#d824ff');
-                // this.renderer.setStyle(this.startTopButton.nativeElement, 'borderColor', '#d824ff');
-                // this.renderer.setStyle(this.startTopButton.nativeElement, 'color', '#fff');
-
             } else {
                 this.renderer.setProperty(this.startDescButton.nativeElement, 'innerHTML', 'Stop Microphone');
                 this.renderer.removeClass(this.startDescButton.nativeElement, 'button-outline');
-                // this.renderer.setStyle(this.startDescButton.nativeElement, 'backgroundColor', '#d824ff');
-                // this.renderer.setStyle(this.startDescButton.nativeElement, 'borderColor', '#d824ff');
-                // this.renderer.setStyle(this.startDescButton.nativeElement, 'boxShadow', '#fff');
             }
         }
     }
@@ -273,20 +265,12 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                     const df = this.totalFiles[oldIndex].name.lastIndexOf('.');
                     const gd = this.totalFiles[oldIndex].name.slice(0, df) + '.jpeg';
                     this.thumbs.set(name + gd, blob);
-                    // this.backendService.getSignedUrl(name + gd)
-                    // .pipe(takeUntil(this.onDestroy)).subscribe(value => {
-                    //     this.signed.set(name + gd, value);
-                    // });
                     resolve(window.URL.createObjectURL(blob));
                 }, 'image/jpeg', 0.5);
             });
             if (videoFile.type) {
                 video.setAttribute('type', videoFile.type);
             }
-            // this.backendService.getSignedUrl(this.totalFiles[oldIndex].name)
-            // .pipe(takeUntil(this.onDestroy)).subscribe(value => {
-            //     this.signed.set(this.totalFiles[oldIndex].name, value);
-            // });
             video.preload = 'auto';
             video.src = URL.createObjectURL(videoFile);
             video.load();
@@ -342,10 +326,6 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                         const gd = this.totalFiles[oldIndex].name.slice(0, df) + '.jpeg';
                         this.thumbs.set(name + gd, blob);
                         this._url[oldIndex] = window.URL.createObjectURL(blob);
-                        // this.backendService.getSignedUrl(name + gd)
-                        // .pipe(takeUntil(this.onDestroy)).subscribe(value => {
-                        //     this.signed.set(name + gd, value);
-                        // });
                     }, 'image/jpeg', 0.5);
 
                     if (ra > rat) {
@@ -363,18 +343,10 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                         const df = this.totalFiles[oldIndex].name.lastIndexOf('.');
                         const gd = this.totalFiles[oldIndex].name.slice(0, df) + '.jpeg';
                         this.thumbs.set('medium-' + gd, blob);
-                        // this.backendService.getSignedUrl('medium-' + gd)
-                        // .pipe(takeUntil(this.onDestroy)).subscribe(value => {
-                        //     this.signed.set('medium-' + gd, value);
-                        // });
                     }, 'image/jpeg', 0.5);
                 };
             };
             reader.onloadend = () => {
-                // this.backendService.getSignedUrl(this.totalFiles[oldIndex].name)
-                // .pipe(takeUntil(this.onDestroy)).subscribe(value => {
-                //     this.signed.set(this.totalFiles[oldIndex].name, value);
-                // });
             };
             reader.readAsDataURL(fileInput);
         }
@@ -392,14 +364,12 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                 body: fes
             }).then(valuem => {
                 if (valuem.ok) {
-                 // console.log('Uploaded Successfully : ' + valuem.url);
                 }
             });
         });
     }
 
     public OnSubmit(formValue: any) {
-        // this.uploadToSignStorage();
         const AllFilesObj = [];
         let MediaPartObj = [];
         if (this.signed.size > 1) {

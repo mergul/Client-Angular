@@ -1,8 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 
-import { SelectivePreloadingStrategy } from './core/selective-preloading-strategy';
-
 const rootRouterConfig: Routes = [
     {path: '', redirectTo: '/home', pathMatch: 'full'},
     {path: 'home', loadChildren: () =>
@@ -27,8 +25,6 @@ const rootRouterConfig: Routes = [
         RouterModule.forRoot(
             rootRouterConfig,
             {
-                enableTracing: true, // <-- debugging purposes only
-                preloadingStrategy: SelectivePreloadingStrategy,
                 useHash: false
             }
         )
@@ -37,7 +33,6 @@ const rootRouterConfig: Routes = [
         RouterModule
     ],
     providers: [
-        SelectivePreloadingStrategy
     ]
 })
 export class AppRoutingModule {

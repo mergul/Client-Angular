@@ -9,7 +9,6 @@
 table{
     min-width: 420px;
 }
- 
 ::ng-deep .mat-dialog-container {
      overflow-y: hidden !important;
      padding: 12px !important;
@@ -54,32 +53,9 @@ table{
 .form-control{
     border-radius: 10px;
 }
-/* button:disabled {
-    cursor: not-allowed !important;
-    pointer-events: all !important;
-} */
 #file-input {
     cursor: cell;
 }
-/* #micro1, #micro2, #micro3 {
-    margin: 20px 0 -10px 35%;
-    color: #fff;
-    background-color: #1b00ff;
-    border-color: #1b00ff;
-    border: 1px solid transparent;
-    padding: .375rem .75rem;
-    border-radius: .25rem;
-    font-family: inherit;
-    font-weight: 400;
-    font-size: 17px;
-    height: auto;
-    width: 159px;
-    cursor: pointer;
-} */
-/* .mySubmit {
-    margin: 0 !important;
-    background-color: red !important;
-} */
 .example-full-width {
     width: 100%;
   }
@@ -101,11 +77,3 @@ mat-hint {
    color: red !important;
    font-size: 14px;
 }
-/* #closes {
-    height: 40px;
-    width: 100px;
-    background-color: ghostwhite;
-    border-radius: 10px;
-    font-size: 22px;
-    cursor: pointer;
-} */

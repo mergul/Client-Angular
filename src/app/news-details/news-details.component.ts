@@ -1,9 +1,4 @@
-import {
-    Component,
-    Input,
-    OnInit,
-    AfterViewInit,
-    OnDestroy, ViewChild, ElementRef, Renderer2, Inject, HostListener} from '@angular/core';
+import {Component, Input, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, Renderer2, Inject, HostListener} from '@angular/core';
 import { Observable, of, Subject, from, fromEvent } from 'rxjs';
 import { takeUntil, map, takeWhile } from 'rxjs/operators';
 import { News, Review } from '../core/news.model';

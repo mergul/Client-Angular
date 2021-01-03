@@ -1,11 +1,9 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, Inject, Renderer2, HostListener} from '@angular/core';
 import {AuthService} from '../core/auth.service';
-import {Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DOCUMENT } from '@angular/common';
 import { NewsService } from '../core/news.service';
-import { ReactiveStreamsService } from '../core/reactive-streams.service';
 import { UserService } from '../core/user.service';
 import { FirebaseUserModel } from '../core/user.model';
 import { of } from 'rxjs';
@@ -32,8 +30,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     constructor(
         private authService: AuthService, private newsService: NewsService,
         private fb: FormBuilder, public dialogRef: MatDialogRef<LoginComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
-        @Inject(DOCUMENT) private _document: Document, private reactiveService: ReactiveStreamsService,
-        private renderer: Renderer2, public userService: UserService
+        @Inject(DOCUMENT) private _document: Document, private renderer: Renderer2, public userService: UserService
     ) {
         this.createForm();
         this.color = data.color;

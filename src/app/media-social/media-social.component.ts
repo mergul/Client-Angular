@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable, of} from 'rxjs';
-import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-media-social',
@@ -13,17 +12,15 @@ export class MediaSocialComponent implements OnInit {
   text = '';
   imageUrl = '';
 
-  constructor(private location: Location) {
+  constructor() {
   }
   ngOnInit() {
     this.url = encodeURIComponent(location.href);
-
   }
   @Input()
   get social(): Observable<boolean> {
     return this._social;
   }
-
   set social(value: Observable<boolean>) {
     this._social = value;
   }
@@ -52,6 +49,4 @@ export class MediaSocialComponent implements OnInit {
     window.open(url, 'TwitterWindow');
     return false;
   }
-
-
 }

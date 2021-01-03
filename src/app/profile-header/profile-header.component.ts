@@ -1,8 +1,6 @@
 import {Component, Inject, Input, OnInit, OnDestroy} from '@angular/core';
 import {UserService} from '../core/user.service';
-import {ActivatedRoute} from '@angular/router';
-import {DomSanitizer} from '@angular/platform-browser';
-import {DOCUMENT, Location} from '@angular/common';
+import {DOCUMENT} from '@angular/common';
 import {Observable, Subject} from 'rxjs';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 
@@ -16,8 +14,7 @@ export class ProfileHeaderComponent implements OnInit, OnDestroy {
   private readonly onDestroy = new Subject<void>();
 
   constructor(public userService: UserService,
-              private route: ActivatedRoute, private domSanitizer: DomSanitizer,
-              private location: Location, @Inject(DOCUMENT) private document: Document) { }
+              @Inject(DOCUMENT) private document: Document) { }
 
   @Input()
   get boolUser(): Observable<number> {
@@ -68,10 +65,6 @@ export class ProfileHeaderComponent implements OnInit, OnDestroy {
   }
   onDumpPics(name: string, img: Blob) {
     const main_form: FormData = new FormData();
-    const obj = {
-      'name': name,
-      'content': img
-    };
     main_form.append(name, img);
     return this.userService.postUserImage(main_form)
     .pipe(takeUntil(this.onDestroy)).subscribe(value => value);
