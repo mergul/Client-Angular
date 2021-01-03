@@ -1,7 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HomeComponent } from './home.component';
 import { Routes, RouterModule } from '@angular/router';
-import { AdsComponent } from '../ads/ads.component';
 import { NewsListModule } from '../news-list/news-list.module';
 import { DialogDetailsContainerComponent } from '../news-details/dialog-details-container.component';
 import * as Hammer from 'hammerjs';
@@ -21,8 +20,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    HomeComponent,
-    AdsComponent
+    HomeComponent
   ],
   imports: [
     CommonModule, RouterModule.forChild(routes),
@@ -35,6 +33,6 @@ const routes: Routes = [
   ],
   bootstrap: [HomeComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [AdsComponent]
+  exports: []
 })
 export class HomeModule { }
