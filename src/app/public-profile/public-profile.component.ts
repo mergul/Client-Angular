@@ -91,7 +91,8 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         };
         this.compStyle = {
             width: `${mwidth}px`,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginTop: '17px'
         };
         if (!this._username) {
             this.route.paramMap.pipe(takeUntil(this.onDestroy)).subscribe((params: ParamMap) => {

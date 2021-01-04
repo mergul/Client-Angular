@@ -1,7 +1,7 @@
-<div *ngIf="booled" style="padding-top: 50px; text-align: center; min-height: 50px;">
+<div *ngIf="booled" style="text-align: center; min-height: 50px;">
   <div *ngFor="let tag of _tags|async" style="text-align: center; display: flex;">
     <label>#{{tag}}</label>
-    <button #followButton (click)="pubs&&checkTag(tag)?addTag(tag):removeTag(tag)" type="button" class="butto ripple button-outline">
+    <button *ngIf="!checkUser()" #followButton (click)="pubs&&checkTag(tag)?addTag(tag):removeTag(tag)" type="button" class="butto ripple button-outline">
       {{pubs&&checkTag(tag)?'Takip Et':'Takibi Kes'}}</button>
   </div>
 </div>

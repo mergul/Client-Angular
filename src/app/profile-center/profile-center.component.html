@@ -1,4 +1,4 @@
-<div *ngIf="(boolUser|async) === 0" style="margin-top: -10px">
+<div *ngIf="(boolUser|async) === 0">
   <mat-menu #appMenu="matMenu">
     <button mat-menu-item (click)="getNewsByOwner(user.id)">En Yeniler</button>
     <button mat-menu-item (click)="getNewsByTopHundred(user.id)">En Çok Okunanlar</button>

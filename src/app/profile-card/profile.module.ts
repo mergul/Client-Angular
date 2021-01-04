@@ -2,7 +2,6 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterModule} from '@angular/router';
 import {NewsListModule} from '../news-list/news-list.module';
 import {ProfileHeaderComponent} from '../profile-header/profile-header.component';
-import {EditTagsListComponent} from '../edit-tags-list/edit-tags-list.component';
 import {EditProfileComponent} from '../edit-profile/edit-profile.component';
 import {ProfileCardComponent} from './profile-card.component';
 import {ProfileListComponent} from '../profile-list/profile-list.component';
@@ -21,7 +20,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
 
 @NgModule({
-  declarations: [ ProfileHeaderComponent, EditTagsListComponent, EditProfileComponent,
+  declarations: [ ProfileHeaderComponent, EditProfileComponent,
     ProfileCardComponent, ProfileListComponent, ProfileCenterComponent, AccountHistoryComponent, MoneyManageComponent
   , UserSelectionsComponent ],
   imports: [
@@ -36,7 +35,7 @@ import {MatListModule} from '@angular/material/list';
   providers: [],
   bootstrap: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  exports: [ ProfileHeaderComponent, EditTagsListComponent, EditProfileComponent,
+  exports: [ ProfileHeaderComponent, EditProfileComponent,
     ProfileCardComponent, ProfileListComponent, ProfileCenterComponent, AccountHistoryComponent, MoneyManageComponent,
     UserSelectionsComponent, NewsListModule, MatTooltipModule, ReactiveFormsModule
   ]

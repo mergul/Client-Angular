@@ -53,6 +53,9 @@ export class EditTagsListComponent implements OnInit, OnDestroy {
     this.onDestroy.next();
     this.onDestroy.complete();
   }
+  checkUser() {
+    return !this.service.dbUser;
+ }
   checkTag(tag: string) {
      return !this.service.dbUser.tags.includes(tag);
   }

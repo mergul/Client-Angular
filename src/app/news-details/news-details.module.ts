@@ -32,8 +32,8 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [DialogDetailsContainerComponent, NewsDetailsComponent,
-    MediaSocialComponent, NewsManageComponent, FilesListComponent, PostComponent],
+  declarations: [ DialogDetailsContainerComponent, NewsDetailsComponent,
+    MediaSocialComponent, NewsManageComponent, FilesListComponent, PostComponent ],
   imports: [
     CommonModule, RouterModule.forChild(routes),
     FormsModule, MatDialogModule,

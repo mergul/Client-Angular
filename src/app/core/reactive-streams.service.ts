@@ -262,6 +262,7 @@ export class ReactiveStreamsService {
         this.newsEventSource.close();
     }
     unsubscribeResource() {
+        console.log('unsubscribeResource --> '+this.random);
         fetch('/sse/unsubscribe', {
             keepalive: true,
             method: 'PATCH',

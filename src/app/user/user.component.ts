@@ -69,7 +69,8 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         };
         this.compStyle = {
             width: `${mwidth}px`,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginTop: '17px'
         };
         if (!this.userService.dbUser || this.userService.dbUser.id.length !== 24) {
             this.route.data.pipe(takeUntil(this.onDestroy)).subscribe(routeData => {

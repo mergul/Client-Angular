@@ -1,4 +1,4 @@
-import { Observable, Subject, fromEvent } from 'rxjs';
+import { Observable, Subject, fromEvent, of } from 'rxjs';
 import { takeUntil, takeWhile } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy, AfterViewInit, Renderer2, ViewChild, ElementRef, Input } from '@angular/core';
 import { Location } from '@angular/common';
@@ -27,7 +27,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private itemWidth = 617;
     private currentSlide = 0;
     @ViewChild('carousel', { read: ElementRef, static: false }) carousel;
-
+    isPub = of(true);
     @Input() timing = '250ms ease-in';
     carouselWrapperStyle = {};
     carouselWrapStyle = {};
@@ -293,5 +293,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement);
         this.player.play();
+    }
+    getLink(tag: string) {
+        return of([tag.substring(1)]);
     }
 }
