@@ -37,6 +37,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     private playerS: AnimationPlayer;
     itemWidth = 788;
     private currentSlide = 0;
+    private sliderSlide = 0;
     @ViewChild('carousel', { read: ElementRef, static: false }) carousel;
     @ViewChild('slider', { read: ElementRef, static: false }) slider;
     @ViewChild('carouselWrapper', {static: true}) carouselWrapper: ElementRef;
@@ -69,6 +70,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     thumbHeight = 109;
     isManager = false;
     loggedID: string;
+    slideCount: number;
 
     constructor(public dialogRef: MatDialogRef<NewsDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
      private service: NewsService, private speechService: SpeechService,
@@ -83,13 +85,13 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     ngOnInit() {
         this.loggedID = window.history.state ? window.history.state.loggedID : this.loggedID;
-        this.itemWidth = this.winRef.nativeWindow.innerWidth - 40;
+        this.itemWidth = this.winRef.nativeWindow.innerWidth - 20;
         if (this.itemWidth < 1040) {
-            this.thumbWidth = this.thumbWidth * (4 / 5) + 10;
-            this.thumbHeight = this.thumbHeight * (4 / 5) + 20;
+            this.thumbWidth = this.thumbWidth * (4 / 5) + 20;
+            this.thumbHeight = this.thumbHeight * (4 / 5) + 30;
         } else {
-            this.thumbWidth = this.thumbWidth + 10;
-            this.thumbHeight = this.thumbHeight + 20;
+            this.thumbWidth = this.thumbWidth + 20;
+            this.thumbHeight = this.thumbHeight + 30;
         }
         if (this.itemWidth > 788) { this.itemWidth = 788; }
         this.height = 580 * (this.itemWidth / 788);
@@ -101,6 +103,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.wideStyle = {
             width: `${modalWidth}px`
         };
+        this.slideCount=Math.floor(modalWidth/this.thumbWidth);
         this.sliderWrapperStyle = {
             minHeight: `${this.height}px`
         };
@@ -114,7 +117,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
             width: `${this.itemWidth * this.news$.mediaReviews.length}px`
         };
         this.carouselPagerStyle = {
-            width: `${(this.thumbWidth + 10) * this.news$.mediaReviews.length}px`
+            width: `${(this.thumbWidth) * this.news$.mediaReviews.length}px`
         };
         this.isManager = this.userService.dbUser && (this.userService.dbUser.roles.includes('ROLE_ADMIN')
         || this.userService.dbUser.roles.includes('ROLE_MODERATOR'));
@@ -139,14 +142,23 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
      //   setTimeout(() => {
             this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
       //  });
-        this.renderer.setProperty(this._document.getElementById('mihtml'), 'innerHTML', this.news$.summary);
+    //    this.renderer.setProperty(this._document.getElementById('mihtml'), 'innerHTML', this.news$.summary);
         const hammerConfig = new HammerGestureConfig();
         const hammer = hammerConfig.buildHammer(this.carousel.nativeElement);
         fromEvent(hammer, 'swipe').pipe(
           takeWhile(() => this.alive))
           .subscribe((res: any) => {
-            console.log(res.deltaX < 0 ? 'to the left => ' + res.deltaX : 'to the rigth => ' + res.deltaX);
             res.deltaX > 0 ? this.prev() : this.next();
+        });
+        const mhammer = hammerConfig.buildHammer(this.slider.nativeElement);
+        fromEvent(mhammer, 'swipe').pipe(
+          takeWhile(() => this.alive))
+          .subscribe((res: any) => {
+            if(res.deltaX > 0) {
+                this.sliderPrev();
+            } else {
+                this.sliderNext();
+            } 
         });
         if (!this.speechService._supportRecognition) {
             this._snackBar.open('Your Browser has no support for Speech!', 'Try Chrome for Speech!', {
@@ -154,6 +166,34 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
               });
         }
     }
+    sliderNext() {
+        if (this.sliderSlide + 1 === this.news$.mediaReviews.length) {
+            return;
+        }
+        this.sliderSlide++;
+        if (this.sliderSlide%this.slideCount===0) this.nextSlider(true);
+        this.slider.nativeElement.querySelectorAll('li')[this.sliderSlide-1].classList.remove('active');
+        this.slider.nativeElement.querySelectorAll('li')[this.sliderSlide].classList.add('active');        
+    }
+    sliderPrev() {
+        if (this.sliderSlide === 0) {
+            return;
+        }
+        this.sliderSlide--;
+        if ((this.sliderSlide+1)%this.slideCount===0) this.nextSlider(false); 
+        this.slider.nativeElement.querySelectorAll('li')[this.sliderSlide+1].classList.remove('active');
+        this.slider.nativeElement.querySelectorAll('li')[this.sliderSlide].classList.add('active');
+    }
+    nextSlider(isNext: boolean) {
+        const mySoffset = (isNext ? this.sliderSlide : this.sliderSlide - 1) * this.thumbWidth;
+        const mySAnimation: AnimationFactory = this.buildAnimation(mySoffset);
+        this.playerS = mySAnimation.create(this.slider.nativeElement);
+        this.playerS.onDone(() => {
+            console.log('player is done next animation --> ' + this.playerS.getPosition());
+        });
+        this.playerS.play();
+    }
+
     gotDevices(mediaDevices: MediaDeviceInfo[]) {
         return mediaDevices.filter(value => value.kind === 'videoinput');
     }
@@ -233,12 +273,12 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement);
         this.player.play();
-        if (this.currentSlide % 4 === 0) {
-            const mySoffset = 4 * 190;
-            const mySAnimation: AnimationFactory = this.buildAnimation(mySoffset);
-            this.playerS = mySAnimation.create(this.slider.nativeElement);
-            this.playerS.play();
+        this.sliderSlide++;
+        if (this.currentSlide%this.slideCount===0) {
+           this.nextSlider(true);
         }
+        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide-1].classList.remove('active');
+        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide].classList.add('active');
     }
 
     private buildAnimation(offset) {
@@ -258,21 +298,22 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement);
         this.player.play();
-
-        if (this.currentSlide % 4 === 3) {
-            const mySoffset = ((this.currentSlide - 3) / 4) * 190;
-            const mySAnimation: AnimationFactory = this.buildAnimation(mySoffset);
-            this.playerS = mySAnimation.create(this.slider.nativeElement);
-            this.playerS.play();
+        this.sliderSlide--;
+        if ((this.currentSlide+1)%this.slideCount===0) {
+            this.nextSlider(false);
         }
+        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide+1].classList.remove('active');
+        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide].classList.add('active');
     }
 
     currentDiv(n: number) {
+        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide].classList.remove('active');
         this.currentSlide = n;
         const offset = n * this.itemWidth;
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement);
         this.player.play();
+        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide].classList.add('active');
     }
     trustIt(yh: string): string[] {
         this.tagList = yh.match(/.[^#]*/gi);

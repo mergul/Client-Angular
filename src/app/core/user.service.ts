@@ -4,7 +4,7 @@ import { FirebaseUserModel, User, UserTag, BalanceRecord } from './user.model';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs/internal/observable/of';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { RecordSSE } from './record.sse';
 import { NewsPayload } from './news.model';
 import { ReactiveStreamsService } from './reactive-streams.service';
@@ -12,6 +12,7 @@ import { ReactiveStreamsService } from './reactive-streams.service';
 @Injectable({ providedIn: 'root' })
 export class UserService implements OnDestroy {
     private readonly onDestroy = new Subject<void>();
+    private meBehaviorSubject = new BehaviorSubject<User>(null);
     public user: FirebaseUserModel = new FirebaseUserModel();
     _loggedUser: FirebaseUserModel;
     userTag: UserTag = new UserTag();
@@ -28,12 +29,14 @@ export class UserService implements OnDestroy {
     reStreamList$: Observable<NewsPayload[]>;
     reStreamCounts$: Observable<RecordSSE>;
     _otherUser: Observable<User>;
+    _me: Observable<User>;
     _hotBalance: Observable<BalanceRecord[]>;
     _historyBalance: Observable<BalanceRecord[]>;
     redirectUrl = 'login';
 
     constructor(protected http: HttpClient, private router: Router, private reactiveService: ReactiveStreamsService
     ) {
+        this._me=this.meBehaviorSubject.asObservable();
     }
     getDbUser(url: string): Observable<User> {
         if (url) {
@@ -68,6 +71,7 @@ export class UserService implements OnDestroy {
                 }
                 this.getDbUser(url + '/' + this.reactiveService.random).pipe(map(muser => {
                     this.setDbUser(muser);
+                    this.meBehaviorSubject.next(muser);
                 })).subscribe();
             }
             this.newsCo.set(this.links[0], ['main']);

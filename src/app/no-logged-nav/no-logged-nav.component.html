@@ -5,7 +5,7 @@
     </div>
   </button>
   <div [style.marginLeft.%]="checkMedia ? 0 : 0" [style.width.%]="checkMedia ? 0 : 39"
-    style="background-color: darkmagenta;min-width: 39%;">
+    style="background-color: darkmagenta;min-width: 39%;" class="navbar">
     <button #buttons mat-icon-button (click)="navClick(this.newsService.links[0])" class="active mat-icon-button"
       matTooltip="search new contents" aria-label="Center Align" autofocus>
       <mat-icon>home</mat-icon>

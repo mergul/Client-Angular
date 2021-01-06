@@ -1,12 +1,15 @@
-<mat-card class="example-card" [routerLink]="[ news.newsId ]" [state]="{loggedID: getLogged()}">
+<mat-card class="example-card" [routerLink]="[ news.newsId ]" [state]="{loggedID: (user|async)?.id}">
     <mat-card-header style="display: flex;">
+      <button class="butto ripple button-outline" (click)="onClick('/allusers/'+ news.newsOwner, news.newsOwnerId);$event.stopPropagation();$event.preventDefault()"
+      [disabled]="isDisabled(news.newsOwnerId)" style="float: right; border: none;display: flex;padding: revert;">
       <div mat-card-avatar class="example-header-image" [style.background-image]="_url"></div>
       <div>
-        <mat-card-title>Shiba Inu</mat-card-title><br>
+        <mat-card-title>{{news.newsOwner}}</mat-card-title><br>
         <mat-card-subtitle>
           <span class='date' [style.font-size.px]="fontSize">{{news.date | date:'medium'}}</span>
         </mat-card-subtitle>
       </div>
+      </button>
       <div style="margin-left: auto;">
         <mat-menu #appMenu="matMenu" xPosition="before">
           <button mat-menu-item >Logout</button>
@@ -37,8 +40,9 @@
     <mat-card-actions>
       <button class="butto ripple button-outline">LIKE</button>
       <button class="butto ripple button-outline">SHARE</button>
-      <button class="butto ripple button-outline" (click)="onClick('/allusers/'+ news.newsOwner, news.newsOwnerId);$event.stopPropagation();$event.preventDefault()"
+      <!-- <button class="butto ripple button-outline" (click)="onClick('/allusers/'+ news.newsOwner, news.newsOwnerId);$event.stopPropagation();$event.preventDefault()"
       [disabled]="isDisabled(news.newsOwnerId)" style="float: right; border: none;">
-          @{{news.newsOwner}} :: {{news.count}} :: {{newsCounts.get(news.newsId)}}</button>
+          @{{news.newsOwner}} :: {{news.count}} :: {{newsCounts.get(news.newsId)}}</button> -->
     </mat-card-actions>
+    
   </mat-card>

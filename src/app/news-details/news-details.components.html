@@ -26,19 +26,17 @@
                         </div>
                     </div>
                 </div>
-                <div id="sliderrr-pager" [style.height.px]="thumbHeight">
+                <div id="sliderrr-pager" [style.height.px]="thumbHeight+6">
                     <ul class="sliderrr-page" #slider [ngStyle]="carouselPagerStyle">
-                        <li *ngFor="let thumbFile of news.mediaReviews; index as i" [style.width.px]="thumbWidth">
-                            <a (click)="currentDiv(i)" [style.height.px]="thumbHeight" [style.line-height.px]="thumbHeight">
+                        <li *ngFor="let thumbFile of news.mediaReviews; index as i" class="{{i===0?'active':''}}" [style.width.px]="thumbWidth-10">
+                            <a (click)="currentDiv(i)" [style.height.px]="thumbHeight-20" [style.line-height.px]="thumbHeight-20" style="margin-left: 5px;">
                                 <app-files-list [thumbName]="'thumb-kapak-' + thumbFile.file_name"></app-files-list>
                             </a>
                         </li>
                     </ul>
-                    <div class="bx-controls bx-has-controls-direction">
-                        <div class="bx-controls-direction">
-                            <a class="slider-bx-prev"  (click)="prev()">Prev</a><a class="slider-bx-next"
-                                 (click)="next()">Next</a>
-                        </div>
+                    <div style="position: relative">
+                            <a class="slider-bx-prev"  (click)="sliderPrev()">Prev</a><a class="slider-bx-next"
+                                 (click)="sliderNext()">Next</a>
                     </div>
                 </div>
             </div>

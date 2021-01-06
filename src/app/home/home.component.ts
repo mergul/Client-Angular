@@ -103,7 +103,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             takeWhile(() => this.alive))
             .subscribe((res: any) => {
                 if (this.loggedUser) {
-                    res.deltaX > 0 ? this.prev() : this.next();
+                    if(res.deltaX > 0) {
+                        this.prev();
+                        this.newsService.callTag.next(this.links[this.currentSlide]);
+                    } else {
+                        this.next();
+                        this.newsService.callTag.next(this.links[this.currentSlide]);
+                    }
                 } else if (res.deltaX < 0) {
                     this.service.redirectUrl = '/home';
                     this.newsService.activeLink = this.links[1];
@@ -261,7 +267,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement.isConnected ? this.carousel.nativeElement : this.winRef.nativeWindow.document.querySelector('.carousel-inner'));
         this.player.onDone(() => {
-            console.log('player is done next animation --> ' + this.player.totalTime);
+            console.log('player is done next animation --> ' + this.player.getPosition());
             this.newsService.endPlayer.next(true);
         });
         this.player.play();

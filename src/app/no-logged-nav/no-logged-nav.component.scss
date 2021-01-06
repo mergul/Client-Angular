@@ -68,10 +68,13 @@ div.right-side{
   background-image:url('data:image/svg+xml;base64, PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8cGF0aCBkPSJNMjUsN2wyOCwzNmw0MC0xOGwtMzYsMjVsMTksNDRsLTI3LTM3bC00MSwxN2wzNi0yNnoiIGZpbGw9IiNjZmMiLz4KICA8ZWxsaXBzZSBjeD0iNTAiIGN5PSI1MCIgcng9IjMyIiByeT0iMzAiIHN0cm9rZT0iI2ZjMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxMSIvPgogIDxwYXRoIGQ9Ik02MywybC03LDQzbDQyLDE3bC00NS02bC0xNiw0Mmw3LC00NWwtNDItMTZsNDUsNnoiIGZpbGw9IiMzY2MiLz4KPC9zdmc+Cg==');
 }
 .active {
-  border-bottom: 5px solid ghostwhite !important;
-  opacity: 0.8;
-  background-color: #9e009e;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 17px rgb(255, 255, 255); 
 }
-.mat-icon-button:hover{
-  opacity: 0.6;
+.navbar>button:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 4px 17px #9f9f9f; 
+}
+.navbar>button{
+  transition: all 0.2s ease-in-out;
 }
