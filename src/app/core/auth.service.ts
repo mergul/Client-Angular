@@ -1,15 +1,31 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {auth, User} from 'firebase/app';
+import { from, Observable, of } from 'rxjs';
+import { first, map, switchMap, take } from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
     private preemail = '';
     private prepass = '';
+    user$: Observable<User>;
+    token: Observable<string>;
 
     constructor(public afAuth: AngularFireAuth) {
+        this.user$ = this.afAuth.authState;
     }
-
+    getUser(): Observable<User> {
+        return this.user$.pipe(first(), map(user=>{
+            this.token=from(user.getIdToken());
+            return user;
+        }));
+    }
+    isLoggedIn(): Observable<boolean> {
+        return this.user$.pipe(
+          take(1),
+          map(authState => !!authState)
+        );
+    }
     doFacebookLogin(isMobile: boolean) {
         return new Promise<any>((resolve, reject) => {
             const provider = new auth.FacebookAuthProvider();

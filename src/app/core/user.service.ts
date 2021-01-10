@@ -12,7 +12,7 @@ import { ReactiveStreamsService } from './reactive-streams.service';
 @Injectable({ providedIn: 'root' })
 export class UserService implements OnDestroy {
     private readonly onDestroy = new Subject<void>();
-    private meBehaviorSubject = new BehaviorSubject<User>(null);
+    private meBehaviorSubject: BehaviorSubject<User>;
     public user: FirebaseUserModel = new FirebaseUserModel();
     _loggedUser: FirebaseUserModel;
     userTag: UserTag = new UserTag();
@@ -36,7 +36,6 @@ export class UserService implements OnDestroy {
 
     constructor(protected http: HttpClient, private router: Router, private reactiveService: ReactiveStreamsService
     ) {
-        this._me=this.meBehaviorSubject.asObservable();
     }
     getDbUser(url: string): Observable<User> {
         if (url) {
@@ -51,18 +50,21 @@ export class UserService implements OnDestroy {
     get loggedUser(): FirebaseUserModel {
         return this._loggedUser;
     }
+    createId(loggedId){
+       return Array.prototype.slice.call(([...Buffer.from(loggedId.substring(0, 12))]))
+        .map(this.hex.bind(this, 2)).join('');
+    }
     hex(length, n) {
         n = n.toString(16);
         return (n.length === length) ? n : '00000000'.substring(n.length, length) + n;
     }
     set loggedUser(logged: FirebaseUserModel) {
-        this._loggedUser = logged;
         if (logged != null) {
             let url;
             this.email = logged.email ? logged.email : this.email;
-            if (!this.dbUser && (!this.loggedUser || this.loggedUser.id.length !== 24)) {
-                this._loggedUser.id = Array.prototype.slice.call(([...Buffer.from(logged.id.substring(0, 12))]))
-                .map(this.hex.bind(this, 2)).join('');
+            if (!this.dbUser && (!logged || logged.id.length !== 24)) {
+                this._loggedUser = logged;
+                this._loggedUser.id = this.createId(logged.id);
                 this.reactiveService.setListeners('@' + this._loggedUser.id, this.reactiveService.random);
                 if (this._loggedUser.id) {
                     url = '/api/rest/start/user/' + this._loggedUser.id;
@@ -71,7 +73,6 @@ export class UserService implements OnDestroy {
                 }
                 this.getDbUser(url + '/' + this.reactiveService.random).pipe(map(muser => {
                     this.setDbUser(muser);
-                    this.meBehaviorSubject.next(muser);
                 })).subscribe();
             }
             this.newsCo.set(this.links[0], ['main']);

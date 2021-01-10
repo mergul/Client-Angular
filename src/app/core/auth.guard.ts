@@ -58,12 +58,11 @@ export class AuthGuard implements CanActivate, OnDestroy {
                             return resolve(false);
                         } else {
                             this.userService._loggedUser = this.fuser;
-                            this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer
-                                .from(this.fuser.id.substring(0, 12))])).map(this.userService.hex.bind(this, 2)).join('')
-                                , this.reactiveService.random);
+                            this.userService._loggedUser.id=this.userService.createId(this.fuser.id);
+                            this.reactiveService.setListeners('@' + this.userService.loggedUser.id, this.reactiveService.random);
                             user.getIdToken().then(idToken => {
                                 this.userService.user.token = idToken;
-                                this.userService.getDbUser('/api/rest/user/' + user.uid.substring(0, 12) + '/'
+                                this.userService.getDbUser('/api/rest/user/' + this.userService.loggedUser.id + '/'
                                  + this.reactiveService.random).pipe(takeUntil(this.onDestroy)).subscribe(value => {
                                     this.userService.setDbUser(value);
                                     if (state.url === '/talepler' && value.roles.includes('ROLE_ADMIN')) {

@@ -11,7 +11,7 @@ import { DOCUMENT } from '@angular/common';
 import { SpeechService, RecognitionResult } from '../core/speech-service';
 import {HammerGestureConfig} from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogConfig } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector: 'app-details',

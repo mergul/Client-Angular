@@ -31,6 +31,7 @@ export class DialogDetailsContainerComponent implements OnDestroy {
         if (!this.service.newzes$.has(news.id)) { this.service.newzes$.set(news.id, news); }
         // When router navigates on this component is takes the params and opens up the photo detail modal
         dialogConfig.data = {news$: news, color: 'whitesmoke', header$: modalWidth - 24};
+        dialogConfig.autoFocus = false;
         this.currentDialog = this.modalService.open(NewsDetailsComponent, dialogConfig);
         // Go back to home page after the modal is closed
         this.currentDialog.afterClosed().subscribe(result => {

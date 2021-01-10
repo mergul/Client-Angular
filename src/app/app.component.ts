@@ -1,4 +1,4 @@
-import { Observable, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, NgZone, Renderer2, Inject} from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
@@ -108,6 +108,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 if (!this.service.dbUser && !this.location.path().startsWith('/user') && this.location.path() !== '/login' &&
                     this.location.path() !== '/upload' &&
                     this.location.path() !== '/talepler' && this.location.path() !== '/admin') {
+                        // this.authService.getUser().subscribe(us=>{
+                        //     console.log('uid --> '+us.uid);
+                        //     this.authService.token.subscribe(tok=>console.log('token --> '+tok))
+                        // })
                     this.authService.getCurrentUser().then(value => {
                         if (value) {
                             this.service.user = new FirebaseUserModel();
@@ -115,7 +119,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                             this.service.user.email = value.providerData[0].email;
                             this.service.user.name = value.displayName;
                             this.service.user.id = value.uid;
-                            this.service.user.token = value['ra'];
                             value.getIdToken().then(idToken => {
                                 this.service.user.token = idToken;
                             });

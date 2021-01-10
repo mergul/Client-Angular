@@ -69,17 +69,9 @@
             <div id="newsTags" style="margin-bottom: 20px">
                 <label *ngFor="let tag of news.tags"><a> {{tag}} ; </a></label>
             </div>
+            <app-comments [url]="'url(' + news.ownerUrl + ')'"></app-comments>
         </div>
-        <div class="chat">
-            <label>
-            Comments:<br />
-            <textarea #textBox id="textbox" type="text" name="text" placeholder="Say something meaningful..."
-                autocomplete="off" cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="5"
-                style="width: 80%; box-sizing: content-box; height: 38px !important;"></textarea></label>
-            <button id="micro3" style="vertical-align: text-bottom;" type="button" class="butto ripple button-outline"
-                (click)="handleSendButton(textBox.value)">Send</button>
-        </div>
-        <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 15px;">
+        <div style="display: flex; justify-content: space-evenly; width: 100%; margin-top: 25px;">
             <mat-form-field class="my-options">
                 <mat-label>Select your language</mat-label>
                 <mat-select role="listbox" [(value)]="currentLanguage">

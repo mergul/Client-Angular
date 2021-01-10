@@ -1,0 +1,29 @@
+<div (click)="$event.stopPropagation();$event.preventDefault()" style="display: flex;flex-direction:row;background-color: #e9e9e9; border-radius: 20px; margin-top: 20px;padding: 2px;">
+    <div style="align-self: flex-start;position: relative;">
+        <div mat-card-avatar class="example-header-image" [style.background-image]="url"></div>
+    </div>
+    <div style="display: flex; width: -webkit-fill-available;width: -moz-available;">
+            <mat-form-field style="width: -webkit-fill-available;width: -moz-available;">
+                <label style="max-height: 40px !important;">
+                  <textarea matInput #myInput type="text" name="text" placeholder="Leave a comment..."
+                autocomplete="off" style="box-sizing: content-box;" cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="15">
+              </textarea>
+                  <!-- <input matInput type="text" name="comment" placeholder="Leave a comment" #myInput> -->
+                </label>
+            </mat-form-field>
+            <ul style="display: flex; height: 40px;list-style-type: none; padding: 0;margin: auto 0 0 auto;">
+              <li>
+                <div mat-card-avatar class="example-header-image" [style.background-image]="url"></div>
+              </li>
+              <li>
+                <div mat-card-avatar class="example-header-image" [style.background-image]="url"></div>
+              </li>
+              <li>
+                <div mat-card-avatar class="example-header-image" [style.background-image]="url"></div>
+              </li>
+              <li>
+                <div mat-card-avatar class="example-header-image" [style.background-image]="url"></div>
+              </li>
+            </ul>
+    </div>
+  </div>
