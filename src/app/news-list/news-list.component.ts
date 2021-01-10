@@ -47,7 +47,11 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
             })
         }
         this.newsSum.changes.subscribe(comps => {
-            if (this.currentOffset === 0 && this.newsService.links.includes(this.activeLink)) { this.newsService.preList.push(comps.toArray()); }
+            if (this.newsService.links.includes(this.activeLink)&&this.newsService.prevLink!==-1) {
+                if (this.currentOffset === 0 &&this.newsService.preList.length<3) { this.newsService.preList.push(comps.toArray()); }
+                else { this.newsService.preList.splice(this.newsService.links.indexOf(this.activeLink), 1, comps.toArray()); }
+            }
+           // this.newsService.preList.forEach((val,ind)=>console.log('preList index --> '+ind+' :: preList size --> '+val.length));
         });
     }
 
