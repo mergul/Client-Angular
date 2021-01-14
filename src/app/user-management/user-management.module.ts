@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { AuthGuard } from '../core/auth.guard';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { UserManagementComponent } from './user-management.component';
 
@@ -21,7 +20,7 @@ const routes: Routes = [
     ],
     entryComponents: [
     ],
-    providers: [AuthGuard],
+    providers: [],
     bootstrap: [UserManagementComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [CommonModule]

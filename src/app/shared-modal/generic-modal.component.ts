@@ -8,6 +8,7 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReqComponent } from '../req/req.component';
 import { WindowRef } from '../core/window.service';
+import { takeUntil } from 'rxjs/operators';
 
 export const entryComponentsMap = {
     'upload': MultiFilesUploadComponent,
@@ -34,7 +35,7 @@ export class GenericModalComponent implements OnDestroy {
         dialogConfig.height = this.winRef.nativeWindow.innerHeight + 'px';
         dialogConfig.data = {color: 'lightgrey', header$: modalWidth - 24};
         this.currentDialog = this.dialog.open(this.getClazz(this.location.path().slice(1)), dialogConfig);
-        this.currentDialog.afterClosed().subscribe(result => {
+        this.currentDialog.afterClosed().pipe(takeUntil(this.destroy)).subscribe(result => {
             if (result && result !== '') {
                 this.router.navigateByUrl(result);
             } else { 

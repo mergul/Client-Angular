@@ -4,7 +4,7 @@ import { FirebaseUserModel, User, UserTag, BalanceRecord } from './user.model';
 import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { of } from 'rxjs/internal/observable/of';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { RecordSSE } from './record.sse';
 import { NewsPayload } from './news.model';
 import { ReactiveStreamsService } from './reactive-streams.service';
@@ -12,7 +12,6 @@ import { ReactiveStreamsService } from './reactive-streams.service';
 @Injectable({ providedIn: 'root' })
 export class UserService implements OnDestroy {
     private readonly onDestroy = new Subject<void>();
-    private meBehaviorSubject: BehaviorSubject<User>;
     public user: FirebaseUserModel = new FirebaseUserModel();
     _loggedUser: FirebaseUserModel;
     userTag: UserTag = new UserTag();
@@ -22,7 +21,7 @@ export class UserService implements OnDestroy {
     newsCo: Map<string, Array<string>> = new Map<string, Array<string>>();
     links = ['En Çok Okunanlar', 'Takip Edilen Etiketler', 'Takip Edilen Kişiler'];
     private _prof_url = '/assets/profile-img.jpeg';
-    private _back_url: string;
+    private _back_url = '/assets/back-img.jpeg';;
     private _desc = of('Neque porro quisquam est, qui dolorem ipsum quia dolor sit'
         + ' amet, consectetur, adipisci velit, sed quia non numquam eius modi'
         + ' tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.');
@@ -50,19 +49,25 @@ export class UserService implements OnDestroy {
     get loggedUser(): FirebaseUserModel {
         return this._loggedUser;
     }
-    createId(loggedId){
-       return Array.prototype.slice.call(([...Buffer.from(loggedId.substring(0, 12))]))
-        .map(this.hex.bind(this, 2)).join('');
+    createId(loggedId) {
+        return Array.prototype.slice.call(([...Buffer.from(loggedId.substring(0, 12))]))
+            .map(this.hex.bind(this, 2)).join('');
     }
     hex(length, n) {
         n = n.toString(16);
         return (n.length === length) ? n : '00000000'.substring(n.length, length) + n;
     }
+    getRandom(){
+        return this.reactiveService.random;
+    }
+    setReactiveListeners(){
+        this.reactiveService.setListeners('@' + this._loggedUser.id, this.reactiveService.random);
+    }
     set loggedUser(logged: FirebaseUserModel) {
         if (logged != null) {
             let url;
             this.email = logged.email ? logged.email : this.email;
-            if (!this.dbUser && (!logged || logged.id.length !== 24)) {
+            if (!this.dbUser) {
                 this._loggedUser = logged;
                 this._loggedUser.id = this.createId(logged.id);
                 this.reactiveService.setListeners('@' + this._loggedUser.id, this.reactiveService.random);
@@ -144,6 +149,7 @@ export class UserService implements OnDestroy {
                 this.reactiveService.setUserListListeners('@' + value, this.reactiveService.random);
                 return '@' + value;
             }));
+
             this.loggedUser.tags = muser.tags;
             this.loggedUser.people = muser.users;
             this.loggedUser.totalNews = muser.contentsCount;
@@ -225,5 +231,6 @@ export class UserService implements OnDestroy {
 
     ngOnDestroy(): void {
         this.onDestroy.next();
+        this.onDestroy.complete();
     }
 }

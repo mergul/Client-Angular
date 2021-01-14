@@ -32,12 +32,6 @@ export class ReactiveStreamsService {
     myListener: any;
 
     constructor(private zone: NgZone, protected http: HttpClient) {
-        this.mexListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
-        this.meListener=this.mexListener.bind(this, true, false);
-        this.hexListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
-        this.heListener=this.hexListener.bind(this, false, true);
-        this.myxListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
-        this.myListener=this.myxListener.bind(this, false, false);
     }
     getNewsStream(processName: number, url: string) {
         let headers: HttpHeaders = new HttpHeaders();
@@ -83,6 +77,12 @@ export class ReactiveStreamsService {
                 this.countsBehaviorSubject.error('EventSource error:::' + err.statusText);
             }
         });
+        this.mexListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
+        this.meListener=this.mexListener.bind(this, true, false);
+        this.hexListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
+        this.heListener=this.hexListener.bind(this, false, true);
+        this.myxListener = (ev, ism, iso) => this.listenIt(ev, ism, iso);
+        this.myListener=this.myxListener.bind(this, false, false);
     }
     getNewsSubject(id: string): BehaviorSubject<NewsPayload[]> {
         switch (id) {

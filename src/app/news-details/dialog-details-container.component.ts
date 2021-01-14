@@ -34,7 +34,7 @@ export class DialogDetailsContainerComponent implements OnDestroy {
         dialogConfig.autoFocus = false;
         this.currentDialog = this.modalService.open(NewsDetailsComponent, dialogConfig);
         // Go back to home page after the modal is closed
-        this.currentDialog.afterClosed().subscribe(result => {
+        this.currentDialog.afterClosed().pipe(takeUntil(this.destroy)).subscribe(result => {
             if (result && result !== '') {
               this.router.navigateByUrl(result, {state: {userID: news.ownerId}});
             } else { this.location.back(); }

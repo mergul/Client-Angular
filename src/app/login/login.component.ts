@@ -1,12 +1,15 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, Inject, Renderer2, HostListener} from '@angular/core';
-import {AuthService} from '../core/auth.service';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { AfterViewInit, Component, OnDestroy, OnInit, Inject, Renderer2, HostListener } from '@angular/core';
+import { AuthService } from '../core/auth.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DOCUMENT } from '@angular/common';
 import { NewsService } from '../core/news.service';
 import { UserService } from '../core/user.service';
 import { FirebaseUserModel } from '../core/user.model';
-import { of } from 'rxjs';
+import { forkJoin, from, of, Subject } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, first, mergeMap, switchMap, takeUntil } from 'rxjs/operators';
+import { User } from 'firebase';
 
 @Component({
     selector: 'app-page-login',
@@ -14,10 +17,10 @@ import { of } from 'rxjs';
     styleUrls: ['login.scss']
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
-
+    private readonly destroy = new Subject<void>();
     loginForm: FormGroup;
     errorMessage = '';
-    error: {name: string, message: string} = {name: '', message: ''};
+    error: { name: string, message: string } = { name: '', message: '' };
     email = '';
     resetPassword = false;
     listenerFn: () => void;
@@ -29,7 +32,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(
         private authService: AuthService, private newsService: NewsService,
-        private fb: FormBuilder, public dialogRef: MatDialogRef<LoginComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
+        private fb: FormBuilder, private _snackBar: MatSnackBar, public dialogRef: MatDialogRef<LoginComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
         @Inject(DOCUMENT) private _document: Document, private renderer: Renderer2, public userService: UserService
     ) {
         this.createForm();
@@ -41,10 +44,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         this.wideStyle = {
             width: `${modalWidth}px`
         };
-      //  const url = window.location.href;
-      //  this.confirmSignIn(url);
-      this.isValidMailFormat = of((this.loginForm.controls.email.value.toString().length === 0) &&
-      (!this.EMAIL_REGEXP.test(this.loginForm.controls.email.value)));
+        this.isValidMailFormat = of((this.loginForm.controls.email.value.toString().length === 0) &&
+            (!this.EMAIL_REGEXP.test(this.loginForm.controls.email.value)));
     }
     @HostListener('window:keyup.esc') onKeyUp() {
         this.dialogRef.close();
@@ -55,86 +56,73 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
             password: ['', Validators.required]
         });
     }
-    setUser = (user) => {
-        const kuser = new FirebaseUserModel();
-        kuser.id = user.user.uid;
-        kuser.email = user.user.providerData[0].email;
-        kuser.name = user.displayName;
-        this.userService.loggedUser = kuser;
+    setLoggedUser = (user: User) => {
+        if (this.userService.user === null) this.userService.user = new FirebaseUserModel();
+        this.userService._loggedUser = this.userService.user;
+        this.userService._loggedUser.id = this.userService.user.id = this.userService.createId(user.uid);
+        this.userService.setReactiveListeners();
+        if (this.userService.redirectUrl === 'login') {
+            this.authService.checkComplete = true;
+            return from(user.getIdToken()).pipe(first(), switchMap(token => {
+                this.userService.user.token = token;
+                return this.userService.getDbUser('/api/rest/user/' + this.userService.user.id + '/' + this.userService.getRandom() + '/0');
+            }), switchMap(tokens => {
+                this.userService.setDbUser(tokens);
+                return of(this.onClose('user'));
+            }))
+        } else {
+            this.authService.checkComplete = false;
+            return forkJoin([this.userService.getDbUser('/api/rest/start/user/' + this.userService.user.id + '/' + this.userService.getRandom()), from(user.getIdToken())])
+                .pipe(mergeMap(tokens => {
+                    this.userService.setDbUser(tokens[0]);
+                    this.userService.user.token = tokens[1];
+                    return this.userService.redirectUrl !== 'login' ? of(this.onClose(this.userService.redirectUrl)) :
+                        of(this.onClose('user'));
+                }));
+        }
     }
     tryFacebookLogin() {
-        this.authService.doFacebookLogin(this.data.header$ < 600)
-            .then((user) => {
-                this.setUser(user);
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-            });
     }
 
     tryTwitterLogin() {
-        this.authService.doTwitterLogin()
-            .then((user) => {
-                this.setUser(user);
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-            });
     }
-
-    tryGoogleLogin() {
-        this.authService.doGoogleLogin(this.data.header$ < 600)
-            .then((user) => {
-                if (this.userService.redirectUrl === '/home') {
-                    this.setUser(user);
-        // this.reactiveService.setListeners('@' + Array.prototype.slice.call(([...Buffer.from(user.user.uid.substring(0, 12))]))
-                    // .map(this.userService.hex.bind(this, 2)).join(''));
-                }
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-            });
+    triedGoogleLogin() {
+        this.authService.loginToGoogle(this.data.header$ < 600).pipe(takeUntil(this.destroy), switchMap(user => {
+            return this.setLoggedUser(user);
+        })).subscribe();
     }
-
     tryLogin(value) {
-        this.authService.doLogin(value)
-            .then((user) => {
-                this.setUser(user);
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-            }, err => {
-              //  console.log(err);
-                this.errorMessage = err.message;
-            });
-    }
-
-    tryAnonymousLogin() {
-        this.authService.doAnonimousLogin()
-            .then((user) => {
-                this.setUser(user);
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                    this.onClose('user');
-            });
+        this.authService.loginDo(value).pipe(takeUntil(this.destroy), switchMap(user=>{
+            return this.setLoggedUser(user);
+        }), catchError(val => {
+            this.errorMessage=val.message;
+            return  of(`I caught: ${val}`);
+        })).subscribe();
     }
     sendResetEmail() {
         this.clearErrorMessage();
 
         this.authService.resetPassword(this.loginForm.controls.email.value)
-            .then(() => this.resetPassword = true)
+            .then(() => {
+                this.resetPassword = true;
+                this._snackBar.open('A password reset link has been sent to your email address!', 'Check your email address!!!', {
+                    duration: 3000,
+                });
+            })
             .catch(_error => {
                 this.error = _error;
             });
     }
     clearErrorMessage() {
         this.errorMessage = '';
-        this.error = {name: '', message: ''};
+        this.error = { name: '', message: '' };
     }
 
     ngAfterViewInit() {
-       // setTimeout(() => {
-            this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
-       // });
+        this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
     }
 
     onClose(redir: string) {
-        //   this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', 'transparent');
         if (redir === 'home') {
             this.newsService.activeLink = 'En Çok Okunanlar';
             this.dialogRef.close(redir);
@@ -151,12 +139,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.listenerFn) {
             this.listenerFn();
         }
+        this.destroy.next();
+        this.destroy.complete();
     }
-
-    // private confirmSignIn(url: string) {
-    //     const email = window.localStorage.getItem('emailForSignIn');
-    //     this.authService.doLinkLogin(email, url).then(value => {
-    //         return value;
-    //     }).then(value => value);
-    // }
 }

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '../core/auth.guard';
+import { AuthsGuard } from '../core/auths.guard';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RegisterComponent } from './register.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -10,7 +10,7 @@ import { SharedModalModule } from '../shared-modal/shared-modal.module';
 import { GenericModalComponent } from '../shared-modal/generic-modal.component';
 
 const routes: Routes = [
-    {path: '', component: GenericModalComponent, canActivate: [AuthGuard]}
+    {path: '', component: GenericModalComponent, canActivate: [AuthsGuard]}
 ];
 
 @NgModule({
@@ -24,7 +24,7 @@ const routes: Routes = [
     ],
     entryComponents: [ RegisterComponent
     ],
-    providers: [AuthGuard],
+    providers: [AuthsGuard],
     bootstrap: [RegisterComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [CommonModule]

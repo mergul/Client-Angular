@@ -100,7 +100,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             this.startTopButtonDisabled = true;
         }
         this.loggedID = window.history.state.loggedID;
-        this.documentGrp.valueChanges.subscribe(x => {
+        this.documentGrp.valueChanges.pipe(takeUntil(this.onDestroy)).subscribe(x => {
            this.isTopicValid = this.documentGrp.controls.news_topic.value.toString().trim().length > 3;
            this.isDescValid = this.documentGrp.controls.news_description.value.toString().trim().length > 3;
         });

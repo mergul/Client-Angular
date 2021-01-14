@@ -2,7 +2,7 @@ import { MultiFilesUploadComponent } from './multi-files-upload.component';
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '../core/auth.guard';
+import { AuthsGuard } from '../core/auths.guard';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesThumbnailsComponent } from '../files-thumbnails/files-thumbnails.component';
 import {MatSelectModule} from '@angular/material/select';
@@ -14,7 +14,7 @@ import { SharedModalModule } from '../shared-modal/shared-modal.module';
 import { GenericModalComponent } from '../shared-modal/generic-modal.component';
 
 const routes: Routes = [
-     {path: '', component: GenericModalComponent, canActivate: [AuthGuard]}
+     {path: '', component: GenericModalComponent, canActivate: [AuthsGuard]}
 ];
 
 @NgModule({
@@ -27,7 +27,7 @@ const routes: Routes = [
       ReactiveFormsModule, MatIconModule
     ],
     entryComponents: [MultiFilesUploadComponent],
-    providers: [AuthGuard],
+    providers: [AuthsGuard],
     bootstrap: [MultiFilesUploadComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     exports: [CommonModule, MultiFilesUploadComponent, MatIconModule]

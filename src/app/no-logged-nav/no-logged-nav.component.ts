@@ -4,6 +4,9 @@ import { NewsService } from '../core/news.service';
 import { of } from 'rxjs/internal/observable/of';
 import { Observable } from 'rxjs/internal/Observable';
 import { WindowRef } from '../core/window.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AuthService } from '../core/auth.service';
 
 @Component({
   selector: 'app-no-logged-nav',
@@ -11,7 +14,8 @@ import { WindowRef } from '../core/window.service';
   styleUrls: ['./no-logged-nav.component.scss']
 })
 export class NoLoggedNavComponent implements OnInit, OnDestroy {
-  _loggedinUser = of(true);
+  private readonly onDestroy = new Subject<void>();
+  _loggedinUser = of(false);
   toolbarStyle: {
     marginLeft: string;
     maxWidth: string;
@@ -21,8 +25,8 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
   @ViewChildren("buttons", { read: ElementRef }) buttons: QueryList<ElementRef>;
 
   constructor(private router: Router, private winRef: WindowRef,
-    public newsService: NewsService, private renderer: Renderer2) {
-    this.newsService.callTag.subscribe(tag => {
+    public newsService: NewsService, private renderer: Renderer2, public authService: AuthService) {
+    this.newsService.callTag.pipe(takeUntil(this.onDestroy)).subscribe(tag => {
       this.navChange(tag);
     });
   }
@@ -72,11 +76,17 @@ export class NoLoggedNavComponent implements OnInit, OnDestroy {
     }
   }
   ngOnDestroy(): void {
+    this.onDestroy.next();
+    this.onDestroy.complete();
   }
   get activeLink(): string {
     return this.newsService.activeLink;
   }
   set activeLink(value: string) {
     this.newsService.activeLink = value;
+  }
+  receiveMessage($event) {
+    this._loggedinUser = $event;
+    console.log('receiveMessage --> '+$event);
   }
 }

@@ -45,7 +45,7 @@ export class EditTagsListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.isPub.pipe().subscribe(val=>{
+    this.isPub.pipe(takeUntil(this.onDestroy)).subscribe(val=>{
       this.pubs=val;
     });
   }

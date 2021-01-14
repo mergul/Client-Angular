@@ -1,6 +1,6 @@
-import { from, Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, NgZone, Renderer2, Inject} from '@angular/core';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { filter, map, mergeMap, takeUntil } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, NgZone, Renderer2, Inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { Location, DOCUMENT } from '@angular/common';
 import { NewsService } from './core/news.service';
@@ -18,9 +18,11 @@ import { ScriptLoaderService } from './core/script-loader.service';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
+    private readonly destroy = new Subject<void>();
     newsCounts$: Map<string, string> = new Map<string, string>();
     links = ['En Çok Okunanlar', 'Takip Edilen Etiketler', 'Takip Edilen Kişiler'];
     user: FirebaseUserModel;
+    _loggedinUser: Observable<boolean>;
     _topTags: Observable<Array<RecordSSE>>;
     public state$: Observable<{ [key: string]: string }>;
     listStyle = {};
@@ -39,10 +41,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                 filter(e => e instanceof NavigationStart),
                 map(() => this.router.getCurrentNavigation().extras.state)
             );
-            if (!this.reactiveService.random) {
-                this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
-            }
-            this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
+        if (!this.reactiveService.random) {
+            this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+        }
+        this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
     }
 
     ngOnInit() {
@@ -51,18 +53,21 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
             width: `${(this.myWis - 617) / 2}px`,
             paddingLeft: `${(this.myWis - 617) / 6}px`
         };
+        this._loggedinUser = this.authService.isLoggedIn();
     }
     @HostListener('window:beforeunload', ['$event'])
     doSomething() {
         this.reactiveService.closeSources();
     }
     checkMedia() {
-       return this.myWis < 600;
+        return this.myWis < 600;
     }
     get loggedinUser(): Observable<boolean> {
-        return of(this.service.loggedUser != null);
+        return this.authService.isLoggedIn();
     }
     ngOnDestroy(): void {
+        this.destroy.next();
+        this.destroy.complete();
     }
     btnClick(url: string) {
         this.router.navigateByUrl(url);
@@ -91,40 +96,38 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
                     this.service._hotBalance = this.reactiveService.getMessage('hotRecords');
                     this.service._historyBalance = this.reactiveService.getMessage('user-history');
                 }
-                    this.newsService.topTags = this.reactiveService.getMessage('top-tags')
-                        .pipe(map(value =>
-                            value.filter(value1 =>
-                                value1.key.charAt(0) === '#')));
-                             this.scriptService.injectScript(this.renderer, this._document, 'https://fonts.googleapis.com/icon?family=Material+Icons'
-                , 'link', '1', '', 'anonymous').then(val => val);
-            if (this.location.isCurrentPathEqualTo('/user')) {
-                this.scriptService.injectScript(this.renderer, this._document,
-                    'https://webrtc.github.io/adapter/adapter-latest.js', 'script', '2', '', 'anonymous')
-               .then(val => val);
-               this.scriptService.injectScript(this.renderer, this._document,
-                   'https://cdn.jsdelivr.net/npm/video-stream-merger@3.6.1/dist/video-stream-merger.min.js', 'script', '3', '', 'anonymous')
-              .then(val => val);
-            }
+                this.newsService.topTags = this.reactiveService.getMessage('top-tags')
+                    .pipe(map(value =>
+                        value.filter(value1 =>
+                            value1.key.charAt(0) === '#')));
+                this.scriptService.injectScript(this.renderer, this._document, 'https://fonts.googleapis.com/icon?family=Material+Icons'
+                    , 'link', '1', '', 'anonymous').then(val => val);
+                if (this.location.isCurrentPathEqualTo('/user')) {
+                    this.scriptService.injectScript(this.renderer, this._document,
+                        'https://webrtc.github.io/adapter/adapter-latest.js', 'script', '2', '', 'anonymous')
+                        .then(val => val);
+                    this.scriptService.injectScript(this.renderer, this._document,
+                        'https://cdn.jsdelivr.net/npm/video-stream-merger@3.6.1/dist/video-stream-merger.min.js', 'script', '3', '', 'anonymous')
+                        .then(val => val);
+                }
                 if (!this.service.dbUser && !this.location.path().startsWith('/user') && this.location.path() !== '/login' &&
                     this.location.path() !== '/upload' &&
-                    this.location.path() !== '/talepler' && this.location.path() !== '/admin') {
-                        // this.authService.getUser().subscribe(us=>{
-                        //     console.log('uid --> '+us.uid);
-                        //     this.authService.token.subscribe(tok=>console.log('token --> '+tok))
-                        // })
-                    this.authService.getCurrentUser().then(value => {
-                        if (value) {
-                            this.service.user = new FirebaseUserModel();
-                            this.service.user.image = value.providerData[0].photoURL;
-                            this.service.user.email = value.providerData[0].email;
-                            this.service.user.name = value.displayName;
-                            this.service.user.id = value.uid;
-                            value.getIdToken().then(idToken => {
-                                this.service.user.token = idToken;
-                            });
-                            this.service.loggedUser = this.service.user;
+                    this.location.path() !== '/register' && this.location.path() !== '/admin') {
+                    this.authService.getUser().pipe(takeUntil(this.destroy), mergeMap(us => {
+                        if (us !== null) {
+                            this.service._loggedUser = this.service.user;
+                            this.service._loggedUser.id = this.service.user.id = this.service.createId(us.uid);
+                            this.reactiveService.setListeners('@' + this.service._loggedUser.id, this.reactiveService.random);
+                            return forkJoin([this.service.getDbUser('/api/rest/start/user/' + this.service.user.id + '/' + this.reactiveService.random), this.authService.token]);
                         }
-                    }).catch(() => {});
+                        return of(null);
+                    })).subscribe(token => {
+                        if (token !== null) {
+                            this.service.setDbUser(token[0]);
+                            this.service.user.token = token[1];
+                        }
+                        this.authService.checkComplete = false;
+                    });
                 }
             };
         });

@@ -1,5 +1,5 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Observable, of, Subject} from 'rxjs';
 import {UserService} from '../core/user.service';
 import {Router} from '@angular/router';
 import {AuthService} from '../core/auth.service';
@@ -14,12 +14,15 @@ import { WindowRef } from '../core/window.service';
 })
 export class LoggedNavComponent implements OnInit, OnDestroy {
   private readonly onDestroy = new Subject<void>();
+  @Output() logChange: EventEmitter<Observable<boolean>>;
   toolbarStyle = {};
   private _logged: boolean;
   checkMedia = false;
   constructor(public newsService: NewsService, private winRef: WindowRef,
               public service: UserService, private router: Router, public authService: AuthService
-              , private reactiveService: ReactiveStreamsService) { }
+              , private reactiveService: ReactiveStreamsService) { 
+                this.logChange = this.authService.changeEmitter;
+              }
 
   @Input()
   get logged(): boolean {
@@ -44,14 +47,15 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl(url, {state: {loggedID: this.service._loggedUser.id}});
   }
   logout() {
-    if (this.router.url === '/home') {
+    this.changeChild(false);
+    if (this.router.url === '/home'||this.router.url === '/user') {
       this.newsService.callToggle.next(this.newsService.links.indexOf(this.newsService.activeLink));
       this.newsService.callTag.next(this.newsService.links[0]);
     }
     setTimeout(() => {
       this.authService.doLogout()
       .then(() => {
-        this.service.loggedUser = null;
+        this.service._loggedUser = null;
         this.service.user = null;
         this.reactiveService.resetNavListListeners('@' + this.service.dbUser.id)
         for (const tag of this.service.dbUser.tags) {
@@ -70,5 +74,10 @@ export class LoggedNavComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.onDestroy.next();
+    this.onDestroy.complete();
+  }
+  changeChild(value: boolean) {
+    this.logChange.emit(of(value));
+    console.log('changeChild --> '+value);
   }
 }

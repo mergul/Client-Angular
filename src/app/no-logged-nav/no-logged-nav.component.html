@@ -38,7 +38,7 @@
       <mat-icon>group_add</mat-icon>
     </button>
   </div>
-  <app-logged-nav [logged]="loggedinUser|async" [style.marginRight.%]="this.checkMedia ? 0 : 0">
+  <app-logged-nav [logged]="loggedinUser|async" (logChange)="receiveMessage($event)" [style.marginRight.%]="this.checkMedia ? 0 : 0">
   </app-logged-nav>
 </div>
 </mat-toolbar>

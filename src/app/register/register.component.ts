@@ -8,6 +8,9 @@ import { UserService } from '../core/user.service';
 import { FirebaseUserModel } from '../core/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { from, of, forkJoin, Subject } from 'rxjs';
+import { first, switchMap, mergeMap, takeUntil } from 'rxjs/operators';
+import { User } from 'firebase';
 
 
 @Component({
@@ -16,7 +19,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
-
+    private readonly destroy = new Subject<void>();
     registerForm: FormGroup;
     errorMessage = '';
     successMessage = '';
@@ -57,31 +60,41 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     isFieldValid(field: string) {
         return !this.registerForm.get(field).valid && this.registerForm.get(field).touched;
     }
+
     tryFacebookLogin() {
-        this.authService.doFacebookLogin(false)
-            .then(() => {
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-             }, err => console.log(err)
-            );
     }
 
     tryTwitterLogin() {
-        this.authService.doTwitterLogin()
-            .then(() => {
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-            }, err => console.log(err)
-            );
     }
-
+    setLoggedUser = (user: User) => {
+        if (this.userService.user === null) this.userService.user = new FirebaseUserModel();
+        this.userService._loggedUser = this.userService.user;
+        this.userService._loggedUser.id = this.userService.user.id = this.userService.createId(user.uid);
+        this.userService.setReactiveListeners();
+        if (this.userService.redirectUrl === 'login') {
+            this.authService.checkComplete = true;
+            return from(user.getIdToken()).pipe(first(), switchMap(token => {
+                this.userService.user.token = token;
+                return this.userService.getDbUser('/api/rest/user/' + this.userService.user.id + '/' + this.userService.getRandom() + '/0');
+            }), switchMap(tokens => {
+                this.userService.setDbUser(tokens);
+                return of(this.onClose('user'));
+            }))
+        } else {
+            this.authService.checkComplete = false;
+            return forkJoin([this.userService.getDbUser('/api/rest/start/user/' + this.userService.user.id + '/' + this.userService.getRandom()), from(user.getIdToken())])
+                .pipe(mergeMap(tokens => {
+                    this.userService.setDbUser(tokens[0]);
+                    this.userService.user.token = tokens[1];
+                    return this.userService.redirectUrl !== 'login' ? of(this.onClose(this.userService.redirectUrl)) :
+                        of(this.onClose('user'));
+                }));
+        }
+    }
     tryGoogleLogin() {
-        this.authService.doGoogleLogin(false)
-            .then(() => {
-                this.userService.redirectUrl !== 'login' ? this.onClose(this.userService.redirectUrl) :
-                this.onClose('user');
-            }, err => console.log(err)
-            );
+        this.authService.loginToGoogle(this.data.header$ < 600).pipe(takeUntil(this.destroy), switchMap(user => {
+            return this.setLoggedUser(user);
+        })).subscribe();
     }
 
     tryRegister(value) {
@@ -94,8 +107,6 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
                     this._snackBar.open('Verification Email Sent!', 'Check yor email please!', {
                         duration: 3000,
                     });
-
-                    // alert('Verification Email Sent! Check yor email please!');
                     setTimeout(
                         () => this.router.navigate([this.userService.redirectUrl]),
                         1000
@@ -128,13 +139,10 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
             });
     }
     ngAfterViewInit() {
-    //    setTimeout(() => {
-            this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
-      //  });
+        this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
     }
 
     onClose(redir) {
-       // this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', 'transparent');
         this.dialogRef.close(redir);
     }
 
@@ -147,5 +155,7 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.listenerFn) {
             this.listenerFn();
         }
+        this.destroy.next();
+        this.destroy.complete();
     }
 }

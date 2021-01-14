@@ -46,7 +46,7 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
                 else item.classList.remove('shadow');
             })
         }
-        this.newsSum.changes.subscribe(comps => {
+        this.newsSum.changes.pipe(takeUntil(this.destroy$)).subscribe(comps => {
             if (this.newsService.links.includes(this.activeLink)&&this.newsService.prevLink!==-1) {
                 if (this.currentOffset === 0 &&this.newsService.preList.length<3) { this.newsService.preList.push(comps.toArray()); }
                 else { this.newsService.preList.splice(this.newsService.links.indexOf(this.activeLink), 1, comps.toArray()); }
@@ -126,7 +126,7 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         if (this.location.isCurrentPathEqualTo('/home') && this.newsService.endPlayer.observers.length === 0) {
             if (this.currLink === this.activeLink) {
-                this.newsService.endPlayer.subscribe(() => {
+                this.newsService.endPlayer.pipe(takeUntil(this.destroy$)).subscribe(() => {
                     const index = this.newsService.links.indexOf(this.newsService.activeLink);
                     if (this.newsService.preList.length > 0) {
                         this.newsService.preList.forEach((items, ind) => {
@@ -167,7 +167,7 @@ export class NewsListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.subs = this.subsToScroll();
     }
     subsToScroll() {
-        return this.scrollObs().subscribe(() => {
+        return this.scrollObs().pipe(takeUntil(this.destroy$)).subscribe(() => {
             if (this.activeLink === this.currLink) {
                 if (this.getYPosition() > (((document.querySelector('.example-container') as HTMLElement).offsetHeight - 100)
                     * (this.currentPage - 1))) {

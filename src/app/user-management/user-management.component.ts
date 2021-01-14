@@ -61,7 +61,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
                 // Invalid or expired action code. Ask user to try to
                 // reset the password again.
                 alert(e);
-                this.router.navigate(['/auth/login']);
+                this.router.navigate(['/login']);
               });
             } break;
             case UserManagementActions.recoverEmail: {
@@ -72,7 +72,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
             } break;
             default: {
               console.log('query parameters are missing');
-              this.router.navigate(['/auth/login']);
+              this.router.navigate(['/login']);
             }
           }
         });
@@ -102,7 +102,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         .then(resp => {
           // Password reset has been confirmed and new password updated.
           alert('New password has been saved');
-          this.router.navigate(['/auth/login']);
+          this.router.navigate(['/login']);
         }).catch(e => {
       // Error occurred during confirmation. The code might have
       // expired or the password is too weak.

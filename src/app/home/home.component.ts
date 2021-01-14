@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         private winRef: WindowRef, private renderer: Renderer2
     ) {
         if (this.newsService.callToggle.observers.length === 0) {
-            this.newsService.callToggle.subscribe((data) => {
+            this.newsService.callToggle.pipe(takeUntil(this.destroy$)).subscribe((data) => {
                 console.log('move to --> ' + data + ' :: currentSlide --> ' + this.currentSlide + ' :: active --> ' + this.newsService.activeLink + ' :: is user undefined--> ' + !this.loggedUser);
                 this.navSlide = data;
                 const index = this.links.indexOf(this.newsService.activeLink);

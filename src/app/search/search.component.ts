@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterContentInit, OnDestroy } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, map, takeUntil } from 'rxjs/operators';
 import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
 import { SearchService } from '../core/search.service';
 import { NewsService } from '../core/news.service';
@@ -14,6 +14,7 @@ import { WindowRef } from '../core/window.service';
     styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit, AfterContentInit, OnDestroy {
+    private readonly onDestroy = new Subject<void>();
     newsSubject: BehaviorSubject<NewsPayload[]> = new BehaviorSubject<NewsPayload[]>([]);
     usersSubject: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
     newsResults: Observable<Array<any>>;
@@ -36,6 +37,8 @@ export class SearchComponent implements OnInit, AfterContentInit, OnDestroy {
             this.miLink = this.newsService.activeLink ? this.newsService.activeLink : this.newsService.links[0];
     }
     ngOnDestroy(): void {
+        this.onDestroy.next();
+        this.onDestroy.complete();
     }
     ngAfterContentInit(): void {
         setTimeout(() => {
@@ -72,12 +75,13 @@ export class SearchComponent implements OnInit, AfterContentInit, OnDestroy {
         this._activeLink = link;
         if (this.lastTerm) {
             this.searchType = link === this.links[0] ? 0 : 2;
-            this.doSearch(this.lastTerm).subscribe(bv => this.searchType === 0 ? this.usersSubject.next(bv) : this.newsSubject.next(bv));
+            this.doSearch(this.lastTerm).pipe(takeUntil(this.onDestroy)).subscribe(bv => this.searchType === 0 ? this.usersSubject.next(bv) : this.newsSubject.next(bv));
         }
     }
 
     private doJob() {
         return this.searchField.valueChanges.pipe(
+            takeUntil(this.onDestroy),
             debounceTime(400),
             distinctUntilChanged(),
             switchMap(term => this.doSearch(term)),

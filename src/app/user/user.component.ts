@@ -2,13 +2,14 @@ import { Component, OnDestroy, OnInit, AfterViewInit, Renderer2, Inject, NgZone,
 import { UserService } from '../core/user.service';
 import { AuthService } from '../core/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Location, DOCUMENT } from '@angular/common';
+import { Location } from '@angular/common';
 import { FirebaseUserModel, User } from '../core/user.model';
 import { NewsService } from '../core/news.service';
 import { Observable, of, Subject } from 'rxjs';
 import { WindowRef } from '../core/window.service';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-page-user',
@@ -33,7 +34,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     public set value(v: ElementRef) {
         if (v) {
             this.myInput = v;
-            this.renderer.addClass(this.myInput.nativeElement, 'active') ;
+            this.renderer.addClass(this.myInput.nativeElement, 'active');
         }
     }
     constructor(
@@ -43,10 +44,31 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         public location: Location,
         private winRef: WindowRef, private reactiveService: ReactiveStreamsService,
         private router: Router, private service: NewsService, private renderer: Renderer2) {
-            if (!this.reactiveService.random) {
-                this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
-            }
-            this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
+        if (!this.reactiveService.random) {
+            this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
+        }
+        if (!this.userService.dbUser) {
+            this.route.data.pipe(takeUntil(this.onDestroy), switchMap(routeData => {
+                const data = routeData['data'];
+                if (this.userService.user===null)this.userService.user=new FirebaseUserModel();
+                this.userService._loggedUser = this.userService.user;
+                this.userService._loggedUser.id = this.userService.user.id = this.userService.createId(data['uid']);
+                this.userService._loggedUser.name = data['displayName']
+                this.userService._loggedUser.email = data['email'];
+                this.reactiveService.setListeners('@' + this.userService._loggedUser.id, this.reactiveService.random);
+                return this.authService.token;
+            }), switchMap(tok => {
+                this.userService.user.token = tok;
+                return this.userService.getDbUser('/api/rest/user/' + this.userService.user.id + '/' + this.reactiveService.random + '/0');
+            })).subscribe(user => {
+                this.userService.setDbUser(user);
+                this.authService.changeEmitter.next(of(true));
+                this.authService.checkComplete=true;
+            });
+        } else if(!this.authService.checkComplete) {
+           this.userService.getDbUser('/api/rest/user/' + this.userService.dbUser.id + '/' + this.reactiveService.random + '/1').pipe(takeUntil(this.onDestroy))
+           .subscribe(user=>this.authService.changeEmitter.next(of(true)));
+        }
     }
 
     ngOnInit(): void {
@@ -72,26 +94,13 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
             overflow: 'hidden',
             marginTop: '17px'
         };
-        if (!this.userService.dbUser || this.userService.dbUser.id.length !== 24) {
-            this.route.data.pipe(takeUntil(this.onDestroy)).subscribe(routeData => {
-                const data = routeData['data'];
-                if (data) {
-                    if (!this.reactiveService.statusOfNewsSource()) {
-                        this.reactiveService.getNewsStream(this.reactiveService.random, this.newslistUrl);
-                    }
-                    this.user = data;
-                    this.user.provider = 'auth';
-                    this.userService.loggedUser = this.user;
-                }
-            });
-        }
     }
     ngAfterViewInit(): void {
     }
 
     ngOnDestroy(): void {
-            this.onDestroy.next();
-            this.onDestroy.complete();
+        this.onDestroy.next();
+        this.onDestroy.complete();
     }
     get newsCounts(): Map<string, string> {
         return this.service.newsCounts;
@@ -113,7 +122,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         this._tags = value;
     }
     tagClick(id: string) {
-        this.renderer.removeClass(this.myInput.nativeElement, 'active') ;
+        this.renderer.removeClass(this.myInput.nativeElement, 'active');
         this.userService.manageFollowingTag(id, true).pipe(takeUntil(this.onDestroy)).subscribe();
     }
 
@@ -123,7 +132,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
         return this.router.navigateByUrl(url);
     }
     proClick(people: string[]) {
-        this.renderer.removeClass(this.myInput.nativeElement, 'active') ;
+        this.renderer.removeClass(this.myInput.nativeElement, 'active');
         this._userIds = people;
         this.boolUser = of(2);
     }
@@ -143,7 +152,7 @@ export class UserComponent implements OnInit, OnDestroy, AfterViewInit {
     followTags() {
         this.tags = of(this.loggedUser.tags);
         this.boolUser = of(3);
-        this.renderer.removeClass(this.myInput.nativeElement, 'active') ;
+        this.renderer.removeClass(this.myInput.nativeElement, 'active');
     }
     deleteClick() {
         if (window.confirm('Are sure you want to delete this item ?')) {
