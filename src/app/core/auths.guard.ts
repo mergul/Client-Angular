@@ -28,7 +28,7 @@ export class AuthsGuard implements CanActivate {
                             this.userService.setDbUser(tokens[0]);
                             this.userService.user.token = tokens[1];
                             this.authService.changeEmitter.next(of(true));
-                            return this.router.navigate([this.userService.redirectUrl]);
+                            return this.router.navigate(['/upload']);
                         }));
                     }
                 } else {

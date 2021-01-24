@@ -1,6 +1,7 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { CommentsComponent } from '../comments/comments.component';
 import { NewsPayload } from '../core/news.model';
 import { NewsService } from '../core/news.service';
 import { ReactiveStreamsService } from '../core/reactive-streams.service';
@@ -13,7 +14,7 @@ import { WindowRef } from '../core/window.service';
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss']
 })
-export class PostComponent implements OnInit {
+export class PostComponent implements OnInit, OnDestroy {
   _url: any;
   _news: NewsPayload;
   othersList$: NewsPayload[];
@@ -23,6 +24,7 @@ export class PostComponent implements OnInit {
   commUrl: string;
   userId: string;
   user: Observable<User>;
+  @ViewChild(CommentsComponent) commentsComponent: CommentsComponent;
   @ViewChild('miButton', { static: true }) miButton: ElementRef;
 
   constructor(private userService: UserService, private newsService: NewsService
@@ -47,7 +49,7 @@ export class PostComponent implements OnInit {
     this._url = 'url(' + news.ownerUrl + ')';
   }
   over() {
-    this.miButton.nativeElement.disabled = this.userService.loggedUser&&this.news.newsOwnerId === this.userService.loggedUser.id;
+    this.miButton.nativeElement.disabled = this.userService.loggedUser && this.news.newsOwnerId === this.userService.loggedUser.id;
   }
   onTagClick(tag: string) {
     if (!this.newsService.list$) {
@@ -63,5 +65,8 @@ export class PostComponent implements OnInit {
   }
   get newsCounts(): Map<string, string> {
     return this.newsService.newsCounts;
+  }
+  ngOnDestroy(): void {
+    this.commentsComponent.micStop();
   }
 }

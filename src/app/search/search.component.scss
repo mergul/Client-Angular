@@ -4,7 +4,7 @@
   display: flex;
 }
 
-.news ul.items{
+.news ul.items{ 
   display: table;
   margin: 0 auto;
   padding: 0;
@@ -91,7 +91,7 @@ table{
   border-collapse: collapse;
   border-spacing: 0;
 }
-.mat-tab-links {
+::ng-deep .mat-tab-links {
   max-width: 619px;
   border: 1px solid #e6e6e6;
   margin: 0 auto;

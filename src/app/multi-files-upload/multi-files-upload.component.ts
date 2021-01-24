@@ -1,11 +1,11 @@
-import {Component, OnInit, Inject, AfterViewInit, OnDestroy, Renderer2, ViewChild, ElementRef, HostListener} from '@angular/core';
-import {FormBuilder, FormGroup, FormArray, FormControl} from '@angular/forms';
-import {MultiFilesService} from './multi-files.service';
-import {BackendServiceService} from '../core/backend-service.service';
-import {Observable, Subject, from} from 'rxjs';
-import {NewsFeed} from '../core/news.model';
-import {DOCUMENT} from '@angular/common';
-import { takeUntil, map } from 'rxjs/operators';
+import { Component, OnInit, Inject, AfterViewInit, OnDestroy, Renderer2, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { MultiFilesService } from './multi-files.service';
+import { BackendServiceService } from '../core/backend-service.service';
+import { Observable, Subject, from, of } from 'rxjs';
+import { NewsFeed } from '../core/news.model';
+import { DOCUMENT } from '@angular/common';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { SpeechService, RecognitionResult } from '../core/speech-service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -30,7 +30,6 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     speechMessages: Observable<RecognitionResult>;
     languages: string[] = ['tr', 'en', 'es', 'de', 'fr'];
     currentLanguage = 'tr';
-    finalTranscript: string;
     targetLanguage = 'fr';
     foods: Observable<MediaDeviceInfo[]>;
     startTopButtonDisabled: boolean;
@@ -47,22 +46,25 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
 
     isTopicActivated = false;
     isDescActivated = false;
-    @ViewChild('startTopButton', {static: true}) startTopButton: ElementRef;
-    @ViewChild('startDescButton', {static: true}) startDescButton: ElementRef;
-    @ViewChild('topBox', {static: true}) topBox: ElementRef;
-    @ViewChild('textBox', {static: true}) textBox: ElementRef;
+    @ViewChild('startTopButton', { static: true }) startTopButton: ElementRef;
+    @ViewChild('startDescButton', { static: true }) startDescButton: ElementRef;
+    @ViewChild('topBox', { static: true }) topBox: ElementRef;
+    @ViewChild('textBox', { static: true }) textBox: ElementRef;
     color: string;
     wideStyle: { width: string; };
     loggedID: string;
     isTopicValid = false;
     isDescValid = false;
+    interimTranscript='';
+    obs=new Map<number, any>();
+    isSameObs: boolean;
 
     constructor(private formBuilder: FormBuilder, public dialogRef: MatDialogRef<MultiFilesUploadComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: any,
-                protected multifilesService: MultiFilesService, private _snackBar: MatSnackBar,
-                private speechService: SpeechService, private service: UserService,
-                private backendService: BackendServiceService,
-                @Inject(DOCUMENT) private document: Document, private renderer: Renderer2
+        @Inject(MAT_DIALOG_DATA) public data: any,
+        protected multifilesService: MultiFilesService, private _snackBar: MatSnackBar,
+        private speechService: SpeechService, private service: UserService,
+        private backendService: BackendServiceService,
+        @Inject(DOCUMENT) private document: Document, private renderer: Renderer2
     ) {
         this.documentGrp = this.formBuilder.group({
             news_topic: new FormControl(['']),
@@ -81,28 +83,42 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         this.speechService.init();
         if (this.speechService._supportRecognition) {
             this.speechService.initializeSettings(this.currentLanguage);
-            this.speechMessages = this.speechService.getMessage().pipe(map((text) => {
-                this.finalTranscript = text.transcript;
+            if (this.speechService.speechSubject.observers.length===0)
+            this.speechMessages = this.speechService.getMessage().pipe(takeUntil(this.onDestroy),
+            switchMap((text) => {
                 if (text.transcript && text.info === 'final_transcript') {
-                    this.handleSentence(this.finalTranscript);
+                    this.handleSentence(text.transcript);
+                    text.transcript = this.isTopicActivated?this.miTopText:this.miDescText;
                 } else if (text.transcript && text.info === 'print') {
                     this.handleSendButton(text.transcript);
-                }
-                if (this.isTopicActivated && this.miTopText) {
-                    text.transcript = this.miTopText;
-                } else if (this.isDescActivated && this.miDescText) {
-                    text.transcript = this.miDescText;
-                }
-                return text;
+                    text.transcript = this.isTopicActivated?this.miTopText:this.miDescText;
+                } else if (text.info === 'interim_transcript') {
+                    this.interimTranscript=text.transcript;
+                    if (this.isTopicActivated) {
+                        text.transcript = this.miTopText + text.transcript;
+                    } else if (this.isDescActivated) {
+                        text.transcript = this.miDescText + text.transcript;
+                    }
+                } else if (text.info==='start') {
+                    this._snackBar.open('Your Browser has support for Speech!', text.transcript, {
+                      duration: 3000,
+                    });
+                    if (this.isTopicActivated) {
+                        text.transcript=this.miTopText;
+                    } else if (this.isDescActivated) {
+                        text.transcript=this.miDescText;
+                    }
+                  }
+                return of(text);
             }));
         } else {
             this.startDescButtonDisabled = true;
             this.startTopButtonDisabled = true;
         }
         this.loggedID = window.history.state.loggedID;
-        this.documentGrp.valueChanges.pipe(takeUntil(this.onDestroy)).subscribe(x => {
-           this.isTopicValid = this.documentGrp.controls.news_topic.value.toString().trim().length > 3;
-           this.isDescValid = this.documentGrp.controls.news_description.value.toString().trim().length > 3;
+        this.documentGrp.valueChanges.pipe(takeUntil(this.onDestroy)).subscribe(() => {
+            this.isTopicValid = this.documentGrp.controls.news_topic.value.toString().trim().length > 3;
+            this.isDescValid = this.documentGrp.controls.news_description.value.toString().trim().length > 3;
         });
     }
     @HostListener('window:keyup.esc') onKeyUp() {
@@ -113,9 +129,10 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             this.miTopText += ' ' + text;
             this.speechService.mitext = this.miTopText;
         } else if (this.isDescActivated && this.miDescText !== text) {
-            this.miDescText += ' ' +  text;
+            this.miDescText += ' ' + text;
             this.speechService.mitext = this.miDescText;
         }
+        this.interimTranscript='';
     }
     handleSendButton = (text) => {
         if (this.whichButton) {
@@ -131,13 +148,14 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     startCamera(ev: Event) {
         this.whichButton = (ev.target as HTMLElement).parentElement.nextElementSibling.textContent.trimLeft().startsWith('Topic');
         if ((this.whichButton && this.startTopButton.nativeElement.innerHTML.startsWith('Start')) ||
-        (!this.whichButton && this.startDescButton.nativeElement.innerHTML.startsWith('Start'))) {
+            (!this.whichButton && this.startDescButton.nativeElement.innerHTML.startsWith('Start'))) {
             if (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
-                this.foods = from(navigator.mediaDevices.enumerateDevices()
-                    .then(this.gotDevices));
-                navigator.mediaDevices.getUserMedia(this.constraints)
-                    .then(this.attachVideo.bind(this))
-                    .catch(this.handleError);
+                from(navigator.mediaDevices.enumerateDevices()
+                    .then(this.gotDevices)).pipe(takeUntil(this.onDestroy), switchMap(()=>
+                        from(navigator.mediaDevices.getUserMedia(this.constraints)
+                        .then(this.attachVideo.bind(this))
+                        .catch(this.handleError))
+                    )).subscribe();
             } else {
                 alert('Sorry, camera not available.');
             }
@@ -149,17 +167,21 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                 this.startTopButtonDisabled = true;
             }
         } else {
-            this.speechService.stop();
+            this.speechService.abort();
             if (this.whichButton) {
                 this.renderer.setProperty(this.startTopButton.nativeElement, 'innerHTML', 'Start Microphone');
                 this.renderer.addClass(this.startTopButton.nativeElement, 'button-outline');
                 this.isTopicActivated = false;
                 this.startDescButtonDisabled = false;
+                this.miTopText+=' '+this.interimTranscript
+                this.handleSendButton(this.miTopText);
             } else {
                 this.renderer.setProperty(this.startDescButton.nativeElement, 'innerHTML', 'Start Microphone');
                 this.renderer.addClass(this.startDescButton.nativeElement, 'button-outline');
                 this.isDescActivated = false;
                 this.startTopButtonDisabled = false;
+                this.miDescText+=' '+this.interimTranscript
+                this.handleSendButton(this.miDescText);
             }
             this.micStop(this.localStream);
         }
@@ -172,11 +194,19 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         this.localStream = stream;
         if (this.speechService._supportRecognition) {
             if (this.recognizing) {
-                this.speechService.stop();
+                this.speechService.abort();
                 return;
             }
+            if(this.speechService.speechSubject.observers.length>1) {
+                this.obs[!this.whichButton?0:1]=this.speechService.speechSubject.observers.splice(0,1);
+                this.isSameObs=!this.whichButton;
+            } else if(this.isSameObs===this.whichButton){
+                this.obs[!this.whichButton?0:1]=this.speechService.speechSubject.observers.splice(0,1);
+                this.speechService.speechSubject.observers.push(this.obs[this.whichButton?0:1][0]);
+                this.isSameObs=!this.whichButton;
+            }
             this.speechService.startSpeech(stream.startTime);
-            if ( this.isTopicActivated) {
+            if (this.isTopicActivated) {
                 this.renderer.setProperty(this.startTopButton.nativeElement, 'innerHTML', 'Stop Microphone');
                 this.renderer.removeClass(this.startTopButton.nativeElement, 'button-outline');
             } else {
@@ -190,7 +220,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
     }
     handleKey = (evt) => {
         if (evt.keyCode === 13 || evt.keyCode === 14) {
-                this.handleSendButton(this.textBox.nativeElement.value);
+            this.handleSendButton(this.textBox.nativeElement.value);
         }
     }
     micStop(stream: MediaStream) {
@@ -203,6 +233,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                 track.stop();
             });
         }
+        this.speechService.stop();
     }
     doPatch(term: any): any {
         if (this.whichButton) {
@@ -296,8 +327,8 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         this.totalFiles[oldIndex] = fileInput;
         if (this.totalFiles[oldIndex].type.includes('video')) {
             this.generateThumbnail(this.totalFiles[oldIndex], oldIndex).then(data => {
-                    this._url[oldIndex] = data;
-                }
+                this._url[oldIndex] = data;
+            }
             );
         } else if (this.totalFiles[oldIndex].type.includes('image')) {
             const reader = new FileReader();
@@ -397,7 +428,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
                 'has_medium': true
             });
             MediaPartObj.push('bae.jpeg', 'thumb-kapak-bae.jpeg', 'medium-bae.jpeg', 'bae.jpeg', 'thumb-kapak-bae.jpeg', 'medium-bae.jpeg',
-             'bae.jpeg', 'thumb-kapak-bae.jpeg', 'medium-bae.jpeg');
+                'bae.jpeg', 'thumb-kapak-bae.jpeg', 'medium-bae.jpeg');
         }
         this._purl = formValue.news_topic.match(/#[a-zığüşöçĞÜŞÖÇİ0-9_.]+/gi);
         this.newsFeed = new NewsFeed(this.text2HTML(formValue.news_description), formValue.news_topic
@@ -405,10 +436,10 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
             , AllFilesObj, MediaPartObj, Date.now());
 
         this.backendService.postNews(this.newsFeed).pipe(takeUntil(this.onDestroy)).subscribe(() => {
-          //  this.userService.increaseCount().pipe(takeUntil(this.onDestroy)).subscribe(value1 => {
-                this.removeAll();
-                this.dialogRef.close('/user');
-                // });
+            //  this.userService.increaseCount().pipe(takeUntil(this.onDestroy)).subscribe(value1 => {
+            this.removeAll();
+            this.dialogRef.close('/user');
+            // });
         });
     }
 
@@ -437,7 +468,7 @@ export class MultiFilesUploadComponent implements OnInit, AfterViewInit, OnDestr
         if (!this.speechService._supportRecognition) {
             this._snackBar.open('Your Browser has no support for Speech!', 'Try Chrome for Speech!', {
                 duration: 3000,
-              });
+            });
         }
     }
 

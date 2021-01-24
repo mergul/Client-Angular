@@ -10,7 +10,7 @@ import { NewsManageComponent } from '../news-manage/news-manage.component';
 // import { VgCoreModule } from 'videogular2/compiled/src/core/core';
 // import { VgOverlayPlayModule } from 'videogular2/compiled/src/overlay-play/overlay-play';
 import { FilesListComponent } from '../files-list/files-list.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -39,7 +39,7 @@ const routes: Routes = [
     CommonModule, RouterModule.forChild(routes),
     FormsModule, MatDialogModule,
     MatSelectModule, MatInputModule,
-    MatFormFieldModule, MatMenuModule,
+    MatFormFieldModule, MatMenuModule, ReactiveFormsModule,
     MatSnackBarModule, // StackedModalModule
     // VgControlsModule,
     // VgBufferingModule,
@@ -55,6 +55,6 @@ const routes: Routes = [
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   exports: [DialogDetailsContainerComponent, NewsDetailsComponent,
     MediaSocialComponent, FilesListComponent, CommentsComponent,
-    NewsManageComponent, PostComponent, CommonModule, FormsModule]
+    NewsManageComponent, PostComponent, CommonModule, FormsModule,ReactiveFormsModule]
 })
 export class NewsDetailsModule { }

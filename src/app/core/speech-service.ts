@@ -27,10 +27,11 @@ export enum SpeechError {
 export class SpeechService {
     _supportRecognition: boolean;
     _speech: SpeechRecognition;
-    private speechSubject = new BehaviorSubject<RecognitionResult>({transcript: 'Start Speaker!'});
+    speechSubject = new BehaviorSubject<RecognitionResult>({transcript: 'Start Speaker!', info: 'begin'});
     ignoreOnEnd: boolean;
     startTimestamp: any;
     utterance: SpeechSynthesisUtterance;
+    texts = new Map<string, string>();
     private _mitext = '';
     constructor(private zone: NgZone, protected http: HttpClient) {
     }
@@ -67,17 +68,23 @@ export class SpeechService {
     public set mitext(text) {
         this._mitext = text;
     }
+    public get mitext() {
+        return this._mitext;
+    }
     private initListeners() {
         this._speech.onstart = (ev) => {
-            this.zone.run(() => this.speechSubject.next({ transcript: 'speak now!' }));
+            this.zone.run(() => this.speechSubject.next({ transcript: 'speak now!', info: 'start' }));
         };
+        this._speech.onspeechend = () =>{
+            this.stop();
+            console.log('Speech recognition has stopped.');
+          }
         this._speech.onend = (ev) => {
             if (this.ignoreOnEnd) {
                 return;
             }
             this.zone.run(() => {
-                if (this._mitext !== '') { this.speechSubject.next({ transcript: this._mitext, info: 'print' }); }
-                this.speechSubject.next({ transcript: 'speech ended!' });
+                this.speechSubject.next({ transcript: this._mitext, info: 'print' });
             });
         };
         this._speech.onerror = (event: any) => {
@@ -112,20 +119,28 @@ export class SpeechService {
                 }
             }
             this.zone.run(() => {
-                this.speechSubject.next({
-                    info: 'final_transcript',
-                    transcript: finalTranscript
-                });
-                this.speechSubject.next({
-                    info: 'interim_transcript',
-                    transcript: interimTranscript
-                });
+                if (finalTranscript) {
+                    this.speechSubject.next({
+                        info: 'final_transcript',
+                        transcript: finalTranscript
+                    });
+                }
+                if (interimTranscript) {
+                    this.speechSubject.next({
+                        info: 'interim_transcript',
+                        transcript: interimTranscript
+                    });
+                }
             });
         };
     }
     stop() {
-        this._speech.stop();
+       this._speech.stop();
     }
+    abort() {
+      this._speech.abort();
+      this.mitext='';
+     }
     getMessage(): Observable<RecognitionResult> {
         return this.speechSubject.asObservable();
     }

@@ -12,6 +12,7 @@ import { SpeechService, RecognitionResult } from '../core/speech-service';
 import {HammerGestureConfig} from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CommentsComponent } from '../comments/comments.component';
 
 @Component({
     selector: 'app-details',
@@ -27,6 +28,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('textBox', {static: true}) textBox: ElementRef;
     @ViewChild('speechTextBox', {static: true}) speechTextBox: ElementRef;
     @ViewChild('startButton', {static: true}) startButton: ElementRef;
+    @ViewChild(CommentsComponent) commentsComponent: CommentsComponent;
 
     color: string;
     news$: News;
@@ -50,20 +52,20 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     private _social = of(false);
     twttr: any;
     mySrc: Observable<string>;
-    speechMessages: Observable<RecognitionResult>;
-    languages: string[] = ['tr', 'en', 'es', 'de', 'fr'];
-    currentLanguage = 'tr';
-    finalTranscript: string;
-    targetLanguage = 'fr';
-    foods: Observable<MediaDeviceInfo[]>;
-    startButtonDisabled: boolean;
-    recognizing = false;
-    localStream: MediaStream;
-    private constraints = {
-        video: false,
-        audio: true
-    };
-    mitext = '';
+    // speechMessages: Observable<RecognitionResult>;
+    // languages: string[] = ['tr', 'en', 'es', 'de', 'fr'];
+    // currentLanguage = 'tr';
+    // finalTranscript: string;
+    // targetLanguage = 'fr';
+    // foods: Observable<MediaDeviceInfo[]>;
+    // startButtonDisabled: boolean;
+    // recognizing = false;
+    // localStream: MediaStream;
+    // private constraints = {
+    //     video: false,
+    //     audio: true
+    // };
+    // mitext = '';
     alive = true;
     height: number;
     thumbWidth = 174;
@@ -73,10 +75,8 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     slideCount: number;
 
     constructor(public dialogRef: MatDialogRef<NewsDetailsComponent>, @Inject(MAT_DIALOG_DATA) public data: any,
-     private service: NewsService, private speechService: SpeechService,
-        private userService: UserService, private winRef: WindowRef, protected sanitizer: DomSanitizer
-        , private builder: AnimationBuilder, private _snackBar: MatSnackBar,
-         private renderer: Renderer2, @Inject(DOCUMENT) private _document: Document) {
+     private service: NewsService, private userService: UserService, private winRef: WindowRef, protected sanitizer: DomSanitizer
+        , private builder: AnimationBuilder, private renderer: Renderer2, @Inject(DOCUMENT) private _document: Document) {
              this.news$ = data.news$;
              this.color = data.color;
     }
@@ -121,27 +121,25 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         };
         this.isManager = this.userService.dbUser && (this.userService.dbUser.roles.includes('ROLE_ADMIN')
         || this.userService.dbUser.roles.includes('ROLE_MODERATOR'));
-        this.speechService.init();
-        if (this.speechService._supportRecognition) {
-            this.speechService.initializeSettings(this.currentLanguage);
-            this.speechMessages = this.speechService.getMessage().pipe(map((text) => {
-                this.finalTranscript = text.transcript;
-                if (text.transcript && text.info === 'final_transcript') {
-                    this.handleSentence(this.finalTranscript);
-                } else if (text.transcript && text.info === 'print') {
-                    this.handleSendButton(text.transcript);
-                }
-                return text;
-            }));
-        } else {
-            this.startButtonDisabled = true;
-        }
+        // this.speechService.init();
+        // if (this.speechService._supportRecognition) {
+        //     this.speechService.initializeSettings(this.currentLanguage);
+        //     this.speechMessages = this.speechService.getMessage().pipe(map((text) => {
+        //         this.finalTranscript = text.transcript;
+        //         if (text.transcript && text.info === 'final_transcript') {
+        //             this.handleSentence(this.finalTranscript);
+        //         } else if (text.transcript && text.info === 'print') {
+        //             this.handleSendButton(text.transcript);
+        //         }
+        //         return text;
+        //     }));
+        // } else {
+        //     this.startButtonDisabled = true;
+        // }
     }
 
     ngAfterViewInit() {
-     //   setTimeout(() => {
-            this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
-      //  });
+        this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', this.color);
     //    this.renderer.setProperty(this._document.getElementById('mihtml'), 'innerHTML', this.news$.summary);
         const hammerConfig = new HammerGestureConfig();
         const hammer = hammerConfig.buildHammer(this.carousel.nativeElement);
@@ -160,11 +158,11 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.sliderNext();
             } 
         });
-        if (!this.speechService._supportRecognition) {
-            this._snackBar.open('Your Browser has no support for Speech!', 'Try Chrome for Speech!', {
-                duration: 3000,
-              });
-        }
+        // if (!this.speechService._supportRecognition) {
+        //     this._snackBar.open('Your Browser has no support for Speech!', 'Try Chrome for Speech!', {
+        //         duration: 3000,
+        //       });
+        // }
     }
     sliderNext() {
         if (this.sliderSlide + 1 === this.news$.mediaReviews.length) {
@@ -194,47 +192,47 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.playerS.play();
     }
 
-    gotDevices(mediaDevices: MediaDeviceInfo[]) {
-        return mediaDevices.filter(value => value.kind === 'videoinput');
-    }
-    startCamera() {
-        if (this.startButton.nativeElement.innerHTML.startsWith('Start')) {
-            if (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
-               // this.startButtonDisabled = true;
-                this.foods = from(navigator.mediaDevices.enumerateDevices()
-                    .then(this.gotDevices));
-                navigator.mediaDevices.getUserMedia(this.constraints)
-                    .then(this.attachVideo.bind(this))
-                    .catch(this.handleError);
-            } else {
-                alert('Sorry, camera not available.');
-            }
-        } else {
-            this.speechService.stop();
-            this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Start Microphone');
-            this.renderer.addClass(this.startButton.nativeElement, 'button-outline');
-            this.micStop(this.localStream);
-        }
-    }
-    onSelectLanguage(language: string) {
-        this.currentLanguage = language;
-        this.speechService.setLanguage(this.currentLanguage);
-    }
-    attachVideo(stream) {
-        this.localStream = stream;
-        if (this.speechService._supportRecognition) {
-            if (this.recognizing) {
-                this.speechService.stop();
-                return;
-            }
-            this.speechService.startSpeech(stream.startTime);
-            this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Stop Microphone');
-            this.renderer.removeClass(this.startButton.nativeElement, 'button-outline');
-        }
-    }
-    handleError(error) {
-        console.log('Error: ', error);
-    }
+    // gotDevices(mediaDevices: MediaDeviceInfo[]) {
+    //     return mediaDevices.filter(value => value.kind === 'videoinput');
+    // }
+    // startCamera() {
+    //     if (this.startButton.nativeElement.innerHTML.startsWith('Start')) {
+    //         if (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+    //            // this.startButtonDisabled = true;
+    //             this.foods = from(navigator.mediaDevices.enumerateDevices()
+    //                 .then(this.gotDevices));
+    //             navigator.mediaDevices.getUserMedia(this.constraints)
+    //                 .then(this.attachVideo.bind(this))
+    //                 .catch(this.handleError);
+    //         } else {
+    //             alert('Sorry, camera not available.');
+    //         }
+    //     } else {
+    //         this.speechService.stop();
+    //         this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Start Microphone');
+    //         this.renderer.addClass(this.startButton.nativeElement, 'button-outline');
+    //         this.micStop(this.localStream);
+    //     }
+    // }
+    // onSelectLanguage(language: string) {
+    //     this.currentLanguage = language;
+    //     this.speechService.setLanguage(this.currentLanguage);
+    // }
+    // attachVideo(stream) {
+    //     this.localStream = stream;
+    //     if (this.speechService._supportRecognition) {
+    //         if (this.recognizing) {
+    //             this.speechService.stop();
+    //             return;
+    //         }
+    //         this.speechService.startSpeech(stream.startTime);
+    //         this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Stop Microphone');
+    //         this.renderer.removeClass(this.startButton.nativeElement, 'button-outline');
+    //     }
+    // }
+    // handleError(error) {
+    //     console.log('Error: ', error);
+    // }
     get newsCounts(): Map<string, string> {
         return this.service.newsCounts;
     }
@@ -246,9 +244,9 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this._social = value;
     }
     onClose(redir: string) {
-        this.micStop(this.localStream);
-      //  this.renderer.setStyle(this._document.querySelector('.mat-dialog-container'), 'background-color', 'transparent');
-      this.dialogRef.close(redir);
+       // this.micStop(this.localStream);
+       this.commentsComponent.micStop();
+        this.dialogRef.close(redir);
     }
 
     onDialogClick(event: UIEvent) {
@@ -341,37 +339,37 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.service.activeLink = tag;
         this.onClose('/home');
     }
-    handleKey = (evt) => {
-        if (evt.keyCode === 13 || evt.keyCode === 14) {
-                this.handleSendButton(this.textBox.nativeElement.value);
-        }
-    }
-    handleSentence = (text) => {
-          this.mitext += text;
-          this.speechService.mitext = this.mitext;
-    }
-    handleSendButton = (text) => {
-        const time = new Date();
-        const timeStr = time.toLocaleTimeString();
-        const mit = '<div style="background: #e1ffc7; margin-bottom: 10px; padding: 10px">' + '<strong>' + this.userService.dbUser.email
-        + '</strong> <br>' + text + '<span>' + '<span style="padding: 10px; float: right;">' + timeStr +
-        '</span>' + '</span></div>';
-        this.renderer.setProperty(this.publicChatBox.nativeElement, 'innerHTML', this.publicChatBox.nativeElement.innerHTML + mit);
-        this.publicChatBox.nativeElement.scrollTop = this.publicChatBox.nativeElement.scrollHeight -
-            this.publicChatBox.nativeElement.clientHeight;
-        this.mitext = '';
-        this.speechService.mitext = this.mitext;
-        this.service.setComment(text, this.userService.dbUser.id, this.news$.id);
-    }
-    micStop(stream: MediaStream) {
-        let tracks = null;
-        if (stream != null) {
-            tracks = stream.getTracks();
-        }
-        if (tracks != null) {
-            tracks.forEach(function (track) {
-                track.stop();
-            });
-        }
-    }
+    // handleKey = (evt) => {
+    //     if (evt.keyCode === 13 || evt.keyCode === 14) {
+    //             this.handleSendButton(this.textBox.nativeElement.value);
+    //     }
+    // }
+    // handleSentence = (text) => {
+    //       this.mitext += text;
+    //       this.speechService.mitext = this.mitext;
+    // }
+    // handleSendButton = (text) => {
+    //     const time = new Date();
+    //     const timeStr = time.toLocaleTimeString();
+    //     const mit = '<div style="background: #e1ffc7; margin-bottom: 10px; padding: 10px">' + '<strong>' + this.userService.dbUser.email
+    //     + '</strong> <br>' + text + '<span>' + '<span style="padding: 10px; float: right;">' + timeStr +
+    //     '</span>' + '</span></div>';
+    //     this.renderer.setProperty(this.publicChatBox.nativeElement, 'innerHTML', this.publicChatBox.nativeElement.innerHTML + mit);
+    //     this.publicChatBox.nativeElement.scrollTop = this.publicChatBox.nativeElement.scrollHeight -
+    //         this.publicChatBox.nativeElement.clientHeight;
+    //     this.mitext = '';
+    //     this.speechService.mitext = this.mitext;
+    //     this.service.setComment(text, this.userService.dbUser.id, this.news$.id);
+    // }
+    // micStop(stream: MediaStream) {
+    //     let tracks = null;
+    //     if (stream != null) {
+    //         tracks = stream.getTracks();
+    //     }
+    //     if (tracks != null) {
+    //         tracks.forEach(function (track) {
+    //             track.stop();
+    //         });
+    //     }
+    // }
 }

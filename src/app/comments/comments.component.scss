@@ -1,8 +1,12 @@
-.example-header-image {
+.example-header-image, .header-image {
   background-size: cover;
-  height: 40px;
-  width: 40px;
+  height: 30px;
+  width: 30px;
+  margin-top: 5px;
   border-radius: 50%;
+}
+::ng-deep .mat-form-field-label{
+  color: #000000a3 !important;
 }
 ::ng-deep .mat-form-field-wrapper{
     width: inherit;
@@ -25,4 +29,19 @@
   }
   input.mat-input-element {
     margin: 5px;
+  }
+  ::ng-deep textarea{
+    min-height: 40px !important;
+  }
+  .fill-outline{
+    fill:red;
+  }
+  li{
+    height: 40px;
+    width: 40px;
+  }
+  .example-header-image:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px #9122aa;
+    border-radius: 0;
   }
