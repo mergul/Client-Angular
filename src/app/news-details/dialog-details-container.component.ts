@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router, ParamMap } from '@angular/router';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil, switchMap } from 'rxjs/operators';
 import { NewsDetailsComponent } from './news-details.component';
 import { NewsService } from '../core/news.service';

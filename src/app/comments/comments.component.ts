@@ -39,6 +39,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
    this.speechService.navSpeech.pipe(takeUntil(this.destroy)).subscribe(boo=>{
     if (boo&&this.speechService.texts.has(this._newsId))
     this.speechMessages=of({transcript: this.speechService.texts.get(this._newsId)}); 
+    this.mitext=this.speechService.texts.get(this._newsId);
    })
   }
 
@@ -97,7 +98,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
             this._snackBar.open('Your Browser has support for Speech!', text.transcript, {
               duration: 3000,
             });
-            this.mitext=this.speechService.mitext?this.speechService.mitext:this.mitext;
+            this.mitext=this.speechService.mitext?this.speechService.mitext:(this.mitext?this.mitext:'');
             text.transcript=this.mitext;
           }
           return of(text);
@@ -170,6 +171,5 @@ export class CommentsComponent implements OnInit, OnDestroy {
     if (this.mitext) {
       this.speechService.texts.set(this._newsId, this.mitext);
     }
-    // this.speechService.navSpeech.next(true);
   }
 }
