@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 export interface AppWindow extends Window {
     webkitSpeechRecognition: any;
@@ -27,7 +27,8 @@ export enum SpeechError {
 export class SpeechService {
     _supportRecognition: boolean;
     _speech: SpeechRecognition;
-    speechSubject = new BehaviorSubject<RecognitionResult>({transcript: 'Start Speaker!', info: 'begin'});
+    navSpeech= new BehaviorSubject<boolean>(false);
+    speechSubject = new BehaviorSubject<RecognitionResult>({transcript: '', info: 'begin'});
     ignoreOnEnd: boolean;
     startTimestamp: any;
     utterance: SpeechSynthesisUtterance;
@@ -140,7 +141,7 @@ export class SpeechService {
     abort() {
       this._speech.abort();
       this.mitext='';
-     }
+    }
     getMessage(): Observable<RecognitionResult> {
         return this.speechSubject.asObservable();
     }

@@ -53,8 +53,8 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         public service: NewsService, public domSanitizer: DomSanitizer) {
         if (!this.reactiveService.random) {
             this.reactiveService.random = Math.floor(Math.random() * (999999 - 100000)) + 100000;
-          }
-          this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
+        }
+        this.newslistUrl = '/sse/chat/room/TopNews' + this.reactiveService.random + '/subscribeMessages';
     }
     @Input()
     get username(): string {
@@ -69,7 +69,7 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
     ngOnInit() {
         if (!this.reactiveService.statusOfNewsSource()) {
             this.reactiveService.getNewsStream(this.reactiveService.random, this.newslistUrl);
-          }
+        }
         this.loggedID = window.history.state.loggedID;
         this._username = window.history.state.userID;
         this._user = this.userService._otherUser;
@@ -94,22 +94,15 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
             overflow: 'hidden',
             marginTop: '17px'
         };
-        if (!this._username) {
-            this.route.paramMap.pipe(takeUntil(this.onDestroy)).subscribe((params: ParamMap) => {
-                this._username = params.get('id');
-                this.username = this._username.includes('@') ? this._username : '#' + this._username;
-                this.setThat();
-            });
-        } else {
+        this.route.paramMap.pipe(takeUntil(this.onDestroy)).subscribe((params: ParamMap) => {
+            this._username = params.get('id');
+            this.username = this._username.includes('@') ? this._username : '#' + this._username;
             this.setThat();
-        }
+        });
     }
 
     private setThat() {
-        this.loggedID = this.loggedID ? this.loggedID : '';
-        if (!this.userService._otherUser) {
-            this._user = this.userService._otherUser = this.findMother();
-        }
+        this._user = this.userService._otherUser = this.findMother();
     }
 
     tagClick(user: User) {
@@ -215,47 +208,47 @@ export class PublicProfileComponent implements OnInit, OnDestroy, AfterViewInit 
         this.userService.blockUser(userd, this.userService.dbUser.blocked.includes(userd.id)).pipe(takeUntil(this.onDestroy)).subscribe();
     }
     private findMother(): Observable<User> {
-        if (this.userService._otherUser) { return this._user; } else {
-            const url = '/api/rest/users/get/' + encodeURIComponent(this._username)
-            + '/' + (this.loggedID !== '' ? this.loggedID : 'a') + '/' + this.reactiveService.random;
-            return this.userService.getDbUser(url).pipe(map(user => {
-                    if (user.id) {
-                        this.userID = user.id;
-                        const leng = user.mediaParts.length;
-                        user.mediaParts.forEach(thumb => {
-                            const img = thumb === 1 ? 'back-img.jpeg' : 'profile-img.jpeg';
-                            if (thumb === 1) {
-                                this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + user.id + '-' + img;
-                                if (leng === 1) {
-                                    this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
-                                }
-                            } else if (thumb === 0) {
-                                this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + user.id + '-' + img;
-                                if (leng === 1) {
-                                    this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
-                                }
-                            }
-                        });
-                        if (leng === 0) {
-                            this.prof_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
-                                + 'profile-img.jpeg'; // this.loggedUser.image;
-                            this.back_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
-                                + 'back-img.jpeg';
+        // if (this.userService._otherUser) { return this._user; } else {
+        const url = '/api/rest/users/get/' + encodeURIComponent(this._username)
+            + '/' + (this.loggedID ? this.loggedID : 'a') + '/' + this.reactiveService.random;
+        return this.userService.getDbUser(url).pipe(map(user => {
+            if (user.id) {
+                this.userID = user.id;
+                const leng = user.mediaParts.length;
+                user.mediaParts.forEach(thumb => {
+                    const img = thumb === 1 ? 'back-img.jpeg' : 'profile-img.jpeg';
+                    if (thumb === 1) {
+                        this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + user.id + '-' + img;
+                        if (leng === 1) {
+                            this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
                         }
-                        this.folli = this.userService.loggedUser != null && this.userService.loggedUser.people.includes(user.id);
-                        this.boolUser = of(0);
-                    } else {
-                        this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + 'profile-img.jpeg';
-                        this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + 'back-img.jpeg';
-                        this.boolUser = of(0);
+                    } else if (thumb === 0) {
+                        this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + user.id + '-' + img;
+                        if (leng === 1) {
+                            this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + img;
+                        }
                     }
-                    if (!this.reactiveService.publicStreamList$.get(user.id)) {
-                        this.reactiveService.setOtherListener('@' + user.id, this.reactiveService.random);
-                        this.service.setNewsUser('@' + user.id, this.reactiveService.random).pipe(takeUntil(this.onDestroy)).subscribe();
-                    } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(user.id)); }
-                    return user;
-                }));
-        }
+                });
+                if (leng === 0) {
+                    this.prof_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
+                        + 'profile-img.jpeg'; // this.loggedUser.image;
+                    this.back_url = '/assets/' // 'https://storage.googleapis.com/sentral-news-media/'
+                        + 'back-img.jpeg';
+                }
+                this.folli = this.userService.loggedUser != null && this.userService.loggedUser.people.includes(user.id);
+                this.boolUser = of(0);
+            } else {
+                this.prof_url = 'https://storage.googleapis.com/sentral-news-media/' + 'profile-img.jpeg';
+                this.back_url = 'https://storage.googleapis.com/sentral-news-media/' + 'back-img.jpeg';
+                this.boolUser = of(0);
+            }
+            if (!this.reactiveService.publicStreamList$.get(user.id)) {
+                this.reactiveService.setOtherListener('@' + user.id, this.reactiveService.random);
+                this.service.setNewsUser('@' + user.id, this.reactiveService.random).pipe(takeUntil(this.onDestroy)).subscribe();
+            } else { this.reactiveService.getNewsSubject('other').next(this.reactiveService.publicStreamList$.get(user.id)); }
+            return user;
+        }));
+        //   }
     }
     get tags(): Observable<Array<string>> {
         return this._tags;

@@ -36,6 +36,10 @@ export class CommentsComponent implements OnInit, OnDestroy {
     this.myGroup = this.formBuilder.group({
       news_comments: new FormControl([''])
    });
+   this.speechService.navSpeech.pipe(takeUntil(this.destroy)).subscribe(boo=>{
+    if (boo&&this.speechService.texts.has(this._newsId))
+    this.speechMessages=of({transcript: this.speechService.texts.get(this._newsId)}); 
+   })
   }
 
   ngOnDestroy(): void {
@@ -163,6 +167,9 @@ export class CommentsComponent implements OnInit, OnDestroy {
       });
     }
     this.speechMessages=of({transcript: this.mitext});
-    if (this.mitext) this.speechService.texts.set(this._newsId, this.mitext);
+    if (this.mitext) {
+      this.speechService.texts.set(this._newsId, this.mitext);
+    }
+    // this.speechService.navSpeech.next(true);
   }
 }

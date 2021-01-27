@@ -52,20 +52,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     private _social = of(false);
     twttr: any;
     mySrc: Observable<string>;
-    // speechMessages: Observable<RecognitionResult>;
-    // languages: string[] = ['tr', 'en', 'es', 'de', 'fr'];
-    // currentLanguage = 'tr';
-    // finalTranscript: string;
-    // targetLanguage = 'fr';
-    // foods: Observable<MediaDeviceInfo[]>;
-    // startButtonDisabled: boolean;
-    // recognizing = false;
-    // localStream: MediaStream;
-    // private constraints = {
-    //     video: false,
-    //     audio: true
-    // };
-    // mitext = '';
     alive = true;
     height: number;
     thumbWidth = 174;
@@ -121,21 +107,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         };
         this.isManager = this.userService.dbUser && (this.userService.dbUser.roles.includes('ROLE_ADMIN')
         || this.userService.dbUser.roles.includes('ROLE_MODERATOR'));
-        // this.speechService.init();
-        // if (this.speechService._supportRecognition) {
-        //     this.speechService.initializeSettings(this.currentLanguage);
-        //     this.speechMessages = this.speechService.getMessage().pipe(map((text) => {
-        //         this.finalTranscript = text.transcript;
-        //         if (text.transcript && text.info === 'final_transcript') {
-        //             this.handleSentence(this.finalTranscript);
-        //         } else if (text.transcript && text.info === 'print') {
-        //             this.handleSendButton(text.transcript);
-        //         }
-        //         return text;
-        //     }));
-        // } else {
-        //     this.startButtonDisabled = true;
-        // }
     }
 
     ngAfterViewInit() {
@@ -158,11 +129,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.sliderNext();
             } 
         });
-        // if (!this.speechService._supportRecognition) {
-        //     this._snackBar.open('Your Browser has no support for Speech!', 'Try Chrome for Speech!', {
-        //         duration: 3000,
-        //       });
-        // }
     }
     sliderNext() {
         if (this.sliderSlide + 1 === this.news$.mediaReviews.length) {
@@ -192,47 +158,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.playerS.play();
     }
 
-    // gotDevices(mediaDevices: MediaDeviceInfo[]) {
-    //     return mediaDevices.filter(value => value.kind === 'videoinput');
-    // }
-    // startCamera() {
-    //     if (this.startButton.nativeElement.innerHTML.startsWith('Start')) {
-    //         if (!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
-    //            // this.startButtonDisabled = true;
-    //             this.foods = from(navigator.mediaDevices.enumerateDevices()
-    //                 .then(this.gotDevices));
-    //             navigator.mediaDevices.getUserMedia(this.constraints)
-    //                 .then(this.attachVideo.bind(this))
-    //                 .catch(this.handleError);
-    //         } else {
-    //             alert('Sorry, camera not available.');
-    //         }
-    //     } else {
-    //         this.speechService.stop();
-    //         this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Start Microphone');
-    //         this.renderer.addClass(this.startButton.nativeElement, 'button-outline');
-    //         this.micStop(this.localStream);
-    //     }
-    // }
-    // onSelectLanguage(language: string) {
-    //     this.currentLanguage = language;
-    //     this.speechService.setLanguage(this.currentLanguage);
-    // }
-    // attachVideo(stream) {
-    //     this.localStream = stream;
-    //     if (this.speechService._supportRecognition) {
-    //         if (this.recognizing) {
-    //             this.speechService.stop();
-    //             return;
-    //         }
-    //         this.speechService.startSpeech(stream.startTime);
-    //         this.renderer.setProperty(this.startButton.nativeElement, 'innerHTML', 'Stop Microphone');
-    //         this.renderer.removeClass(this.startButton.nativeElement, 'button-outline');
-    //     }
-    // }
-    // handleError(error) {
-    //     console.log('Error: ', error);
-    // }
     get newsCounts(): Map<string, string> {
         return this.service.newsCounts;
     }
@@ -243,9 +168,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     set social(value: Observable<boolean>) {
         this._social = value;
     }
-    onClose(redir: string) {
-       // this.micStop(this.localStream);
-       this.commentsComponent.micStop();
+    onClose(redir: string) {      
         this.dialogRef.close(redir);
     }
 
@@ -255,6 +178,7 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.commentsComponent.micStop();
         if (this.listenerFn) {
             this.listenerFn();
         }
@@ -305,13 +229,14 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     currentDiv(n: number) {
-        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide].classList.remove('active');
+        this.slider.nativeElement.querySelectorAll('li')[this.sliderSlide].classList.remove('active');
         this.currentSlide = n;
         const offset = n * this.itemWidth;
         const myAnimation: AnimationFactory = this.buildAnimation(offset);
         this.player = myAnimation.create(this.carousel.nativeElement);
         this.player.play();
-        this.slider.nativeElement.querySelectorAll('li')[this.currentSlide].classList.add('active');
+        this.sliderSlide=n;
+        this.slider.nativeElement.querySelectorAll('li')[this.sliderSlide].classList.add('active');
     }
     trustIt(yh: string): string[] {
         this.tagList = yh.match(/.[^#]*/gi);
@@ -339,15 +264,6 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.service.activeLink = tag;
         this.onClose('/home');
     }
-    // handleKey = (evt) => {
-    //     if (evt.keyCode === 13 || evt.keyCode === 14) {
-    //             this.handleSendButton(this.textBox.nativeElement.value);
-    //     }
-    // }
-    // handleSentence = (text) => {
-    //       this.mitext += text;
-    //       this.speechService.mitext = this.mitext;
-    // }
     // handleSendButton = (text) => {
     //     const time = new Date();
     //     const timeStr = time.toLocaleTimeString();
@@ -361,15 +277,5 @@ export class NewsDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     //     this.speechService.mitext = this.mitext;
     //     this.service.setComment(text, this.userService.dbUser.id, this.news$.id);
     // }
-    // micStop(stream: MediaStream) {
-    //     let tracks = null;
-    //     if (stream != null) {
-    //         tracks = stream.getTracks();
-    //     }
-    //     if (tracks != null) {
-    //         tracks.forEach(function (track) {
-    //             track.stop();
-    //         });
-    //     }
-    // }
+
 }

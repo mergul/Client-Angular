@@ -7,6 +7,7 @@ import { NewsDetailsComponent } from './news-details.component';
 import { NewsService } from '../core/news.service';
 import {MatDialog, MatDialogRef, MatDialogConfig} from '@angular/material/dialog';
 import { WindowRef } from '../core/window.service';
+import { SpeechService } from '../core/speech-service';
 
 @Component({
   selector: 'app-details-container',
@@ -17,7 +18,7 @@ export class DialogDetailsContainerComponent implements OnDestroy {
   currentDialog: MatDialogRef<NewsDetailsComponent> = null;
 
   constructor( private modalService: MatDialog, private location: Location, private route: ActivatedRoute, private winRef: WindowRef,
-    private router: Router, private service: NewsService
+    private router: Router, private service: NewsService, private speechService: SpeechService
   ) {
     this.route.paramMap.pipe(takeUntil(this.destroy),
     switchMap((params: ParamMap) => this.service.getNewsById(params.get('id')))).subscribe(news => {
@@ -35,7 +36,8 @@ export class DialogDetailsContainerComponent implements OnDestroy {
         this.currentDialog = this.modalService.open(NewsDetailsComponent, dialogConfig);
         // Go back to home page after the modal is closed
         this.currentDialog.afterClosed().pipe(takeUntil(this.destroy)).subscribe(result => {
-            if (result && result !== '') {
+          this.speechService.navSpeech.next(true);
+          if (result && result !== '') {
               this.router.navigateByUrl(result, {state: {userID: news.ownerId}});
             } else { this.location.back(); }
           });

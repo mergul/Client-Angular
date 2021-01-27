@@ -1,10 +1,11 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, Renderer2, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { User } from '../core/user.model';
 import { UserService } from '../core/user.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription, Subject } from 'rxjs';
 import { WindowRef } from '../core/window.service';
 import { takeUntil } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-profile-card',
@@ -23,9 +24,9 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
     listStyle = {};
     @ViewChild('followButton', {static: false}) followButton: ElementRef;
 
-    constructor(public userService: UserService,
+    constructor(public userService: UserService, private router: Router,
         public domSanitizer: DomSanitizer, private renderer: Renderer2,
-        private winRef: WindowRef) {
+        public route: ActivatedRoute, private winRef: WindowRef) {
     }
     @Input()
     get user(): User {
@@ -104,4 +105,7 @@ export class ProfileCardComponent implements OnInit, OnDestroy {
             });
         }
     }
+    // onClick(url, newsOwnerId) {
+    //     this.router.navigateByUrl(url, { relativeTo: this.route, state: { userID: '@' + newsOwnerId, loggedID: this.userService.loggedUser ? this.userService.loggedUser.id : '' } });
+    // }
 }

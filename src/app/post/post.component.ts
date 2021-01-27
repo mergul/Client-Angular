@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CommentsComponent } from '../comments/comments.component';
 import { NewsPayload } from '../core/news.model';
@@ -27,7 +27,7 @@ export class PostComponent implements OnInit, OnDestroy {
   @ViewChild(CommentsComponent) commentsComponent: CommentsComponent;
   @ViewChild('miButton', { static: true }) miButton: ElementRef;
 
-  constructor(private userService: UserService, private newsService: NewsService
+  constructor(private userService: UserService, private newsService: NewsService, private route: ActivatedRoute
     , private router: Router, private reactiveService: ReactiveStreamsService, private winRef: WindowRef) { }
 
   ngOnInit(): void {
@@ -62,6 +62,10 @@ export class PostComponent implements OnInit, OnDestroy {
   }
   onClick(url, newsOwnerId) {
     this.router.navigateByUrl(url, { state: { userID: '@' + newsOwnerId, loggedID: this.userService.loggedUser ? this.userService.loggedUser.id : '' } });
+  }
+  navigate() {
+    this.commentsComponent.micStop();
+    this.router.navigate([this._news.newsId], { relativeTo: this.route.parent});
   }
   get newsCounts(): Map<string, string> {
     return this.newsService.newsCounts;
